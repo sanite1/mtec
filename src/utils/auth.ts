@@ -65,23 +65,11 @@ export const isAuthenticated = (): boolean => {
   }
 };
 
-export const isPatient = (): boolean => {
+export const isAdmin = (): boolean => {
   try {
     const decodedToken = getDecodedJwt();
     if (decodedToken) {
-      return decodedToken.role === "PATIENT";
-    }
-    return false;
-  } catch {
-    return false;
-  }
-};
-
-export const isDoctor = (): boolean => {
-  try {
-    const decodedToken = getDecodedJwt();
-    if (decodedToken) {
-      return decodedToken.role === "DOCTOR";
+      return decodedToken.role === "admin";
     }
     return false;
   } catch {
