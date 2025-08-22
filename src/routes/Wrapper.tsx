@@ -1,18 +1,21 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Auth from "../components/routes/AuthRouter";
-import Home from "../components/Home";
+import Home from "../pages/Home";
+import MainLayout from "../shared/layouts/MainLayout";
+import About from "../components/About";
 
 export const RoutesWrapper: React.FC = () => {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      {/* Routes that share the Navbar */}
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+      </Route>
+
+      {/* Routes without Navbar (e.g., login/register) */}
       <Route path="/*" element={<Auth />} />
-      {/* <Route element={<MainLayout />}>
-    <Route element={<AdminGuard />}>
-      <Route path="/admin/*" element={<AdminRouter />} />
-    </Route>
-  </Route> */}
     </Routes>
   );
 };

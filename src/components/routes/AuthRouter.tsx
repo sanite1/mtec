@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import Home from "../Home";
+import Home from "../../pages/Home";
 import About from "../About";
 
 export const Auth: React.FC = () => {
