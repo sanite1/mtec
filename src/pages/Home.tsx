@@ -1,6 +1,8 @@
 import React from "react";
-import Navbar from "../shared/layouts/Navbar";
-
 export default function Home() {
-  return <div>Home lol</div>;
+  return (
+    <div className="bg-red-500 text-white p-12 text-xl">
+      Tailwind is working 🎉
+    </div>
+  );
 }
