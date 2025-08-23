@@ -10,7 +10,7 @@ const MainLayout: React.FC = () => {
       <Navbar />
 
       {/* This is where child routes render */}
-      <Box sx={{ mt: 8, p: 2 }}>
+      <Box>
         <Outlet />
       </Box>
     </Box>

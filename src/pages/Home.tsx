@@ -1,8 +1,5 @@
 import React from "react";
+// import HeroSection from "../components/home/HeroSection";
 export default function Home() {
-  return (
-    <div className="bg-red-500 text-white p-12 text-xl">
-      Tailwind is working 🎉
-    </div>
-  );
+  return <div className="">{/* <HeroSection /> */}</div>;
 }
