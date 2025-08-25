@@ -4,13 +4,13 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 
 // Import your images
-import img1 from "./spaceBg.png"; // background (optional if you still want it)
-import homeImg from "./homeIntro.png"; // main hero image
+import img1 from "../../assets/spaceBg.png";
+import homeImg from "../../assets/homeIntro.png";
 
 const HeroSection: React.FC = () => {
   return (
     <div
-      className="relative w-full h-fit lg:h-screen mb-36 overflow-hidden flex items-center"
+      className="relative w-full h-fit lg:h-screen overflow-hidden flex items-center"
       style={{
         backgroundImage: `url(${img1})`,
         backgroundSize: "cover",
@@ -29,21 +29,23 @@ const HeroSection: React.FC = () => {
         >
           <h1 className="text-4xl lg:text-5xl font-bold leading-tight">
             <span className="bg-gradient-to-r from-[#1E3A8A] via-[#10B981] to-[#3B82F6] text-transparent bg-clip-text">
-              Powering Innovation with MTEC Solutions
+              Build it your way. Your future in commerce starts here.
             </span>
           </h1>
 
           <p className="mt-4 text-lg text-gray-200">
-            Transform your business with cutting-edge technology and expert
-            consulting. At MTEC, we deliver innovative solutions that empower
-            organizations to grow, scale, and lead in today’s digital world.
+            With MTEC, you don’t just build an online store — you build a
+            business on your terms. Think big, sell bigger. From custom
+            storefronts to seamless payments, inventory control, and
+            multi-channel selling, MTEC gives you the flexibility to grow at
+            your pace and the tools to go beyond your goals.
           </p>
 
           <Link
             to="/signup"
             className="mt-6 w-fit inline-block bg-[#1E3A8A] text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-[#15306D] transition cursor-pointer"
           >
-            Get Started with MTEC
+            Discover MTEC
           </Link>
         </div>
 
@@ -52,7 +54,11 @@ const HeroSection: React.FC = () => {
           className="flex justify-center items-center w-full h-full"
           data-aos="fade-left"
         >
-          <img src={homeImg} alt="MTEC Hero" className="w-auto h-auto" />
+          <img
+            src={homeImg}
+            alt="MTEC Hero"
+            className="w-auto h-auto overflow-hidden"
+          />
         </div>
       </section>
     </div>
