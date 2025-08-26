@@ -89,20 +89,23 @@ const FeaturesSection: React.FC = () => {
         Power Your Business with <span className="text-blue-600">MTEC</span> —
         Sell Products and Services Effortlessly
       </h2>
-      <div className="grid lg:grid-cols-4 gap-12 items-center">
+      <div className="grid lg:grid-cols-4 gap-0 lg:gap-12 items-center">
         {/* Image Section */}
-        <div data-aos="fade-right" className="col-span-1 w-full h-full">
+        <div
+          data-aos="fade-right"
+          className="col-span-4 lg:col-span-1 w-full h-full mb-8 lg:mb-0"
+        >
           <img
             src={img1}
             alt="MTEC Dashboard"
-            className="rounded-xl shadow-lg h-full"
+            className="rounded-xl shadow-lg h-full w-full"
           />
         </div>
 
         {/* Content Section */}
         <div data-aos="fade-left" className="col-span-3">
           {/* Features Grid */}
-          <div className="grid sm:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-3 gap-8 w-full">
             {features.map((feature, index) => (
               <div
                 data-aos="fade-up"

@@ -24,7 +24,7 @@ const HeroSection: React.FC = () => {
       <section className="relative z-10 grid grid-cols-1 lg:grid-cols-2 w-full h-full items-center px-6 lg:px-0 gap-8 pt-[15vh] lg:pt-[10vh]">
         {/* Left Side - Text */}
         <div
-          className="text-white flex flex-col justify-center mx-auto lg:mx-0 pl-[10vw]"
+          className="text-white flex flex-col justify-center mx-auto lg:mx-0 lg:pl-[10vw]"
           data-aos="fade-up"
         >
           <h1 className="text-4xl lg:text-5xl font-bold leading-tight">
