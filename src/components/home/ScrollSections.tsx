@@ -1,3 +1,4 @@
+import GlobalPayments from "./GlobalPaymentsSection";
 import StartupSteps from "./SetupSteps";
 
 // components/ScrollSections.tsx
@@ -10,8 +11,8 @@ export default function ScrollSections() {
       </div>
 
       {/* Section B */}
-      <div className="sticky top-[50px] z-20 min-h-screen bg-[#1E3A8A] flex items-center justify-center text-white text-4xl rounded-t-[50px]">
-        Component B
+      <div className="sticky top-[50px] z-20 bg-[#0d1733] flex items-center justify-center text-white text-4xl rounded-t-[50px]">
+        <GlobalPayments />
       </div>
 
       {/* Section C */}
