@@ -3,14 +3,14 @@ import StartupSteps from "./SetupSteps";
 // components/ScrollSections.tsx
 export default function ScrollSections() {
   return (
-    <div className="relative">
+    <div className="relative  min-h-[300vh]">
       {/* Section A */}
-      <div className="sticky top-0 z-10 h-fit bg-gray-200 flex items-center justify-center text-white text-4xl rounded-t-[50px]">
+      <div className="sticky top-0 z-10 bg-gray-200 flex items-center justify-center text-white text-4xl rounded-t-[50px]">
         <StartupSteps />
       </div>
 
       {/* Section B */}
-      <div className="sticky top-[50px] z-20 h-screen bg-green-500 flex items-center justify-center text-white text-4xl rounded-t-[50px]">
+      <div className="sticky top-[50px] z-20 min-h-screen bg-[#1E3A8A] flex items-center justify-center text-white text-4xl rounded-t-[50px]">
         Component B
       </div>
 
