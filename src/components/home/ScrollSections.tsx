@@ -6,7 +6,7 @@ import priceBg from "../../assets/pricingBg.png";
 // components/ScrollSections.tsx
 export default function ScrollSections() {
   return (
-    <div className="relative  min-h-[300vh]">
+    <div className="relative ">
       {/* Section A */}
       <div className="sticky bottom-0 z-30 bg-[#0d1733] border-0">
         <div className=" flex items-center bg-gray-200 justify-center text-white text-4xl rounded-b-[50px] h-full">
