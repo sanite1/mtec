@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 
+import background from "../../assets/bluegradient.png";
 const faqs = [
   {
     question: "What services does MTEC provide?",
@@ -36,14 +37,21 @@ export default function FAQSection() {
   };
 
   return (
-    <section className="bg-[#1c1c1c] text-white py-16 px-6">
+    <section
+      style={{
+        backgroundImage: `url(${background})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+      className="bg-[#1c1c1c] text-white py-16 px-6"
+    >
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
         {/* Left Content */}
         <div>
-          <h2 className="text-4xl font-bold mb-4">
+          <h2 className="text-4xl font-bold mb-4 text-white">
             Frequently Asked Questions
           </h2>
-          <p className="text-gray-400">
+          <p className="text-gray-50">
             At <span className="text-blue-400 font-semibold">MTEC</span>, we
             believe in clarity. Here are answers to common questions our clients
             ask about our services and approach.
