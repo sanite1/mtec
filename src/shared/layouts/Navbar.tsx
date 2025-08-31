@@ -13,7 +13,7 @@ export default function Header() {
   const [bgColor, setBgColor] = useState(
     pathname.pathname === "/home"
       ? "bg-transparent text-white"
-      : "bg-transparent text-black",
+      : "bg-transparent text-black"
   );
   //   const [isCardOpen, setIsCardOpen] = useState(false);
 
@@ -28,7 +28,7 @@ export default function Header() {
         }
       } else {
         if (window.scrollY > 0) {
-          setBgColor("bg-transparent text-white");
+          setBgColor("bg-transparent text-black");
         } else {
           setBgColor("bg-transparent text-black");
         }
@@ -47,7 +47,7 @@ export default function Header() {
       }
     } else {
       if (window.scrollY > 0) {
-        setBgColor("bg-transparent text-white");
+        setBgColor("bg-transparent text-black");
       } else {
         setBgColor("bg-transparent text-black");
       }

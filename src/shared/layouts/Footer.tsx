@@ -145,9 +145,6 @@ export default function Footer() {
           <a href="/sitemap" className="hover:text-white">
             Sitemap
           </a>
-          <a href="/privacy-choices" className="hover:text-white">
-            Privacy Choices
-          </a>
         </div>
 
         {/* Social Icons */}
