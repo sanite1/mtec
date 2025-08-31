@@ -34,7 +34,7 @@ export const getFormattedTime = (dateTime: string | Date): string => {
 // 📌 3. Get duration between two dates
 export const getDuration = (
   startDateTime: string | Date,
-  endDateTime: string | Date
+  endDateTime: string | Date,
 ): { hours: number; minutes: number } => {
   const startDate = new Date(startDateTime);
   const endDate = new Date(endDateTime);

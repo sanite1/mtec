@@ -7,7 +7,7 @@ type FieldsMap = Record<string, string>;
 
 const handleApiError = (
   error: AxiosError<any> | unknown,
-  fields: FieldsMap = {}
+  fields: FieldsMap = {},
 ): string => {
   if (process.env.NODE_ENV !== "production") {
     console.warn("[Axios Error]", error, (error as AxiosError)?.response);
