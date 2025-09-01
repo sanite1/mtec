@@ -18,8 +18,6 @@ export default function Home() {
       <SupportSection />
 
       <FAQSection />
-
-      <StickyBottomNavbar />
     </div>
   );
 }

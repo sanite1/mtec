@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import { Box } from "@mui/material";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import StickyBottomNavbar from "./StickyNavbar";
 
 const MainLayout: React.FC = () => {
   return (
@@ -13,6 +14,8 @@ const MainLayout: React.FC = () => {
       {/* This is where child routes render */}
       <Box>
         <Outlet />
+
+        <StickyBottomNavbar />
       </Box>
 
       <Footer />

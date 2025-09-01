@@ -29,15 +29,15 @@ const StickyBottomNavbar = () => {
 
       {/* Sticky Navbar */}
       {visible && (
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-lg rounded-2xl border border-white/20 bg-white/30 backdrop-blur-md shadow-lg p-4 flex justify-around items-center transition-all duration-300">
+        <div className="fixed font-semibold bottom-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-lg rounded-2xl border border-white/20 bg-white/30 backdrop-blur-md shadow-lg p-4 flex justify-around items-center transition-all duration-300">
           <Link to="/about" className="hover:text-[#e28580] transition">
             About Us
           </Link>
           <Link to="/services" className="hover:text-[#e28580] transition">
             Services
           </Link>
-          <Link to="/blog" className="hover:text-[#e28580] transition">
-            Blog
+          <Link to="/pricing" className="hover:text-[#e28580] transition">
+            Pricing
           </Link>
           <Link to="/contact" className="hover:text-[#e28580] transition">
             Contact Us

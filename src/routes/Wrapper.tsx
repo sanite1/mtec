@@ -7,6 +7,7 @@ import About from "../components/About";
 import TermsOfServicePage from "../pages/TermsOfService";
 import PrivacyPolicy from "../pages/PrivacyPolicy";
 import UnderConstruction from "../shared/layouts/UnderConstructionPage";
+import PricingPage from "../pages/Pricing";
 
 export const RoutesWrapper: React.FC = () => {
   return (
@@ -17,6 +18,7 @@ export const RoutesWrapper: React.FC = () => {
         <Route path="/about" element={<About />} />
         <Route path="/terms" element={<TermsOfServicePage />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/pricing" element={<PricingPage />} />
         <Route path="/sitemap" element={<UnderConstruction />} />
       </Route>
 

@@ -19,39 +19,39 @@ export default function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (pathname.pathname === "/") {
-        if (window.scrollY > 0) {
-          //   setBgColor("bg-[#fff] text-black");
-          setBgColor("bg-transparent text-white");
-        } else {
-          setBgColor("bg-transparent text-white");
-        }
+      if (window.scrollY > 0) {
+        //   setBgColor("bg-[#fff] text-black");
+        setBgColor("bg-transparent text-white");
       } else {
-        if (window.scrollY > 0) {
-          setBgColor("bg-transparent text-black");
-        } else {
-          setBgColor("bg-transparent text-black");
-        }
+        setBgColor("bg-transparent text-white");
       }
+      // if (pathname.pathname === "/") {
+      // } else {
+      //   if (window.scrollY > 0) {
+      //     setBgColor("bg-transparent text-black");
+      //   } else {
+      //     setBgColor("bg-transparent text-black");
+      //   }
+      // }
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [pathname]);
 
   useEffect(() => {
-    if (pathname.pathname === "/") {
-      if (window.scrollY > 0) {
-        setBgColor("bg-transparent text-white");
-      } else {
-        setBgColor("bg-transparent text-white");
-      }
+    if (window.scrollY > 0) {
+      setBgColor("bg-transparent text-white");
     } else {
-      if (window.scrollY > 0) {
-        setBgColor("bg-transparent text-black");
-      } else {
-        setBgColor("bg-transparent text-black");
-      }
+      setBgColor("bg-transparent text-white");
     }
+    // if (pathname.pathname === "/") {
+    // } else {
+    //   if (window.scrollY > 0) {
+    //     setBgColor("bg-transparent text-black");
+    //   } else {
+    //     setBgColor("bg-transparent text-black");
+    //   }
+    // }
   }, [pathname]);
 
   return (
@@ -60,7 +60,7 @@ export default function Header() {
         bgColor === "bg-[#fff]" && "shadow-md"
       }`}
     >
-      <header className="overflow-hidden  bg-transparent shadow-lg ">
+      <header className="overflow-hidden  bg-transparent">
         <div className="mx-auto flex items-center justify-between px-6 lg:px-24 py-4 max-w-[90%] lg:max-w-[90%]">
           <div className="flex">
             {/* Logo */}
@@ -81,8 +81,8 @@ export default function Header() {
               <Link to="/services" className="hover:text-[#e28580] transition">
                 Services
               </Link>
-              <Link to="/blog" className="hover:text-[#e28580] transition">
-                Blog
+              <Link to="/pricing" className="hover:text-[#e28580] transition">
+                Pricing
               </Link>
               <Link to="/contact" className="hover:text-[#e28580] transition">
                 Contact Us
@@ -137,11 +137,11 @@ export default function Header() {
                 Services
               </Link>
               <Link
-                to="/blog"
+                to="/pricing"
                 onClick={() => setIsOpen(false)}
                 className="block text-gray-800 font-medium hover:text-[#e28580] transition"
               >
-                Blog
+                Pricing
               </Link>
               <Link
                 to="/contact"
