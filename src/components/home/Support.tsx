@@ -10,7 +10,7 @@ const SupportSection: React.FC = () => {
       //     backgroundSize: "cover",
       //     backgroundPosition: "center",
       //   }}
-      className="mb-[50px] bg-gradient-to-r from-[#12255a] to-[#1e3a8a] text-white py-16 px-8 rounded-2xl shadow-xl max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center"
+      className="bg-gradient-to-r from-[#12255a] to-[#1e3a8a] text-white py-16 px-8 rounded-2xl shadow-xl max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center"
     >
       {/* LEFT CONTENT */}
       <div className="space-y-6 text-center lg:text-left">

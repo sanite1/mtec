@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import background from "../../assets/bluegradient.png";
 const faqs = [
   {
@@ -43,7 +42,7 @@ export default function FAQSection() {
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
-      className="bg-[#1c1c1c] text-white py-16 px-6"
+      className="bg-[#1c1c1c] text-white py-16 px-6 mt-[50px]"
     >
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
         {/* Left Content */}

@@ -17,8 +17,7 @@ const PricingCards = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-indigo-50 via-white to-indigo-50 min-h-screen text-gray-800">
-      {/* Hero Section */}
+    <div id="pricing-cards" className=" min-h-screen text-gray-800">
       <section className="text-center py-16 px-6">
         <h1 className="text-4xl md:text-5xl font-bold mb-4">
           Find the right plan for you

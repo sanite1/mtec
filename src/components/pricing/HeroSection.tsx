@@ -2,6 +2,13 @@
 import React from "react";
 
 const HeroSection: React.FC = () => {
+  const handleScroll = (id: string) => {
+    const section = document.getElementById(id);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
     <section className="relative bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white">
       {/* Background Decorative Shapes */}
@@ -30,7 +37,10 @@ const HeroSection: React.FC = () => {
             <button className="px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold shadow-lg transition">
               Get Started Free
             </button>
-            <button className="px-6 py-3 rounded-xl bg-white text-gray-900 font-semibold hover:bg-gray-100 transition">
+            <button
+              onClick={() => handleScroll("pricing-cards")}
+              className="px-6 py-3 rounded-xl bg-white text-gray-900 font-semibold hover:bg-gray-100 transition"
+            >
               View Pricing
             </button>
           </div>
