@@ -3,11 +3,12 @@ import { Routes, Route } from "react-router-dom";
 import Auth from "../components/routes/AuthRouter";
 import Home from "../pages/Home";
 import MainLayout from "../shared/layouts/MainLayout";
-import About from "../components/About";
+// import About from "../components/About";
 import TermsOfServicePage from "../pages/TermsOfService";
 import PrivacyPolicy from "../pages/PrivacyPolicy";
 import UnderConstruction from "../shared/layouts/UnderConstructionPage";
 import PricingPage from "../pages/Pricing";
+import About from "../pages/About";
 
 export const RoutesWrapper: React.FC = () => {
   return (

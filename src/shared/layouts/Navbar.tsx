@@ -76,7 +76,7 @@ export default function Header() {
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-8 text-sm font-medium pl-6 ml-6 border-l border-white">
               <Link to="/about" className="hover:text-[#e28580] transition">
-                About Us
+                About
               </Link>
               <Link to="/services" className="hover:text-[#e28580] transition">
                 Services
@@ -127,7 +127,7 @@ export default function Header() {
                 onClick={() => setIsOpen(false)}
                 className="block text-gray-800 font-medium hover:text-[#e28580] transition"
               >
-                About Us
+                About
               </Link>
               <Link
                 to="/services"

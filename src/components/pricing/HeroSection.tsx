@@ -17,11 +17,11 @@ const HeroSection: React.FC = () => {
         <div className="absolute top-40 -right-20 w-96 h-96 bg-blue-600 rounded-full blur-3xl opacity-30"></div>
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-6 py-28 lg:flex lg:items-center lg:gap-12">
+      <div className="relative container max-w-7xl mx-auto px-6 py-28 lg:flex lg:items-center lg:gap-12">
         {/* Left Content */}
         <div className="lg:w-1/2 text-center lg:text-left space-y-6">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight">
-            Build, Customize & Sell <br />
+            Build, Customize & Sell.{" "}
             <span className="text-purple-400 sm:text-5xl lg:text-6xl ">
               Your Online Store
             </span>

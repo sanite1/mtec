@@ -1,5 +1,6 @@
 import React from "react";
 import background from "../../assets/bluegradient.png";
+// import background from "../../assets/pricingPageBg.png";
 
 const SimilarFeatures = () => {
   const features = [
