@@ -49,8 +49,8 @@ export default function Footer() {
           <h3 className="text-lg font-semibold text-white mb-4">Platform</h3>
           <ul className="space-y-2 text-sm">
             <li>
-              <a href="/features" className="hover:text-white">
-                Features
+              <a href="/services" className="hover:text-white">
+                Services
               </a>
             </li>
             <li>
