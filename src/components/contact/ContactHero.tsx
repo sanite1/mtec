@@ -1,6 +1,13 @@
 import { ArrowDown } from "lucide-react";
 
 const ContactHero = () => {
+  const handleScroll = (id: string) => {
+    const section = document.getElementById(id);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
     <section className="relative bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white py-28 overflow-hidden">
       <div className="absolute inset-0">
@@ -13,13 +20,13 @@ const ContactHero = () => {
           Have questions or need assistance? We’re here to help. Reach out and
           let’s make something amazing together.
         </p>
-        <a
-          href="#contact-form"
-          className="inline-flex items-center gap-2 bg-white text-indigo-600 font-semibold px-6 py-3 rounded-full shadow-lg hover:bg-gray-100 transition-all duration-300"
+        <button
+          onClick={() => handleScroll("contact-us")}
+          className="inline-flex items-center gap-2 cursor-pointer bg-white text-indigo-600 font-semibold px-6 py-3 rounded-full shadow-lg hover:bg-gray-100 transition-all duration-300"
         >
           Contact Us
           <ArrowDown className="w-5 h-5" />
-        </a>
+        </button>
       </div>
 
       {/* Decorative element */}

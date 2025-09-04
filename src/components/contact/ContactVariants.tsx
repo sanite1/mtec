@@ -44,7 +44,7 @@ const ContactVariants = () => {
   const [ticketOpen, setTicketOpen] = useState(false);
 
   return (
-    <section className="bg-gray-50 py-20">
+    <section id="contact-us" className="bg-gray-50 py-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="flex flex-col lg:flex-row gap-6 h-[1000px] lg:h-[420px]">
           {contactOptions.map((option) => (

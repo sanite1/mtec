@@ -11,6 +11,7 @@ import PricingPage from "../pages/Pricing";
 import About from "../pages/About";
 import Services from "../pages/Services";
 import Contact from "../pages/Contact";
+import FaqsPage from "../pages/Faq";
 
 export const RoutesWrapper: React.FC = () => {
   return (
@@ -24,6 +25,7 @@ export const RoutesWrapper: React.FC = () => {
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/services" element={<Services />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/faq" element={<FaqsPage />} />
         <Route path="/sitemap" element={<UnderConstruction />} />
       </Route>
 
