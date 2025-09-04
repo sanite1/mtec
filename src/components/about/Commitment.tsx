@@ -1,6 +1,5 @@
 import { GlobeLock, LeafIcon, UsersIcon } from "lucide-react";
 import React from "react";
-// import { LeafIcon, UsersIcon, GlobeAltIcon } from "@heroicons/react/24/outline";
 
 const OurSustainability = () => {
   return (

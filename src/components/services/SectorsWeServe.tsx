@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import fashionSector from "../../assets/fashionSector.png";
 import cosmeticsSector from "../../assets/cosmeticsSector.png";
 import homeSector from "../../assets/homeSector.png";

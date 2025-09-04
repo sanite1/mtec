@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -8,6 +8,10 @@ import img1 from "../../assets/spaceBg.png";
 import homeImg from "../../assets/homeIntro.png";
 
 const HeroSection: React.FC = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    AOS.init({ duration: 1000 });
+  }, []);
   return (
     <div
       className="relative w-full h-fit lg:h-screen overflow-hidden flex items-center"

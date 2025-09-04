@@ -10,6 +10,7 @@ import UnderConstruction from "../shared/layouts/UnderConstructionPage";
 import PricingPage from "../pages/Pricing";
 import About from "../pages/About";
 import Services from "../pages/Services";
+import Contact from "../pages/Contact";
 
 export const RoutesWrapper: React.FC = () => {
   return (
@@ -22,6 +23,7 @@ export const RoutesWrapper: React.FC = () => {
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/services" element={<Services />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/sitemap" element={<UnderConstruction />} />
       </Route>
 

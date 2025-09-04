@@ -1,9 +1,15 @@
 // PricingSection.tsx
-import React from "react";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import RequestDemoModal from "../contact/RequestDemoModal";
 
 const PricingSection: React.FC = () => {
+  const [demoOpen, setDemoOpen] = useState(false);
+
   return (
     <div className="bg-gradient-to-r py-20 px-6 text-black">
+      <RequestDemoModal open={demoOpen} setOpen={setDemoOpen} />
+
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
         {/* LEFT CONTENT */}
         <div className="text-center lg:text-left">
@@ -21,11 +27,20 @@ const PricingSection: React.FC = () => {
           </p>
 
           {/* Buttons */}
-          <div className="mt-6 flex  gap-4 justify-center lg:justify-start">
-            <button className="bg-red-500 text-white px-6 py-2 text-lg rounded-lg font-semibold hover:bg-red-400 transition">
-              Request Pricing
-            </button>
-            <button className="bg-purple-600 text-white text-lg  px-6 py-2 rounded-lg font-semibold hover:bg-purple-500 transition">
+          <div className="mt-6 flex gap-4 justify-center lg:justify-start">
+            {/* Pricing Link */}
+            <Link
+              to="/pricing"
+              className="bg-red-500 text-white px-6 py-2 text-lg rounded-lg font-semibold hover:bg-red-400 transition"
+            >
+              View Pricing
+            </Link>
+
+            {/* Demo Modal Button */}
+            <button
+              onClick={() => setDemoOpen(true)}
+              className="bg-purple-600 text-white text-lg px-6 py-2 rounded-lg font-semibold hover:bg-purple-500 transition"
+            >
               Schedule a Demo
             </button>
           </div>
@@ -33,7 +48,7 @@ const PricingSection: React.FC = () => {
           {/* Small Business Link */}
           <p className="mt-6 text-sm text-gray-500">
             Looking for small business plans?{" "}
-            <a href="#" className="underline hover:text-purple-500">
+            <a href="/pricing" className="underline hover:text-purple-500">
               View Essentials
             </a>
           </p>

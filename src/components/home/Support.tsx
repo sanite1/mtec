@@ -1,17 +1,10 @@
 // SupportSection.tsx
 import React from "react";
-import background from "../../assets/bluegradient.png";
+import { Link } from "react-router-dom";
 
 const SupportSection: React.FC = () => {
   return (
-    <div
-      //   style={{
-      //     backgroundImage: `url(${background})`,
-      //     backgroundSize: "cover",
-      //     backgroundPosition: "center",
-      //   }}
-      className="bg-gradient-to-r from-[#12255a] to-[#1e3a8a] text-white py-16 px-8 rounded-2xl shadow-xl max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center"
-    >
+    <div className="bg-gradient-to-r from-[#12255a] to-[#1e3a8a] text-white py-16 px-8 rounded-2xl shadow-xl max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
       {/* LEFT CONTENT */}
       <div className="space-y-6 text-center lg:text-left">
         <h1 className="text-4xl font-bold leading-snug">
@@ -23,9 +16,14 @@ const SupportSection: React.FC = () => {
           operations, we’ll guide you every step of the way.
         </p>
 
-        <button className="bg-yellow-400 text-[#12255a] px-8 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition">
-          Contact MTEC Support
-        </button>
+        <div className="mt-5">
+          <Link
+            to="/contact"
+            className=" bg-yellow-400 text-[#12255a] px-8 py-3 text-lg rounded-lg font-semibold hover:bg-yellow-300 transition"
+          >
+            Contact MTEC Support
+          </Link>
+        </div>
       </div>
 
       {/* RIGHT VISUALS */}

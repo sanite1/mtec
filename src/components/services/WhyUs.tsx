@@ -1,4 +1,4 @@
-import { Boxes, Globe, Headset, Lock, Store } from "lucide-react";
+import { Boxes, Headset, Lock, Store } from "lucide-react";
 import background from "../../assets/bluegradient.png";
 
 const KeyFeatures = () => {
