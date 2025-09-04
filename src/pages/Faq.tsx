@@ -136,8 +136,9 @@ const FAQsPage = () => {
   };
 
   return (
-    <div className="">
+    <div className="relative">
       <div className="bg-black w-full h-[8vh] lg:h-[10vh]"></div>
+
       <div className="bg-gray-50 min-h-screen py-16 px-6">
         {/* Hero Section */}
         <div className="max-w-4xl mx-auto text-center mb-12">
