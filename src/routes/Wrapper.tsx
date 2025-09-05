@@ -14,6 +14,7 @@ import Contact from "../pages/Contact";
 import FaqsPage from "../pages/Faq";
 import BlogsPage from "../pages/Blog";
 import BlogPost from "../pages/BlogPost";
+import HelpCenter from "../pages/HelpCenter";
 
 export const RoutesWrapper: React.FC = () => {
   return (
@@ -28,6 +29,7 @@ export const RoutesWrapper: React.FC = () => {
         <Route path="/services" element={<Services />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/faq" element={<FaqsPage />} />
+        <Route path="/help" element={<HelpCenter />} />
         <Route path="/blog" element={<BlogsPage />} />
         <Route path="/blogs/:slug" element={<BlogPost />} />
         <Route path="/sitemap" element={<UnderConstruction />} />
