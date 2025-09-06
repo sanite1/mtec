@@ -1,7 +1,7 @@
 import React from "react";
-import { blogData } from "../modules/platform/data/blogData";
 import { Link } from "react-router-dom";
 import priceBg from "../assets/pricingBg.png";
+import { blogData } from "../data/blogData";
 
 const BlogsPage = () => {
   return (

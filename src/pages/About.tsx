@@ -1,9 +1,9 @@
 import React from "react";
-import AboutHero from "../components/about/AboutHero";
-import OurStory from "../components/about/OurStory";
-import OurMission from "../components/about/OurMission";
-import OurSustainability from "../components/about/Commitment";
-import FAQSection from "../components/home/Faqs";
+import AboutHero from "../modules/platform/components/about/AboutHero";
+import OurStory from "../modules/platform/components/about/OurStory";
+import OurMission from "../modules/platform/components/about/OurMission";
+import OurSustainability from "../modules/platform/components/about/Commitment";
+import FAQSection from "../modules/platform/components/home/Faqs";
 
 export default function About() {
   return (

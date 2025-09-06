@@ -1,6 +1,6 @@
 import React from "react";
-import HeroSection from "../modules/platform/components/Help/HeroSection";
-import JoinCommunity from "../modules/platform/components/Help/Community";
+import HeroSection from "../components/Help/HeroSection";
+import JoinCommunity from "../components/Help/Community";
 
 const HelpCenter = () => {
   return (

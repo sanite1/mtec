@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams, Link } from "react-router-dom";
-import { blogData } from "../modules/platform/data/blogData";
+import { blogData } from "../data/blogData";
 
 export default function BlogPost() {
   const { slug } = useParams();

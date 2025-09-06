@@ -1,6 +1,5 @@
 import React from "react";
-
-import { RoutesWrapper } from "./routes/Wrapper";
+import RoutesWrapper from "./routes/Wrapper";
 
 const App: React.FC = () => {
   return (

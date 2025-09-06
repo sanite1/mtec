@@ -1,9 +1,9 @@
 import React from "react";
-import HeroSection from "../components/home/HeroSection";
-import FeaturesSection from "../components/home/FeaturesSection";
-import ScrollSections from "../components/home/ScrollSections";
-import SupportSection from "../components/home/Support";
-import FAQSection from "../components/home/Faqs";
+import HeroSection from "../modules/platform/components/home/HeroSection";
+import FeaturesSection from "../modules/platform/components/home/FeaturesSection";
+import ScrollSections from "../modules/platform/components/home/ScrollSections";
+import SupportSection from "../modules/platform/components/home/Support";
+import FAQSection from "../modules/platform/components/home/Faqs";
 
 export default function Home() {
   return (

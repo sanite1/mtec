@@ -1,8 +1,8 @@
 import React from "react";
-import HeroSection from "../components/pricing/HeroSection";
-import PricingCards from "../components/pricing/PricingCards";
-import SupportSection from "../components/home/Support";
-import MTECFeatures from "../components/pricing/SimilarFeatures";
+import HeroSection from "../modules/platform/components/pricing/HeroSection";
+import PricingCards from "../modules/platform/components/pricing/PricingCards";
+import SupportSection from "../modules/platform/components/home/Support";
+import MTECFeatures from "../modules/platform/components/pricing/SimilarFeatures";
 
 export default function Pricing() {
   return (
