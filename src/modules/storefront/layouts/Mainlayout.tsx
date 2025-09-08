@@ -40,7 +40,6 @@ const MainLayout: React.FC = () => {
           { label: "Contact", href: "/contact" },
           { label: "Privacy Policy", href: "/privacy" },
         ]}
-        copyright="© 2025 MTEC. All rights reserved."
         bgColor="bg-gray-900"
         whatsappLink="https://wa.me/2349012345678"
       />

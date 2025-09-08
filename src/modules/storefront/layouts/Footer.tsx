@@ -13,7 +13,6 @@ interface FooterProps {
   phone: string;
   address: string;
   links?: FooterLink[];
-  copyright?: string;
   bgColor?: string; // dynamic background
   whatsappLink?: string;
 }
@@ -25,7 +24,6 @@ const Footer: React.FC<FooterProps> = ({
   phone,
   address,
   links = [],
-  copyright,
   bgColor = "bg-gray-900",
   whatsappLink = "https://wa.me/2349012345678",
 }) => {
@@ -34,11 +32,12 @@ const Footer: React.FC<FooterProps> = ({
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-10">
         {/* Logo & Description */}
         <div>
-          {logo ? (
+          {/* {logo ? (
             <img src={logo} alt="Logo" className="h-12 w-auto mb-4" />
           ) : (
-            <p className="text-2xl font-bold text-purple-500 mb-4">MTEC</p>
-          )}
+              <p className="text-2xl font-bold text-purple-500 mb-4">MTEC</p>
+            )} */}
+          <p className="text-5xl font-bold text-purple-500 mb-4">MTEC</p>
           {description && (
             <p className="text-sm leading-relaxed">{description}</p>
           )}
@@ -105,9 +104,10 @@ const Footer: React.FC<FooterProps> = ({
               </li>
             ))}
           </ul> */}
-          <p className="text-xs text-gray-400">
-            {copyright || "© 2025 MTEC. All rights reserved."}
-          </p>
+          <div className="inline-block px-4 py-2 rounded-md bg-gray-800 text-sm font-medium">
+            Powered by{" "}
+            <span className="text-purple-500 font-semibold">MTEC</span>
+          </div>
         </div>
       )}
 

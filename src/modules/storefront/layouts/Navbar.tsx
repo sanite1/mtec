@@ -10,7 +10,7 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
-    <nav className="w-full bg-white shadow-sm">
+    <nav className="w-full bg-white shadow-sm fixed top-0 z-30">
       <div className="container mx-auto px-4 flex items-center justify-between py-3">
         {/* Logo */}
         <div className="flex items-center space-x-2">
