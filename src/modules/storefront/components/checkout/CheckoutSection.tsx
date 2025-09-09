@@ -1,39 +1,38 @@
 // components/checkout/CheckoutSection.tsx
 import React, { useMemo, useState } from "react";
 import { Trash2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import AddressModal, { Address } from "./AddressModal";
-import wallet from "../../pages/wallet.png";
-import sneakers from "../../pages/sneakers.png";
-import { Link } from "react-router-dom";
-
-type CartItem = {
-  id: string;
-  name: string;
-  image: string;
-  price: number; // NGN
-  quantity: number;
-  meta?: string; // e.g. "Size: L"
-};
-
-const initialCart: CartItem[] = [
-  {
-    id: "1",
-    name: "Leather Wallet",
-    image: wallet,
-    price: 29000,
-    quantity: 1,
-  },
-  {
-    id: "2",
-    name: "Jogging Sneakers",
-    image: sneakers,
-    price: 30500,
-    quantity: 2,
-  },
-];
+import { useCart } from "../../context/CartContext";
 
 const CheckoutSection: React.FC = () => {
-  const [cart, setCart] = useState<CartItem[]>(initialCart);
+  const { state, dispatch } = useCart();
+  const { cart } = state;
+
+  const navigate = useNavigate();
+
+  const handlePlaceOrder = () => {
+    if (!address) {
+      alert("Please add a delivery address first");
+      return;
+    }
+
+    const order = {
+      id: Date.now(), // simple unique ID
+      items: cart,
+      total,
+      shipping: address,
+      date: new Date().toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }),
+    };
+
+    dispatch({ type: "SET_ORDER", payload: order });
+    dispatch({ type: "CLEAR_CART" });
+    navigate("/order-confirmation");
+  };
   const [note, setNote] = useState("");
   const [coupon, setCoupon] = useState("");
   const [address, setAddress] = useState<Address | null>(null);
@@ -47,20 +46,24 @@ const CheckoutSection: React.FC = () => {
   const total = subtotal + shipping;
 
   const updateQty = (id: string, delta: number) => {
-    setCart((prev) =>
-      prev.map((it) =>
-        it.id === id
-          ? { ...it, quantity: Math.max(1, it.quantity + delta) }
-          : it
-      )
-    );
+    const existing = cart.find((i) => i.id === id);
+    if (!existing) return;
+
+    const newQty = Math.max(1, existing.quantity + delta);
+
+    // remove + re-add with updated qty
+    dispatch({ type: "REMOVE_FROM_CART", payload: id });
+    dispatch({
+      type: "ADD_TO_CART",
+      payload: { ...existing, quantity: newQty },
+    });
   };
 
-  const removeItem = (id: string) =>
-    setCart((prev) => prev.filter((i) => i.id !== id));
+  const removeItem = (id: string) => {
+    dispatch({ type: "REMOVE_FROM_CART", payload: id });
+  };
 
   const applyCoupon = () => {
-    // placeholder
     alert(`Coupon "${coupon}" captured (no backend yet)`);
   };
 
@@ -127,60 +130,75 @@ const CheckoutSection: React.FC = () => {
           <h3 className="text-lg font-semibold mb-4 text-center">Your Order</h3>
 
           {/* Cart list */}
-          <div className="divide-y">
-            {cart.map((item) => (
-              <div
-                key={item.id}
-                className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4"
-              >
-                {/* info */}
-                <div className="flex items-center gap-4 sm:w-2/3 w-full">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-20 h-20 rounded-md object-cover border"
-                  />
-                  <div className="min-w-0">
-                    <p className="font-medium text-gray-800 truncate">
-                      {item.name}
-                    </p>
-                    {item.meta && (
-                      <p className="text-xs text-gray-500">{item.meta}</p>
-                    )}
-                    {/* qty controls on small width align below */}
-                    <div className="mt-2 flex items-center gap-2">
-                      <button
-                        onClick={() => updateQty(item.id, -1)}
-                        className="w-8 h-8 border rounded hover:bg-gray-50"
-                      >
-                        –
-                      </button>
-                      <span className="px-2">{item.quantity}</span>
-                      <button
-                        onClick={() => updateQty(item.id, 1)}
-                        className="w-8 h-8 border rounded hover:bg-gray-50"
-                      >
-                        +
-                      </button>
+          {cart.length === 0 ? (
+            <p className="text-gray-500 text-center">Your cart is empty.</p>
+          ) : (
+            <div className="divide-y">
+              {cart.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4"
+                >
+                  {/* info */}
+                  <div className="flex items-center gap-4 sm:w-2/3 w-full">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-20 h-20 rounded-md object-cover border"
+                    />
+                    <div className="min-w-0">
+                      <p className="font-medium text-gray-800 truncate">
+                        {item.name}
+                      </p>
+                      {item.selectedAttributes &&
+                        Object.keys(item.selectedAttributes).length > 0 && (
+                          <div className=" text-sm text-gray-500 space-x-1 flex">
+                            {Object.entries(item.selectedAttributes).map(
+                              ([key, value]) => (
+                                <p key={key}>
+                                  <span className="font-medium capitalize">
+                                    {key}:
+                                  </span>{" "}
+                                  {String(value)}
+                                </p>
+                              )
+                            )}
+                          </div>
+                        )}
+                      <div className="mt-2 flex items-center gap-2">
+                        <button
+                          onClick={() => updateQty(item.id, -1)}
+                          className="w-8 h-8 border rounded hover:bg-gray-50"
+                        >
+                          –
+                        </button>
+                        <span className="px-2">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQty(item.id, 1)}
+                          className="w-8 h-8 border rounded hover:bg-gray-50"
+                        >
+                          +
+                        </button>
 
-                      <button
-                        onClick={() => removeItem(item.id)}
-                        className="ml-3 text-gray-500 hover:text-red-500"
-                        aria-label="Remove item"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                        <button
+                          onClick={() => removeItem(item.id)}
+                          className="ml-3 text-gray-500 hover:text-red-500"
+                          aria-label="Remove item"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* line total */}
-                <p className="sm:w-1/3 w-full text-right font-semibold text-lime-600">
-                  ₦{(item.price * item.quantity).toLocaleString()}
-                </p>
-              </div>
-            ))}
-          </div>
+                  {/* line total */}
+                  <p className="sm:w-1/3 w-full text-right font-semibold text-lime-600">
+                    ₦{(item.price * item.quantity).toLocaleString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Totals & coupon */}
           <div className="mt-4 space-y-3 text-sm">
@@ -214,11 +232,13 @@ const CheckoutSection: React.FC = () => {
             </div>
           </div>
 
-          <Link to={"/order-confirmation"}>
-            <button className="mt-4 w-full bg-purple-600 hover:bg-purple-700 text-white rounded-lg py-3 font-medium">
-              Proceed To Payment
-            </button>
-          </Link>
+          <button
+            disabled={cart.length === 0}
+            onClick={handlePlaceOrder}
+            className="mt-4 w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg py-3 font-medium"
+          >
+            Proceed To Payment
+          </button>
         </div>
       </div>
 

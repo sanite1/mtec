@@ -1,6 +1,7 @@
 import { Flag, Locate, Search, ShoppingCart, Menu, X } from "lucide-react";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 
 interface NavbarProps {
   logo: string; // dynamic logo URL
@@ -9,6 +10,8 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ logo }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const { state } = useCart();
+  const totalItems = state.cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <nav className="w-full bg-white shadow-sm fixed top-0 z-30">
@@ -72,9 +75,11 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
           <Link to={"/cart"}>
             <div className="relative cursor-pointer">
               <ShoppingCart className="text-2xl" />
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                2
-              </span>
+              {totalItems > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
             </div>
           </Link>
 

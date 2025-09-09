@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ShoppingCart } from "lucide-react";
 import { Product } from "../../types/products";
+import { useCart } from "../../context/CartContext";
 
 interface ProductDetailsProps {
   product: Product;
@@ -11,18 +12,23 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
     Record<string, string>
   >({});
   const [quantity, setQuantity] = useState<number>(1);
+  const { dispatch } = useCart(); // ✅ access cart context
 
   const handleAttributeSelect = (key: string, value: string) => {
     setSelectedAttributes((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleAddToCart = () => {
-    console.log("Added to cart:", {
-      product,
-      selectedAttributes,
-      quantity,
+    dispatch({
+      type: "ADD_TO_CART",
+      payload: {
+        ...product,
+        quantity,
+        selectedAttributes,
+      },
     });
-    alert("Product added to cart ✅");
+
+    alert("✅ Product added to cart!");
   };
 
   return (
@@ -104,7 +110,19 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           {/* Add to Cart Button */}
           <button
             onClick={handleAddToCart}
-            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg shadow-md transition"
+            disabled={
+              product.attributes &&
+              product.attributes.length > 0 &&
+              Object.keys(selectedAttributes).length < product.attributes.length
+            }
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg shadow-md transition
+    ${
+      product.attributes &&
+      product.attributes.length > 0 &&
+      Object.keys(selectedAttributes).length < product.attributes.length
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-purple-600 hover:bg-purple-700 text-white"
+    }`}
           >
             <ShoppingCart className="w-5 h-5" />
             Add to Cart

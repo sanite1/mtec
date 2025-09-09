@@ -7,7 +7,7 @@ export default function OrderConfirmation() {
     window.scrollTo(0, 0);
   }, []);
   return (
-    <div>
+    <div className="bg-gray-100">
       {/* <OrderHero /> */}
 
       <OrderSummary />

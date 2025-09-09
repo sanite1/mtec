@@ -13,3 +13,8 @@ export interface Product {
   category?: string; // optional category
   attributes?: ProductAttribute[]; // e.g., Size, Color
 }
+
+export interface CartItem extends Product {
+  quantity: number;
+  selectedAttributes?: Record<string, string>;
+}
