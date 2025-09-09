@@ -1,5 +1,6 @@
 import { Flag, Locate, Search, ShoppingCart, Menu, X } from "lucide-react";
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 interface NavbarProps {
   logo: string; // dynamic logo URL
@@ -66,12 +67,14 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
           </div>
 
           {/* Cart */}
-          <div className="relative cursor-pointer">
-            <ShoppingCart className="text-2xl" />
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-              2
-            </span>
-          </div>
+          <Link to={"/cart"}>
+            <div className="relative cursor-pointer">
+              <ShoppingCart className="text-2xl" />
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                2
+              </span>
+            </div>
+          </Link>
 
           {/* Hamburger Menu (visible on mobile) */}
           <button

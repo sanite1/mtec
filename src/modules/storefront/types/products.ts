@@ -8,6 +8,7 @@ export interface Product {
   name: string;
   image: string;
   price: number;
+  description?: string;
   oldPrice?: number; // optional discounted price
   category?: string; // optional category
   attributes?: ProductAttribute[]; // e.g., Size, Color

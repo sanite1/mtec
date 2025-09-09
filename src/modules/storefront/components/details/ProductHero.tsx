@@ -1,12 +1,16 @@
 import React from "react";
 
-interface CartHeroProps {
+interface ProductHeroProps {
   banner?: string; // optional banner image
   title?: string;
   subtitle?: string;
 }
 
-const CartHero: React.FC<CartHeroProps> = ({ banner, title, subtitle }) => {
+const ProductHero: React.FC<ProductHeroProps> = ({
+  banner,
+  title,
+  subtitle,
+}) => {
   const hasContent = banner || title || subtitle;
 
   return (
@@ -29,10 +33,12 @@ const CartHero: React.FC<CartHeroProps> = ({ banner, title, subtitle }) => {
 
       {/* Text content */}
       <div className="relative text-center text-white max-w-2xl px-6">
-        <h1 className="text-3xl md:text-5xl font-bold mb-4 z-30">Cart</h1>
+        <h1 className="text-3xl md:text-5xl font-bold mb-4 z-30">
+          Product Details
+        </h1>
       </div>
     </section>
   );
 };
 
-export default CartHero;
+export default ProductHero;
