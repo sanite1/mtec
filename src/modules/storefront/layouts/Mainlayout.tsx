@@ -23,6 +23,8 @@ const MainLayout: React.FC = () => {
       {/* Navbar stays on top */}
       <Navbar logo={""} />
 
+      <div className="h-16"></div>
+
       {/* This is where child routes render */}
       <Box>
         <Outlet />

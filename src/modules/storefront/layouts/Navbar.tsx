@@ -14,10 +14,12 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
     <nav className="w-full bg-white shadow-sm fixed top-0 z-30">
       <div className="container mx-auto px-4 flex items-center justify-between py-3">
         {/* Logo */}
-        <div className="flex items-center space-x-2">
-          {/* <img src={logo} alt="Store Logo" className="h-10 w-auto" /> */}
-          <p className="text-3xl font-bold text-purple-700">MTEC</p>
-        </div>
+        <Link to={"/"}>
+          <div className="flex items-center space-x-2">
+            {/* <img src={logo} alt="Store Logo" className="h-10 w-auto" /> */}
+            <p className="text-3xl font-bold text-purple-700">MTEC</p>
+          </div>
+        </Link>
 
         {/* Desktop Search Bar */}
         <div className="hidden md:flex flex-1 mx-6">

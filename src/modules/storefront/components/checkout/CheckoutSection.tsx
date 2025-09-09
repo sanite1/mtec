@@ -4,6 +4,7 @@ import { Trash2 } from "lucide-react";
 import AddressModal, { Address } from "./AddressModal";
 import wallet from "../../pages/wallet.png";
 import sneakers from "../../pages/sneakers.png";
+import { Link } from "react-router-dom";
 
 type CartItem = {
   id: string;
@@ -197,7 +198,7 @@ const CheckoutSection: React.FC = () => {
                 value={coupon}
                 onChange={(e) => setCoupon(e.target.value)}
                 placeholder="Enter coupon code"
-                className="flex-1 rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-purple-500"
+                className="flex-1 rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-purple-500 text-base"
               />
               <button
                 onClick={applyCoupon}
@@ -213,9 +214,11 @@ const CheckoutSection: React.FC = () => {
             </div>
           </div>
 
-          <button className="mt-4 w-full bg-purple-600 hover:bg-purple-700 text-white rounded-lg py-3 font-medium">
-            Proceed To Payment
-          </button>
+          <Link to={"/order-confirmation"}>
+            <button className="mt-4 w-full bg-purple-600 hover:bg-purple-700 text-white rounded-lg py-3 font-medium">
+              Proceed To Payment
+            </button>
+          </Link>
         </div>
       </div>
 

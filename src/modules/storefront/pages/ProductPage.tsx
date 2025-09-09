@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ProductHero from "../components/details/ProductHero";
 import ProductDetails from "../components/details/ProductDetails";
 import { Product } from "../types/products";
@@ -25,6 +25,9 @@ export const sampleProduct: Product = {
 };
 
 export default function ProductPage() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   return (
     <div>
       <ProductHero />

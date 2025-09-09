@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import HeroSection from "../components/home/HomeHero";
 import { Product } from "../types/products";
 import ProductCards from "../components/home/ProductCards";
@@ -50,6 +50,9 @@ const sampleProducts: Product[] = [
 ];
 
 export default function Home() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   return (
     <div className="">
       {/* Hero with image + text */}
