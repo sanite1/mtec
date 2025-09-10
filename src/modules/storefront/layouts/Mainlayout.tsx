@@ -4,19 +4,6 @@ import { Box } from "@mui/material";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 
-// Example tenant config
-const tenantConfig = {
-  logo: "/logos/fashion-store.png",
-  links: [
-    { name: "Home", href: "/" },
-    { name: "Shop", href: "/shop" },
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
-  ],
-  showCart: true,
-  showSearch: true,
-};
-
 const MainLayout: React.FC = () => {
   return (
     <Box>

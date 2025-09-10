@@ -27,12 +27,12 @@ const ProductCards: React.FC<ProductCardsProps> = ({ products }) => {
   return (
     <div className="container mx-auto px-4 py-10">
       {/* Category Filter */}
-      <div className="flex flex-wrap gap-3 justify-center mb-8">
+      <div className="flex gap-3 overflow-x-auto whitespace-nowrap pb-2 mb-8 scrollbar-hide">
         {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
-            className={`px-4 py-2 rounded-full border transition-all ${
+            className={`px-4 py-2 rounded-full border transition-all inline-block ${
               activeCategory === cat
                 ? "bg-purple-600 text-white border-purple-600 shadow-md"
                 : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
@@ -49,7 +49,7 @@ const ProductCards: React.FC<ProductCardsProps> = ({ products }) => {
           <ProductCard
             key={p.id}
             product={p}
-            onAddToCart={(prod) => setSelectedProduct(prod)}
+            // onAddToCart={(prod) => setSelectedProduct(prod)}
           />
         ))}
       </div>

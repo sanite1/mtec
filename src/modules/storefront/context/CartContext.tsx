@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, ReactNode } from "react";
-import { CartItem, Product } from "../types/products";
+import { CartItem } from "../types/products";
 
 export interface Order {
   id: number;

@@ -1,59 +1,176 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
+import { ShoppingCart, X } from "lucide-react";
 import { Product } from "../../types/products";
+import { useCart } from "../../context/CartContext";
 
-const AddToCartDialog: React.FC<{
-  product: Product | null;
+interface ProductDialogProps {
+  product: Product;
   onClose: () => void;
-}> = ({ product, onClose }) => {
-  if (!product) return null;
+}
+
+const ProductDialog: React.FC<ProductDialogProps> = ({ product, onClose }) => {
+  const { dispatch } = useCart();
+  const [selectedAttributes, setSelectedAttributes] = useState<
+    Record<string, string>
+  >({});
+  const [quantity, setQuantity] = useState<number>(1);
+
+  const handleAttributeSelect = (key: string, value: string) => {
+    setSelectedAttributes((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleAddToCart = () => {
+    dispatch({
+      type: "ADD_TO_CART",
+      payload: {
+        ...product,
+        quantity,
+        selectedAttributes,
+      },
+    });
+    alert("✅ Product added to cart!");
+    onClose();
+  };
+
+  // 🔒 Prevent scrolling behind dialog
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+      onClick={onClose} // close on backdrop
+    >
+      <div
+        className="bg-white w-full max-w-4xl mx-4 rounded-lg shadow-lg overflow-y-auto max-h-[90vh] relative"
+        onClick={(e) => e.stopPropagation()} // prevent backdrop close on content click
+      >
+        {/* Close button */}
         <button
+          className="absolute top-3 right-3 p-2 rounded-full bg-gray-200 hover:bg-gray-300"
           onClick={onClose}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
         >
-          ✕
+          <X className="w-5 h-5" />
         </button>
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-48 object-cover rounded mb-4"
-        />
-        <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
-        <div className="mb-4">
-          {product.oldPrice && (
-            <span className="text-gray-500 line-through mr-2">
-              ₦{product.oldPrice}
-            </span>
-          )}
-          <span className="text-purple-600 font-bold">₦{product.price}</span>
+
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Left - Product Image */}
+          <div className="flex justify-center items-start w-full">
+            <img
+              src={product.image}
+              alt={product.name}
+              className="w-full h-auto rounded-lg shadow-md object-contain"
+            />
+          </div>
+
+          {/* Right - Product Info */}
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold mb-4">
+              {product.name}
+            </h1>
+
+            {/* Price */}
+            <div className="flex items-center space-x-4 mb-4">
+              {product.oldPrice && (
+                <span className="text-gray-400 line-through text-lg">
+                  ₦{product.oldPrice.toLocaleString()}
+                </span>
+              )}
+              <span className="text-2xl font-semibold text-purple-600">
+                ₦{product.price.toLocaleString()}
+              </span>
+            </div>
+
+            {/* Category */}
+            {product.category && (
+              <p className="text-sm text-gray-500 mb-6">
+                Category: {product.category}
+              </p>
+            )}
+
+            {/* Attributes */}
+            {product.attributes &&
+              product.attributes.map((attr) => (
+                <div key={attr.name} className="mb-5">
+                  <h4 className="font-medium mb-2">{attr.name}</h4>
+                  <div className="flex gap-2 flex-wrap">
+                    {attr.options.map((val) => (
+                      <button
+                        key={val}
+                        onClick={() => handleAttributeSelect(attr.name, val)}
+                        className={`px-4 py-2 rounded border transition ${
+                          selectedAttributes[attr.name] === val
+                            ? "bg-purple-600 text-white border-purple-600"
+                            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                        }`}
+                      >
+                        {val}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+            {/* Quantity Selector */}
+            <div className="flex items-center gap-3 mb-6">
+              <button
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                className="px-3 py-1 border rounded hover:bg-gray-100"
+              >
+                -
+              </button>
+              <span className="px-4">{quantity}</span>
+              <button
+                onClick={() => setQuantity((q) => q + 1)}
+                className="px-3 py-1 border rounded hover:bg-gray-100"
+              >
+                +
+              </button>
+            </div>
+
+            {/* Add to Cart Button */}
+            <button
+              onClick={handleAddToCart}
+              disabled={
+                product.attributes &&
+                product.attributes.length > 0 &&
+                Object.keys(selectedAttributes).length <
+                  product.attributes.length
+              }
+              className={`flex items-center gap-2 px-6 py-3 rounded-lg shadow-md transition
+                ${
+                  product.attributes &&
+                  product.attributes.length > 0 &&
+                  Object.keys(selectedAttributes).length <
+                    product.attributes.length
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-purple-600 hover:bg-purple-700 text-white"
+                }`}
+            >
+              <ShoppingCart className="w-5 h-5" />
+              Add to Cart
+            </button>
+          </div>
         </div>
 
-        {/* Attributes */}
-        {product.attributes &&
-          product.attributes.map((attr, i) => (
-            <div key={i} className="mb-4">
-              <label className="block text-sm font-medium mb-1">
-                {attr.name}
-              </label>
-              <select className="w-full border border-gray-300 rounded px-2 py-2 focus:ring-purple-500 focus:border-purple-500">
-                {attr.options.map((opt, j) => (
-                  <option key={j} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ))}
-
-        <button className="w-full py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
-          Add to Cart
-        </button>
+        {/* Full-width Description */}
+        {product.description && (
+          <div className="px-6 pb-6">
+            <h2 className="text-xl md:text-2xl font-semibold mb-4">
+              Product Description
+            </h2>
+            <p className="text-gray-700 leading-relaxed">
+              {product.description}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default AddToCartDialog;
+export default ProductDialog;

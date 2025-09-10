@@ -2,18 +2,28 @@ import { useState } from "react";
 import { ShoppingCart } from "lucide-react";
 import { Product } from "../../types/products";
 import { useCart } from "../../context/CartContext";
+import { sampleProducts } from "../../data/products";
+import { useParams } from "react-router-dom";
 
-interface ProductDetailsProps {
-  product: Product;
-}
+const ProductDetails: React.FC = () => {
+  const { id } = useParams<{ id: string }>(); // get id from params
+  const product: Product | undefined = sampleProducts.find(
+    (p) => p.id.toString() === id
+  );
 
-const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   const [selectedAttributes, setSelectedAttributes] = useState<
     Record<string, string>
   >({});
   const [quantity, setQuantity] = useState<number>(1);
-  const { dispatch } = useCart(); // ✅ access cart context
+  const { dispatch } = useCart();
 
+  if (!product) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 py-10">
+        <h2 className="text-xl font-bold text-red-500">Product not found!</h2>
+      </div>
+    );
+  }
   const handleAttributeSelect = (key: string, value: string) => {
     setSelectedAttributes((prev) => ({ ...prev, [key]: value }));
   };
