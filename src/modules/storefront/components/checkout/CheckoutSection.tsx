@@ -4,16 +4,23 @@ import { Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AddressModal, { Address } from "./AddressModal";
 import { useCart } from "../../context/CartContext";
+import { Alert } from "@mui/material";
 
 const CheckoutSection: React.FC = () => {
   const { state, dispatch } = useCart();
   const { cart } = state;
+  const [showAddressError, setShowAddressError] = useState<Boolean>(false);
 
   const navigate = useNavigate();
 
   const handlePlaceOrder = () => {
     if (!address) {
-      alert("Please add a delivery address first");
+      setShowAddressError(true);
+
+      setTimeout(() => {
+        setShowAddressError(false);
+      }, 5000);
+
       return;
     }
 
@@ -232,6 +239,15 @@ const CheckoutSection: React.FC = () => {
             </div>
           </div>
 
+          {showAddressError ? (
+            <div className="mt-5">
+              <Alert severity="error" color="warning">
+                Please add a delivery address first.
+              </Alert>
+            </div>
+          ) : (
+            <></>
+          )}
           <button
             disabled={cart.length === 0}
             onClick={handlePlaceOrder}

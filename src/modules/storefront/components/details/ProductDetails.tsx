@@ -4,6 +4,7 @@ import { Product } from "../../types/products";
 import { useCart } from "../../context/CartContext";
 import { sampleProducts } from "../../data/products";
 import { useParams } from "react-router-dom";
+import { toast } from "sonner";
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>(); // get id from params
@@ -38,7 +39,7 @@ const ProductDetails: React.FC = () => {
       },
     });
 
-    alert("✅ Product added to cart!");
+    toast.success(`${product.name} added to cart! 🛒`);
   };
 
   return (

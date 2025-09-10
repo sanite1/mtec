@@ -1,17 +1,49 @@
 import { Flag, Locate, Search, ShoppingCart, Menu, X } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { Product } from "../types/products";
+import { sampleProducts } from "../data/products";
 
 interface NavbarProps {
-  logo: string; // dynamic logo URL
+  logo: string;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ logo }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filtered, setFiltered] = useState<Product[]>([]);
+  const searchRef = useRef<HTMLDivElement>(null);
+
   const { state } = useCart();
   const totalItems = state.cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  // Filter products as user types
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFiltered([]);
+    } else {
+      const results = sampleProducts.filter(
+        (p) =>
+          p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          p.category?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFiltered(results);
+    }
+  }, [searchTerm]);
+
+  // Click outside to close search results
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchTerm("");
+        setFiltered([]);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <nav className="w-full bg-white shadow-sm fixed top-0 z-30">
@@ -19,26 +51,46 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
         {/* Logo */}
         <Link to={"/"}>
           <div className="flex items-center space-x-2">
-            {/* <img src={logo} alt="Store Logo" className="h-10 w-auto" /> */}
             <p className="text-3xl font-bold text-purple-700">MTEC</p>
           </div>
         </Link>
 
-        {/* Desktop Search Bar */}
-        <div className="hidden md:flex flex-1 mx-6">
+        {/* Desktop Search */}
+        <div className="hidden md:flex flex-1 mx-6 relative" ref={searchRef}>
           <div className="relative w-full">
             <input
               type="text"
               placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full rounded-full border border-gray-300 pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
             <Search className="absolute right-3 top-2.5 text-gray-500" />
           </div>
+
+          {/* Results Dropdown */}
+          {filtered.length > 0 && (
+            <div className="absolute top-12 left-0 w-full bg-white border rounded shadow-lg max-h-60 overflow-y-auto z-40">
+              {filtered.map((item) => (
+                <Link
+                  key={item.id}
+                  to={`/product/${item.id}`}
+                  onClick={() => {
+                    setSearchTerm("");
+                    setFiltered([]);
+                  }}
+                  className="block px-4 py-2 hover:bg-gray-100"
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Right Section */}
         <div className="flex items-center space-x-4">
-          {/* Search Icon for Mobile */}
+          {/* Mobile Search Toggle */}
           <button
             className="md:hidden p-2 rounded-full hover:bg-gray-100"
             onClick={() => setSearchOpen(!searchOpen)}
@@ -58,7 +110,7 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
             <span className="text-sm font-medium">Lagos</span>
           </div>
 
-          {/* Auth Links (hidden on mobile) */}
+          {/* Auth Links */}
           <div className="hidden md:flex items-center space-x-4 text-sm font-medium">
             <a href="/login" className="hover:text-purple-600">
               Login
@@ -83,7 +135,7 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
             </div>
           </Link>
 
-          {/* Hamburger Menu (visible on mobile) */}
+          {/* Mobile Menu Toggle */}
           <button
             className="md:hidden p-2 rounded-full hover:bg-gray-100"
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -97,22 +149,47 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
         </div>
       </div>
 
-      {/* Mobile Search Bar */}
+      {/* Mobile Search */}
       {searchOpen && (
-        <div className="md:hidden bg-gray-50 border-t border-gray-200 px-4 py-3">
+        <div
+          className="md:hidden bg-gray-50 border-t border-gray-200 px-4 py-3 relative"
+          ref={searchRef}
+        >
           <div className="relative w-full">
             <input
               type="text"
               placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full rounded-full border border-gray-300 pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
               autoFocus
             />
             <Search className="absolute right-3 top-2.5 text-gray-500" />
           </div>
+
+          {/* Results Dropdown (Mobile) */}
+          {filtered.length > 0 && (
+            <div className="absolute top-16 left-0 w-full bg-white border rounded shadow-lg max-h-60 overflow-y-auto z-40">
+              {filtered.map((item) => (
+                <Link
+                  key={item.id}
+                  to={`/product/${item.id}`}
+                  onClick={() => {
+                    setSearchTerm("");
+                    setFiltered([]);
+                    setSearchOpen(false);
+                  }}
+                  className="block px-4 py-2 hover:bg-gray-100"
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
-      {/* Mobile Dropdown Menu */}
+      {/* Mobile Dropdown */}
       {mobileOpen && (
         <div className="md:hidden bg-gray-50 border-t border-gray-200 p-4 space-y-4">
           <div className="flex items-center space-x-2">

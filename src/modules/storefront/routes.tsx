@@ -8,6 +8,7 @@ import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import { CartProvider } from "./context/CartContext";
+import { Toaster } from "sonner";
 
 export const StorefrontRoutes: React.FC = () => {
   return (
@@ -25,6 +26,8 @@ export const StorefrontRoutes: React.FC = () => {
         {/* Routes without Navbar (e.g., login/register) */}
         {/* <Route path="/*" element={<Auth />} /> */}
       </Routes>
+
+      <Toaster position="bottom-right" richColors />
     </CartProvider>
   );
 };

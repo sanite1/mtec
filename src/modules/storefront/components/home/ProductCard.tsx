@@ -2,6 +2,7 @@ import { Product } from "../../types/products";
 import { useCart } from "../../context/CartContext";
 import { useState } from "react";
 import ProductDialog from "./AddToCartDialog";
+import { toast } from "sonner";
 
 const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   const { dispatch } = useCart();
@@ -16,7 +17,8 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
         selectedAttributes: {}, // no attributes
       },
     });
-    alert("✅ Product added to cart!");
+
+    toast.success(`${product.name} added to cart! 🛒`);
   };
 
   return (

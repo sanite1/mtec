@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ShoppingCart, X } from "lucide-react";
 import { Product } from "../../types/products";
 import { useCart } from "../../context/CartContext";
+import { toast } from "sonner";
 
 interface ProductDialogProps {
   product: Product;
@@ -28,7 +29,8 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ product, onClose }) => {
         selectedAttributes,
       },
     });
-    alert("✅ Product added to cart!");
+
+    toast.success(`${product.name} added to cart! 🛒`);
     onClose();
   };
 
