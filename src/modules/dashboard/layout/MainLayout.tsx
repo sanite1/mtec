@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import NotificationsDropdown from "../components/navbar/NotificationsDropdown";
 
 const menuItems = [
   { name: "Onboarding", icon: Rocket, path: "/onboarding" },
@@ -53,7 +54,7 @@ const MainLayout: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-50">
       {/* Top Navbar */}
       <header className="fixed top-0 left-0 w-full bg-white border-b flex items-center justify-between z-20 h-16">
         {/* Left section */}
@@ -82,11 +83,7 @@ const MainLayout: React.FC = () => {
             View Store
           </button>
 
-          {/* Notifications */}
-          <button className="p-2 rounded hover:bg-gray-100 relative">
-            <Bell className="w-6 h-6 text-gray-600 sm:w-6 sm:h-6 " />
-            <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] sm:text-xs rounded-full h-3 w-3 flex items-center justify-center"></span>
-          </button>
+          <NotificationsDropdown />
 
           {/* Profile */}
           <div className="relative">
@@ -153,7 +150,7 @@ const MainLayout: React.FC = () => {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2 rounded-lg transition ${
                   isActive
-                    ? "bg-purple-600 text-white"
+                    ? "bg-purple-300 text-purple-700"
                     : "text-gray-700 hover:bg-gray-100"
                 }`
               }
