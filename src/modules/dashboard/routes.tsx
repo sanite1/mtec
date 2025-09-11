@@ -1,16 +1,23 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
+import Auth from "./components/routes/AuthRoute";
+import PrivateRoute from "./components/routes/PrivateRoute";
+import MainLayout from "./layout/MainLayout";
 
 export const DashboardRoutes: React.FC = () => {
   return (
     <Routes>
-      {/* Routes that share the Navbar */}
-      {/* <Route element={<MainLayout />}>
-        <Route path="/" element={<Home />} />
-      </Route> */}
+      {/* Protected Dashboard */}
+      <Route element={<PrivateRoute />}>
+        <Route element={<MainLayout />}>
+          {/* <Route path="/" element={<Home />} /> */}
+          <Route path="/" element={<></>} />
+          <Route path="/orders" element={<></>} />
+        </Route>
+      </Route>
 
-      {/* Routes without Navbar (e.g., login/register) */}
-      {/* <Route path="/*" element={<Auth />} /> */}
+      {/* Public Auth Routes */}
+      <Route path="/*" element={<Auth />} />
     </Routes>
   );
 };

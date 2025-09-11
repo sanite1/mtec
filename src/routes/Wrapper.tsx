@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { PlatformRoutes } from "../modules/platform/routes";
 import { DashboardRoutes } from "../modules/dashboard/routes";
 import { StorefrontRoutes } from "../modules/storefront/routes";
+import { AuthProvider } from "../modules/dashboard/context/AuthContext";
 
 // Helper: detect which module to load
 const getModule = (): "platform" | "storefront" | "dashboard" => {
@@ -27,7 +28,11 @@ const RoutesWrapper: React.FC = () => {
   }
 
   if (module === "dashboard") {
-    return <DashboardRoutes />;
+    return (
+      <AuthProvider>
+        <DashboardRoutes />
+      </AuthProvider>
+    );
   }
 
   // Default: storefront
