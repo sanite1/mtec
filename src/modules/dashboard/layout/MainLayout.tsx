@@ -16,9 +16,15 @@ import {
   Users2,
   Settings,
   Rocket,
+  Menu,
+  Bell,
   ChevronDown,
+  Store,
+  User,
+  LogOut,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const menuItems = [
   { name: "Onboarding", icon: Rocket, path: "/onboarding" },
@@ -38,110 +44,133 @@ const menuItems = [
   { name: "Settings", icon: Settings, path: "/settings" },
 ];
 
+const NAVBAR_HEIGHT = 56; // ~14 in Tailwind (h-14)
+
 const MainLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
   const { logout } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="flex h-screen bg-gray-100">
+      {/* Top Navbar */}
+      <header className="fixed top-0 left-0 w-full bg-white border-b flex items-center justify-between z-20 h-16">
+        {/* Left section */}
+        <div
+          className="flex items-center gap-2 sm:gap-4 border-r h-full px-2 sm:px-4 
+  w-auto sm:w-64 justify-between"
+        >
+          {/* Sidebar toggle (Menu) */}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-2 rounded hover:bg-gray-100 order-1 sm:order-2"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+
+          {/* Logo */}
+          <div className="flex items-center text-purple-600 font-bold text-lg order-2 sm:order-1">
+            <span className="ml-1 sm:ml-2 text-xl sm:text-2xl">MTEC</span>
+          </div>
+        </div>
+
+        {/* Right section */}
+        <div className="flex items-center gap-3 sm:gap-4 ml-auto  px-4">
+          {/* View Store button (hidden on small screens) */}
+          <button className="hidden sm:block border border-purple-600 text-purple-600 px-3 sm:px-4 py-1 rounded text-sm sm:text-md hover:bg-purple-50">
+            View Store
+          </button>
+
+          {/* Notifications */}
+          <button className="p-2 rounded hover:bg-gray-100 relative">
+            <Bell className="w-6 h-6 text-gray-600 sm:w-6 sm:h-6 " />
+            <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] sm:text-xs rounded-full h-3 w-3 flex items-center justify-center"></span>
+          </button>
+
+          {/* Profile */}
+          <div className="relative">
+            <button
+              onClick={() => setProfileOpen(!profileOpen)}
+              className="flex items-center gap-2"
+            >
+              <img
+                src="https://i.pravatar.cc/40"
+                alt="avatar"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-purple-600"
+              />
+              {/* Hide name on small screens */}
+              <span className="hidden sm:inline text-sm sm:text-md font-medium text-gray-800">
+                Collins Sanni
+              </span>
+              <ChevronDown
+                className={`hidden sm:inline w-4 h-4 transition-transform ${
+                  profileOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {/* Dropdown */}
+            {profileOpen && (
+              <div className="absolute right-0 mt-2 bg-white border rounded-lg shadow-md w-44 py-2">
+                {/* Profile */}
+                <button
+                  onClick={() => {
+                    setProfileOpen(false);
+                    navigate("/profile");
+                  }}
+                  className="flex items-center gap-2 w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                >
+                  <User className="w-4 h-4 text-gray-500" />
+                  <span>Profile</span>
+                </button>
+
+                {/* Logout */}
+                <button
+                  onClick={() => logout()}
+                  className="flex items-center gap-2 w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                >
+                  <LogOut className="w-4 h-4 text-gray-500" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-full bg-white border-r transition-all duration-300 flex flex-col justify-between ${
+        className={`fixed left-0 top-14 h-[calc(100%-56px)] bg-white border-r transition-all duration-300 flex flex-col ${
           sidebarOpen ? "w-64" : "w-20"
         }`}
       >
-        {/* Sidebar content scrollable */}
-        <div className="flex-1 overflow-y-auto no-scrollbar">
-          <div className="flex items-center justify-between p-4 border-b">
-            <h1
-              className={`transition-opacity ${
-                sidebarOpen ? "opacity-100" : "opacity-0 hidden"
-              }`}
+        <nav className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-2">
+          {menuItems.map((item) => (
+            <NavLink
+              key={item.name}
+              to={item.path}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2 rounded-lg transition ${
+                  isActive
+                    ? "bg-purple-600 text-white"
+                    : "text-gray-700 hover:bg-gray-100"
+                }`
+              }
             >
-              <div className="inline-block px-4 py-2 rounded-md bg-gray-800 text-sm font-medium text-white">
-                Powered by{" "}
-                <span className="text-purple-500 font-semibold">MTEC</span>
-              </div>
-            </h1>
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded hover:bg-gray-200"
-            >
-              {sidebarOpen ? "<" : ">"}
-            </button>
-          </div>
-
-          <nav className="p-4 space-y-2">
-            {menuItems.map((item) => (
-              <NavLink
-                key={item.name}
-                to={item.path}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2 rounded-lg transition ${
-                    isActive
-                      ? "bg-purple-600 text-white"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`
-                }
-              >
-                <item.icon className="w-5 h-5" />
-                {sidebarOpen && <span>{item.name}</span>}
-              </NavLink>
-            ))}
-          </nav>
-        </div>
-
-        {/* Bottom Profile Section */}
-        <div className="relative p-4 border-t">
-          <button
-            onClick={() => setProfileOpen((prev) => !prev)}
-            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-gray-100"
-          >
-            <img
-              src="https://i.pravatar.cc/40"
-              alt="avatar"
-              className="w-10 h-10 rounded-full"
-            />
-            {sidebarOpen && (
-              <>
-                <span className="flex-1 text-left text-gray-800">Admin</span>
-                <ChevronDown
-                  className={`w-4 h-4 transition-transform ${
-                    profileOpen ? "rotate-180" : ""
-                  }`}
-                />
-              </>
-            )}
-          </button>
-
-          {profileOpen && (
-            <div className="absolute bottom-16 left-4 right-4 bg-white border rounded-lg shadow-lg">
-              <button
-                onClick={() => logout()}
-                className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-              >
-                Logout
-              </button>
-            </div>
-          )}
-        </div>
+              <item.icon className="w-5 h-5" />
+              {sidebarOpen && <span>{item.name}</span>}
+            </NavLink>
+          ))}
+        </nav>
       </aside>
 
       {/* Main Content */}
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${
+        className={`flex-1 flex flex-col transition-all duration-300 pt-14 ${
           sidebarOpen ? "ml-64" : "ml-20"
         }`}
       >
-        {/* Top Navbar */}
-        <header className="bg-white border-b p-4 flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-800 p-1">
-            Welcome 👋
-          </h2>
-        </header>
-
-        {/* Page Content scrollable */}
         <main className="flex-1 overflow-y-auto p-6 no-scrollbar">
           <Outlet />
         </main>
