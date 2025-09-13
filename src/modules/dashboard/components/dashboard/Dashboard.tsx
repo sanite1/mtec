@@ -8,7 +8,7 @@ import RecentOrders from "./RecentOrders";
 
 export default function Dashboard() {
   return (
-    <div className=" bg-gray-50 min-h-screen">
+    <div className=" min-h-screen">
       {/* Header */}
       <header className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">

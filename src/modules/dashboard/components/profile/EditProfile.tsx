@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function EditProfilePage() {
   const navigate = useNavigate();
@@ -40,7 +40,7 @@ export default function EditProfilePage() {
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
-                className="mt-1 w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500"
+                className="mt-1 w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500"
               />
             </div>
 
@@ -53,7 +53,7 @@ export default function EditProfilePage() {
                 name="middleName"
                 value={formData.middleName}
                 onChange={handleChange}
-                className="mt-1 w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500"
+                className="mt-1 w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500"
               />
             </div>
 
@@ -66,7 +66,7 @@ export default function EditProfilePage() {
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
-                className="mt-1 w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500"
+                className="mt-1 w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500"
               />
             </div>
 
@@ -79,7 +79,7 @@ export default function EditProfilePage() {
                 name="dob"
                 value={formData.dob}
                 onChange={handleChange}
-                className="mt-1 w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500"
+                className="mt-1 w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500"
               />
             </div>
 
@@ -92,7 +92,7 @@ export default function EditProfilePage() {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className="mt-1 w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500"
+                className="mt-1 w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500"
               />
             </div>
 
@@ -105,22 +105,22 @@ export default function EditProfilePage() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="mt-1 w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500"
+                className="mt-1 w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500"
               />
             </div>
           </div>
 
           {/* Buttons */}
           <div className="flex justify-end gap-3 pt-4">
-            <a
-              href="/profile"
+            <Link
+              to="/profile"
               className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-100 transition"
             >
               Cancel
-            </a>
+            </Link>
             <button
               type="submit"
-              className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+              className="px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition"
             >
               Save Changes
             </button>

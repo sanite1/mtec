@@ -7,6 +7,11 @@ import Notifications from "./pages/Notifications";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import EditProfilePage from "./components/profile/EditProfile";
+import Onboarding from "./pages/Onboarding";
+import StoreDetails from "./components/onboarding/StoreDetails";
+import ShippingDetails from "./components/onboarding/ShippingDetails";
+import ProductDetails from "./components/onboarding/ProductDetails";
+import PaymentDetails from "./components/onboarding/PaymentDetails";
 
 export const DashboardRoutes: React.FC = () => {
   return (
@@ -18,7 +23,11 @@ export const DashboardRoutes: React.FC = () => {
           <Route path="/" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/edit" element={<EditProfilePage />} />
-          <Route path="/orders" element={<></>} />
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/onboarding/store-details" element={<StoreDetails />} />
+          <Route path="/onboarding/payout" element={<PaymentDetails />} />
+          <Route path="/onboarding/products" element={<ProductDetails />} />
+          <Route path="/onboarding/shipping" element={<ShippingDetails />} />
           <Route path="/notifications" element={<Notifications />} />
         </Route>
       </Route>
