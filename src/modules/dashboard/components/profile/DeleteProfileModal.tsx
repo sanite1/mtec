@@ -14,7 +14,7 @@ export default function DeleteModal({ onClose, onConfirm }: DeleteModalProps) {
       ></div>
 
       {/* Modal Content */}
-      <div className="relative bg-white w-full max-w-md rounded-xl shadow-lg p-6 z-10">
+      <div className="relative bg-white w-full max-w-md rounded-xl shadow-lg p-6 z-10 mx-4">
         <h3 className="text-lg font-semibold text-gray-800">
           Confirm Deletion
         </h3>

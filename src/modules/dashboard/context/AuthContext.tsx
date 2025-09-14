@@ -5,6 +5,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: () => void;
   logout: () => void;
+  signup: () => void; // ✅ New
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,8 +18,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const login = () => setIsAuthenticated(true);
   const logout = () => setIsAuthenticated(false);
 
+  // ✅ Fake signup: usually you’d call an API then log in the user
+  const signup = () => {
+    console.log("User signed up!");
+    setIsAuthenticated(true);
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, signup }}>
       {children}
     </AuthContext.Provider>
   );

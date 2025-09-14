@@ -49,7 +49,7 @@ export default function ChangePasswordModal({
       ></div>
 
       {/* Modal Content */}
-      <div className="relative bg-white w-full max-w-md rounded-xl shadow-lg p-6 z-10">
+      <div className="relative bg-white w-full max-w-md rounded-xl shadow-lg p-6 z-10 mx-4">
         <h3 className="text-lg font-semibold text-gray-800">Change Password</h3>
         <p className="text-sm text-gray-500 mt-2">
           Please enter your old password and a new password.
