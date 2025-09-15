@@ -4,6 +4,7 @@ import { PlatformRoutes } from "../modules/platform/routes";
 import { DashboardRoutes } from "../modules/dashboard/routes";
 import { StorefrontRoutes } from "../modules/storefront/routes";
 import { AuthProvider } from "../modules/dashboard/context/AuthContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Helper: detect which module to load
 const getModule = (): "platform" | "storefront" | "dashboard" => {
@@ -20,6 +21,8 @@ const getModule = (): "platform" | "storefront" | "dashboard" => {
   return "storefront";
 };
 
+const queryClient = new QueryClient();
+
 const RoutesWrapper: React.FC = () => {
   const module = getModule();
 
@@ -29,9 +32,11 @@ const RoutesWrapper: React.FC = () => {
 
   if (module === "dashboard") {
     return (
-      <AuthProvider>
-        <DashboardRoutes />
-      </AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <DashboardRoutes />
+        </AuthProvider>
+      </QueryClientProvider>
     );
   }
 

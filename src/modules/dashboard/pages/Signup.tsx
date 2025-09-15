@@ -35,7 +35,7 @@ export default function Signup() {
 
   const onSubmit = async (data: SignupFormData) => {
     try {
-      await signup(); // ✅ fallback log
+      await signup();
       navigate("/onboarding");
     } catch (err) {
       console.error("Signup failed:", err);
