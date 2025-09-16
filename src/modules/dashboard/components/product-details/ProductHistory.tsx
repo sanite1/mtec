@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { DataTable } from "../../utils/data-table";
-import { useNavigate } from "react-router-dom";
 
 // Define the ProductHistory type
 interface ProductHistoryEntry {
@@ -123,11 +122,11 @@ const fetchHistory = async (params: any) => {
 // ProductHistory Component
 const ProductHistory = () => {
   const [selectedRows, setSelectedRows] = useState<ProductHistoryEntry[]>([]);
-  const navigate = useNavigate();
+  //   const navigate = useNavigate();
 
   const handleRowClick = (entry: ProductHistoryEntry) => {
     console.log("History entry clicked:", entry);
-    navigate(`/history/${entry.id}`);
+    // navigate(`/history/${entry.id}`);
   };
 
   return (

@@ -14,6 +14,7 @@ import ProductDetails from "./components/onboarding/ProductDetails";
 import PaymentDetails from "./components/onboarding/PaymentDetails";
 import ProductsPage from "./pages/Products";
 import ProductDetailsPage from "./pages/ProductDetails";
+import EditProduct from "./pages/EditProduct";
 
 export const DashboardRoutes: React.FC = () => {
   return (
@@ -33,6 +34,7 @@ export const DashboardRoutes: React.FC = () => {
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/products/:id" element={<ProductDetailsPage />} />
+          <Route path="/products/:id/edit" element={<EditProduct />} />
         </Route>
       </Route>
 

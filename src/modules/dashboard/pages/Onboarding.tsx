@@ -26,7 +26,7 @@ const initialSteps: Step[] = [
     description:
       "Start building your catalog by adding products. You can always add more later.",
     link: "/onboarding/products",
-    completed: true,
+    completed: false,
   },
   {
     id: 3,
