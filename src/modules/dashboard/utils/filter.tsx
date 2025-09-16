@@ -1,4 +1,4 @@
-// components/filter.tsx
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react";
 
 interface ColumnWithVisibility<TData, TValue> {

@@ -17,9 +17,7 @@ import {
   Settings,
   Rocket,
   Menu,
-  Bell,
   ChevronDown,
-  Store,
   User,
   LogOut,
 } from "lucide-react";
@@ -44,8 +42,6 @@ const menuItems = [
   { name: "Team & Access", icon: Users2, path: "/team" },
   { name: "Settings", icon: Settings, path: "/settings" },
 ];
-
-const NAVBAR_HEIGHT = 56; // ~14 in Tailwind (h-14)
 
 const MainLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);

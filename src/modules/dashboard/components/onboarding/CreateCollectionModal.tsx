@@ -21,6 +21,8 @@ export default function CreateCollectionModal({
   const handleFile = (f?: File) => {
     if (!f) return;
     setFile(f);
+    console.log(file);
+
     setPreview(URL.createObjectURL(f));
   };
 

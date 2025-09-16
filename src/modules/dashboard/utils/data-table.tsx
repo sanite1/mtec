@@ -178,7 +178,7 @@ export function DataTable<TData, TValue>({
   }, [activeTabInParams]);
 
   const tableData =
-    activeTabInParams == "Receivables" && fetchedData?.data?.debitNotes
+    activeTabInParams === "Receivables" && fetchedData?.data?.debitNotes
       ? fetchedData?.data?.debitNotes
       : fetchedData?.data?.data ||
         (Array.isArray(fetchedData?.data) ? fetchedData?.data : activeData) ||
@@ -236,7 +236,7 @@ export function DataTable<TData, TValue>({
       newParams.set("page", "1");
       setSearchParams(newParams);
     }
-  }, [debouncedSearch, normalizedSearch, activeTab]);
+  }, [debouncedSearch, normalizedSearch, activeTab, searchParams]);
 
   // Memoize selected rows
   const selectedRows = useMemo(

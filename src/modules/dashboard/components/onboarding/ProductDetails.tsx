@@ -11,11 +11,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash, ImageIcon, FolderPlus } from "lucide-react";
 import CreateCollectionModal from "./CreateCollectionModal";
 
-/**
- * Types & Schema
- */
-const currencyRegex = /^[0-9,]*$/;
-
 const variantSchema = z.object({
   title: z.string().min(1),
   price: z.string().min(1),
@@ -98,7 +93,7 @@ export default function CreateProduct() {
   const hasVariations = watch("hasVariations");
   const priceVal = watch("price") || "";
   const costPriceVal = watch("costPrice") || "";
-  const discountedVal = watch("discountedPrice") || "";
+  // const discountedVal = watch("discountedPrice") || "";
 
   // variants array management
   const { fields, append, remove } = useFieldArray({

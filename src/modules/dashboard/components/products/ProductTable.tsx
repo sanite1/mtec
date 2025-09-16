@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { DataTable } from "../../utils/data-table";
+import { useNavigate } from "react-router-dom";
 
 // Define the Product type
 interface Product {
@@ -185,17 +186,20 @@ const fetchProducts = async (params: any) => {
 const ProductTable = () => {
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
 
+  const navigate = useNavigate();
+
   const handleRowClick = (product: Product) => {
     console.log("Product clicked:", product);
+    navigate(`/products/${product.id}`);
     // You could navigate to a product detail page or open a modal
   };
 
   return (
     <div className=" bg-gray-50 min-h-screen">
-      {/* <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Products Dashboard</h1>
+      <div className="mb-3">
+        {/* <h1 className="text-2xl font-bold text-gray-800">Inventory</h1> */}
         <p className="text-gray-600">Manage your product inventory</p>
-      </div> */}
+      </div>
 
       <div className="bg-white rounded-lg shadow p-4">
         <DataTable<Product, unknown>

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { CheckCircle, Circle, Info } from "lucide-react";
+import React from "react";
+import { CheckCircle, Circle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface Step {
@@ -65,7 +65,7 @@ const initialSteps: Step[] = [
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
-  const [steps, setSteps] = useState<Step[]>(initialSteps);
+  const steps = initialSteps;
 
   // Progress calculation
   const totalSteps = steps.filter((step) => !step.optional).length;

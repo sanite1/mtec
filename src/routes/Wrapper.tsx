@@ -1,5 +1,4 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
 import { PlatformRoutes } from "../modules/platform/routes";
 import { DashboardRoutes } from "../modules/dashboard/routes";
 import { StorefrontRoutes } from "../modules/storefront/routes";
