@@ -13,6 +13,7 @@ import ShippingDetails from "./components/onboarding/ShippingDetails";
 import ProductDetails from "./components/onboarding/ProductDetails";
 import PaymentDetails from "./components/onboarding/PaymentDetails";
 import ProductsPage from "./pages/Products";
+import ProductDetailsPage from "./pages/ProductDetails";
 
 export const DashboardRoutes: React.FC = () => {
   return (
@@ -31,6 +32,7 @@ export const DashboardRoutes: React.FC = () => {
           <Route path="/onboarding/shipping" element={<ShippingDetails />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/products" element={<ProductsPage />} />
+          <Route path="/products/:id" element={<ProductDetailsPage />} />
         </Route>
       </Route>
 
