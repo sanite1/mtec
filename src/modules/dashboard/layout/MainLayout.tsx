@@ -30,17 +30,17 @@ const menuItems = [
   { name: "Dashboard Home", icon: Home, path: "/" },
   { name: "Product Management", icon: Box, path: "/products" },
   { name: "Orders", icon: ShoppingCart, path: "/orders" },
-  { name: "Inventory", icon: Package, path: "/inventory" },
+  // { name: "Inventory", icon: Package, path: "/inventory" },
   { name: "Customers", icon: Users, path: "/customers" },
-  { name: "Storefront Customization", icon: Layout, path: "/storefront" },
+  { name: "Store Customization", icon: Layout, path: "/storefront" },
   { name: "Domain Settings", icon: Globe, path: "/domain" },
   { name: "Shipping Settings", icon: Truck, path: "/shipping" },
   { name: "Payment Settings", icon: CreditCard, path: "/payments" },
-  { name: "Marketing Tools", icon: Megaphone, path: "/marketing" },
+  { name: "Sales / Marketing", icon: Megaphone, path: "/marketing" },
   { name: "SEO & Meta", icon: Search, path: "/seo" },
   { name: "Billing", icon: Receipt, path: "/billing" },
   { name: "Team & Access", icon: Users2, path: "/team" },
-  { name: "Settings", icon: Settings, path: "/settings" },
+  { name: " General Settings", icon: Settings, path: "/settings" },
 ];
 
 const MainLayout: React.FC = () => {

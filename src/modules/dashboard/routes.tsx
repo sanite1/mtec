@@ -16,6 +16,8 @@ import ProductsPage from "./pages/Products";
 import ProductDetailsPage from "./pages/ProductDetails";
 import EditProduct from "./pages/EditProduct";
 import CreateProduct from "./pages/CreateProduct";
+import Orders from "./pages/Orders";
+import CreateOrder from "./pages/CreateOrder";
 
 export const DashboardRoutes: React.FC = () => {
   return (
@@ -37,6 +39,8 @@ export const DashboardRoutes: React.FC = () => {
           <Route path="/products/create" element={<CreateProduct />} />
           <Route path="/products/:id" element={<ProductDetailsPage />} />
           <Route path="/products/:id/edit" element={<EditProduct />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/orders/create" element={<CreateOrder />} />
         </Route>
       </Route>
 
