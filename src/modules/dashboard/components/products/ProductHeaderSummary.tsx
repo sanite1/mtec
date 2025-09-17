@@ -49,7 +49,7 @@ const ProductHeaderSummary: React.FC<ProductSummaryProps> = ({
         {onAddProduct && (
           <button
             onClick={onAddProduct}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg shadow-lg bg-purple-600 text-white font-medium hover:bg-purple-700 transition-transform transform hover:scale-105"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg shadow-lg bg-purple-600 text-white font-medium hover:bg-purple-700"
           >
             <PlusCircle size={20} />
             Add Product

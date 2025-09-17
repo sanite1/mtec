@@ -1,8 +1,10 @@
 import React from "react";
 import ProductTable from "../components/products/ProductTable";
 import ProductHeaderSummary from "../components/products/ProductHeaderSummary";
+import { useNavigate } from "react-router-dom";
 
 export default function ProductsPage() {
+  const navigate = useNavigate();
   return (
     <div>
       <ProductHeaderSummary
@@ -13,7 +15,7 @@ export default function ProductsPage() {
         totalInventoryValue={300000} // ₦300,000
         retailValueSold={150000} // ₦150,000
         totalProfit={70000} // ₦70,000
-        onAddProduct={() => console.log("Add Product Clicked")}
+        onAddProduct={() => navigate("/products/create")}
       />
       <ProductTable />
     </div>
