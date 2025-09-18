@@ -15,9 +15,11 @@ import PaymentDetails from "./components/onboarding/PaymentDetails";
 import ProductsPage from "./pages/Products";
 import ProductDetailsPage from "./pages/ProductDetails";
 import EditProduct from "./pages/EditProduct";
-import CreateProduct from "./pages/CreateProduct";
+import CreateProduct from "./components/products/CreateProduct";
 import Orders from "./pages/Orders";
-import CreateOrder from "./pages/CreateOrder";
+import CreateOrder from "./components/orders/CreateOrder";
+import Customers from "./pages/Customers";
+import CreateCustomer from "./components/customers/CreateCustomer";
 
 export const DashboardRoutes: React.FC = () => {
   return (
@@ -41,6 +43,8 @@ export const DashboardRoutes: React.FC = () => {
           <Route path="/products/:id/edit" element={<EditProduct />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/orders/create" element={<CreateOrder />} />
+          <Route path="/customers" element={<Customers />} />
+          <Route path="/customers/create" element={<CreateCustomer />} />
         </Route>
       </Route>
 

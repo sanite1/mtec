@@ -14,7 +14,7 @@ import {
   FormControlLabel,
   Radio,
 } from "@mui/material";
-import SelectProductsDialog from "../components/orders/SelectProductsDialog";
+import SelectProductsDialog from "./SelectProductsDialog";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, PlusCircle, Save } from "lucide-react";
 

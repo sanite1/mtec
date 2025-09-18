@@ -1,5 +1,5 @@
 import React from "react";
-import CreateProduct from "../components/onboarding/ProductDetails";
+import CreateProduct from "../onboarding/ProductDetails";
 
 export default function CreateProductPage() {
   return (
