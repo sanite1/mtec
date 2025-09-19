@@ -20,6 +20,8 @@ import Orders from "./pages/Orders";
 import CreateOrder from "./components/orders/CreateOrder";
 import Customers from "./pages/Customers";
 import CreateCustomer from "./components/customers/CreateCustomer";
+import Shipping from "./pages/Shipping";
+import AutomatedShipping from "./pages/AutomatedShipping";
 
 export const DashboardRoutes: React.FC = () => {
   return (
@@ -45,6 +47,8 @@ export const DashboardRoutes: React.FC = () => {
           <Route path="/orders/create" element={<CreateOrder />} />
           <Route path="/customers" element={<Customers />} />
           <Route path="/customers/create" element={<CreateCustomer />} />
+          <Route path="/shipping" element={<Shipping />} />
+          <Route path="/shipping/automated" element={<AutomatedShipping />} />
         </Route>
       </Route>
 

@@ -1,12 +1,12 @@
 import React from "react";
 
 interface DeleteModalProps {
-  customerName: string;
+  locationName: string;
   onClose: () => void;
   onConfirm: () => void;
 }
-export default function DeleteCustumerModal({
-  customerName,
+export default function DeleteShippingModal({
+  locationName,
   onClose,
   onConfirm,
 }: DeleteModalProps) {
@@ -25,7 +25,7 @@ export default function DeleteCustumerModal({
         </h3>
         <p className="text-sm text-gray-500 mt-2">
           Are you sure you want to delete{" "}
-          <span className="font-semibold text-gray-800">{customerName}</span>?
+          <span className="font-semibold text-gray-800">{locationName}</span>?
           This action cannot be undone.
         </p>
 
