@@ -20,6 +20,7 @@ import {
   ChevronDown,
   User,
   LogOut,
+  Coins,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -36,6 +37,7 @@ const menuItems = [
   { name: "Domain Settings", icon: Globe, path: "/domain" },
   { name: "Shipping Settings", icon: Truck, path: "/shipping" },
   { name: "Payment Settings", icon: CreditCard, path: "/payments" },
+  { name: "Taxes", icon: Coins, path: "/taxes" },
   { name: "Sales / Marketing", icon: Megaphone, path: "/marketing" },
   { name: "SEO & Meta", icon: Search, path: "/seo" },
   { name: "Billing", icon: Receipt, path: "/billing" },
