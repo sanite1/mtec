@@ -3,11 +3,13 @@ import React, { useState } from "react";
 import { Switch } from "@headlessui/react";
 import { MapPin, Package, Truck, Box, Save } from "lucide-react";
 import ShippingLocationsSidebar from "../components/shipping/automated-shipping/DeliveryLocations";
+import PickupLocationsSidebar from "../components/shipping/automated-shipping/PickupLocation";
 
 const AutomatedShipping = () => {
   const [enabled, setEnabled] = useState(false);
   const [shipbubbleEnabled, setShipbubbleEnabled] = useState(false);
   const [openShippingLocation, setOpenShippingLocation] = useState(false);
+  const [isPickupSidebarOpen, setIsPickupSidebarOpen] = useState(false);
 
   return (
     <div className=" max-w-6xl mx-auto">
@@ -85,7 +87,10 @@ const AutomatedShipping = () => {
               </p>
             </div>
           </div>
-          <span className="text-purple-600 font-medium text-sm sm:text-base">
+          <span
+            onClick={() => setIsPickupSidebarOpen(true)}
+            className="text-purple-600 font-medium text-sm sm:text-base"
+          >
             Manage →
           </span>
         </div>
@@ -150,6 +155,10 @@ const AutomatedShipping = () => {
         <ShippingLocationsSidebar
           onClose={() => setOpenShippingLocation(false)}
         />
+      )}
+
+      {isPickupSidebarOpen && (
+        <PickupLocationsSidebar onClose={() => setIsPickupSidebarOpen(false)} />
       )}
     </div>
   );
