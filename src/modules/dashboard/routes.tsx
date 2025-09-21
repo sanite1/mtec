@@ -25,6 +25,7 @@ import AutomatedShipping from "./pages/AutomatedShipping";
 import Payments from "./pages/Payments";
 import PaymentMethods from "./pages/PaymentMethods";
 import Taxes from "./pages/Taxes";
+import Marketing from "./pages/Marketing";
 
 export const DashboardRoutes: React.FC = () => {
   return (
@@ -58,6 +59,7 @@ export const DashboardRoutes: React.FC = () => {
             element={<PaymentMethods />}
           />
           <Route path="/taxes" element={<Taxes />} />
+          <Route path="/marketing" element={<Marketing />} />
         </Route>
       </Route>
 

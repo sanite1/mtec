@@ -38,7 +38,7 @@ const menuItems = [
   { name: "Shipping Settings", icon: Truck, path: "/shipping" },
   { name: "Payment Settings", icon: CreditCard, path: "/payments" },
   { name: "Taxes", icon: Coins, path: "/taxes" },
-  { name: "Sales / Marketing", icon: Megaphone, path: "/marketing" },
+  { name: "Marketing Tools", icon: Megaphone, path: "/marketing" },
   { name: "SEO & Meta", icon: Search, path: "/seo" },
   { name: "Billing", icon: Receipt, path: "/billing" },
   { name: "Team & Access", icon: Users2, path: "/team" },
