@@ -7,8 +7,6 @@ import box from "../../assets/boxEmpty.png";
 import DeleteShippingModal from "./DeleteShippingModal";
 import EditShippingSidebar from "./EditShippingSidebar";
 import CreateShippingSidebar from "./CreateShippingSidebar";
-// import DeleteShippingModal from "./DeleteShippingModal";
-// import EditShippingSidebar from "./EditShippingSidebar";
 
 export interface Shipping {
   id: string;

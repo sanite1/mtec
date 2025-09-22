@@ -27,6 +27,9 @@ import PaymentMethods from "./pages/PaymentMethods";
 import Taxes from "./pages/Taxes";
 import Marketing from "./pages/Marketing";
 import BillingPage from "./pages/Billing";
+import Domain from "./pages/Domain";
+import BuyDomain from "./components/domain/BuyDomain";
+import ConnectDomain from "./components/domain/ConnectDomain";
 
 export const DashboardRoutes: React.FC = () => {
   return (
@@ -62,6 +65,9 @@ export const DashboardRoutes: React.FC = () => {
           <Route path="/taxes" element={<Taxes />} />
           <Route path="/marketing" element={<Marketing />} />
           <Route path="/billing" element={<BillingPage />} />
+          <Route path="/domain" element={<Domain />} />
+          <Route path="/domain/buy" element={<BuyDomain />} />
+          <Route path="/domain/connect" element={<ConnectDomain />} />
         </Route>
       </Route>
 
