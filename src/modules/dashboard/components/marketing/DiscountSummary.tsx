@@ -9,6 +9,8 @@ import {
   PlusCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import EditDiscountSidebar from "./DiscountFormSidebar";
+import DiscountFormSidebar from "./DiscountFormSidebar";
 // import CreateCouponSidebar from "./CreateCouponSidebar";
 
 interface DiscountSummaryProps {
@@ -39,15 +41,6 @@ export default function DiscountSummary({
         </div>
 
         <div className="flex items-center space-x-2">
-          <button
-            onClick={() => {
-              navigate("/discounts/settings");
-            }}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white text-purple-600 border border-purple-600 font-medium hover:bg-purple-100"
-          >
-            <Settings size={20} />
-            Discount Settings
-          </button>
           <button
             onClick={() => setIsSidebarOpen(true)}
             className="flex items-center gap-2 px-3 py-2 rounded-lg bg-purple-600 text-white font-medium hover:bg-purple-700"
@@ -119,15 +112,15 @@ export default function DiscountSummary({
         </div>
       </div>
 
-      {/* {isSidebarOpen && (
-        <CreateCouponSidebar
+      {isSidebarOpen && (
+        <DiscountFormSidebar
           onClose={() => setIsSidebarOpen(false)}
-          onSave={(data) => {
-            console.log("Saved Coupon:", data);
+          onSave={(updated) => {
+            console.log("Updated:", updated);
             setIsSidebarOpen(false);
           }}
         />
-      )} */}
+      )}
     </div>
   );
 }

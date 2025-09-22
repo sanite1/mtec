@@ -1,5 +1,6 @@
 import React from "react";
 import DiscountSummary from "../components/marketing/DiscountSummary";
+import DiscountTable from "../components/marketing/DiscountTable";
 
 export default function Marketing() {
   return (
@@ -10,6 +11,8 @@ export default function Marketing() {
         scheduledCoupons={20}
         expiredCoupons={55}
       />
+
+      <DiscountTable />
     </div>
   );
 }
