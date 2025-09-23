@@ -21,6 +21,8 @@ import {
   User,
   LogOut,
   Coins,
+  Locate,
+  LocationEdit,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -39,7 +41,8 @@ const menuItems = [
   { name: "Payment Settings", icon: CreditCard, path: "/payments" },
   { name: "Taxes", icon: Coins, path: "/taxes" },
   { name: "Marketing Tools", icon: Megaphone, path: "/marketing" },
-  { name: "SEO & Meta", icon: Search, path: "/seo" },
+  { name: "Location Settings", icon: LocationEdit, path: "/location" },
+  // { name: "SEO & Meta", icon: Search, path: "/seo" },
   { name: "Billing", icon: Receipt, path: "/billing" },
   { name: "Team & Access", icon: Users2, path: "/team" },
   { name: " General Settings", icon: Settings, path: "/settings" },

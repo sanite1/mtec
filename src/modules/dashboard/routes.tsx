@@ -32,6 +32,8 @@ import BuyDomain from "./components/domain/BuyDomain";
 import ConnectDomain from "./components/domain/ConnectDomain";
 import Team from "./pages/Team";
 import AddTeamMember from "./pages/AddTeamMember";
+import ErrorPage from "./pages/ErrorPage";
+import Settings from "./pages/Settings";
 
 export const DashboardRoutes: React.FC = () => {
   return (
@@ -72,6 +74,8 @@ export const DashboardRoutes: React.FC = () => {
           <Route path="/domain/connect" element={<ConnectDomain />} />
           <Route path="/team" element={<Team />} />
           <Route path="/team/add" element={<AddTeamMember />} />
+          <Route path="/settings" element={<Settings />} />
+          {/* <Route path="/*" element={<ErrorPage />} /> */}
         </Route>
       </Route>
 
