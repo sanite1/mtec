@@ -30,6 +30,8 @@ import BillingPage from "./pages/Billing";
 import Domain from "./pages/Domain";
 import BuyDomain from "./components/domain/BuyDomain";
 import ConnectDomain from "./components/domain/ConnectDomain";
+import Team from "./pages/Team";
+import AddTeamMember from "./pages/AddTeamMember";
 
 export const DashboardRoutes: React.FC = () => {
   return (
@@ -68,6 +70,8 @@ export const DashboardRoutes: React.FC = () => {
           <Route path="/domain" element={<Domain />} />
           <Route path="/domain/buy" element={<BuyDomain />} />
           <Route path="/domain/connect" element={<ConnectDomain />} />
+          <Route path="/team" element={<Team />} />
+          <Route path="/team/add" element={<AddTeamMember />} />
         </Route>
       </Route>
 
