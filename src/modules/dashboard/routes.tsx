@@ -34,6 +34,7 @@ import Team from "./pages/Team";
 import AddTeamMember from "./pages/AddTeamMember";
 import ErrorPage from "./pages/ErrorPage";
 import Settings from "./pages/Settings";
+import Location from "./pages/Location";
 
 export const DashboardRoutes: React.FC = () => {
   return (
@@ -75,6 +76,7 @@ export const DashboardRoutes: React.FC = () => {
           <Route path="/team" element={<Team />} />
           <Route path="/team/add" element={<AddTeamMember />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/location" element={<Location />} />
           {/* <Route path="/*" element={<ErrorPage />} /> */}
         </Route>
       </Route>
