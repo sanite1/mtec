@@ -23,3 +23,7 @@ code {
   -ms-overflow-style: none; /* IE + Edge */
   scrollbar-width: none; /* Firefox */
 }
+html,
+body {
+  overflow-x: hidden; /* prevents horizontal scrollbar pushing layout */
+}

@@ -35,6 +35,8 @@ import AddTeamMember from "./pages/AddTeamMember";
 import ErrorPage from "./pages/ErrorPage";
 import Settings from "./pages/Settings";
 import Location from "./pages/Location";
+import Storefront from "./pages/Storefront";
+import CustomizeStorefront from "./pages/StoreCustomization";
 
 export const DashboardRoutes: React.FC = () => {
   return (
@@ -77,7 +79,12 @@ export const DashboardRoutes: React.FC = () => {
           <Route path="/team/add" element={<AddTeamMember />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/location" element={<Location />} />
-          {/* <Route path="/*" element={<ErrorPage />} /> */}
+          <Route path="/storefront" element={<Storefront />} />
+          <Route
+            path="/storefront/customization/:id"
+            element={<CustomizeStorefront />}
+          />
+          {/* <Route path="*" element={<ErrorPage />} /> */}
         </Route>
       </Route>
 
