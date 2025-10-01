@@ -37,6 +37,7 @@ import Settings from "./pages/Settings";
 import Location from "./pages/Location";
 import Storefront from "./pages/Storefront";
 import CustomizeStorefront from "./pages/StoreCustomization";
+import "react-quill/dist/quill.snow.css";
 
 export const DashboardRoutes: React.FC = () => {
   return (

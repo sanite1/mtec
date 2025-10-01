@@ -4,6 +4,14 @@ import { Switch } from "@headlessui/react";
 import { ArrowLeft, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import BannerSidebar from "../components/storefront/BannerSidebar";
+import AboutSidebar from "../components/storefront/AboutSidebar";
+import ContactSidebar from "../components/storefront/ContactSidebar";
+import NewsletterSidebar from "../components/storefront/NewsletterSidebar";
+import ReturnPolicySidebar from "../components/storefront/ReturnPolicySidebar";
+import SocialMediaSidebar, {
+  SocialMediaForm,
+} from "../components/storefront/SocialMediaSidebar";
+import WhatsAppSidebar from "../components/storefront/WhatsAppSidebar";
 
 // ----------------- TYPES -----------------
 type SidebarType =
@@ -30,12 +38,12 @@ interface ToggleRowProps {
 
 interface StorefrontData {
   banner?: { title: string; image: string };
-  about?: { content: string };
-  contact?: { email: string; phone: string };
+  about?: { content: string; title: string };
+  contact?: { email: string; phone: string; address: string };
   location?: { address: string };
-  newsletter?: { headline: string };
-  returnPolicy?: { text: string };
-  socialMedia?: { links: string[] };
+  newsletter?: { headline: string; subtext: string; img: File };
+  returnPolicy?: { content: string };
+  socialMedia?: SocialMediaForm;
   customMessage?: { message: string };
   productVariation?: { enabled: boolean };
   whatsapp?: { number: string };
@@ -183,7 +191,7 @@ const CustomizeStorefront: React.FC = () => {
           />
         </div>
         {/* LOCATION PAGE */}
-        <div className="bg-white rounded-lg shadow p-6">
+        {/* <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-3">
             Location Page
           </h2>
@@ -195,7 +203,7 @@ const CustomizeStorefront: React.FC = () => {
             onEdit={() => openSidebar("location")}
             requiresEdit
           />
-        </div>
+        </div> */}
         {/* NEWSLETTER */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-3">
@@ -211,7 +219,7 @@ const CustomizeStorefront: React.FC = () => {
           />
         </div>
         {/* PRODUCT LISTING */}
-        <div className="bg-white rounded-lg shadow p-6">
+        {/* <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-3">
             Product Listing
           </h2>
@@ -224,7 +232,7 @@ const CustomizeStorefront: React.FC = () => {
           >
             <Pencil className="w-4 h-4" /> Edit Product Listing
           </button>
-        </div>
+        </div> */}
         {/* RETURN POLICY */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-3">
@@ -254,7 +262,7 @@ const CustomizeStorefront: React.FC = () => {
           />
         </div>
         {/* CUSTOM MESSAGE */}
-        <div className="bg-white rounded-lg shadow p-6">
+        {/* <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-3">
             Top Banner Custom Message
           </h2>
@@ -266,9 +274,9 @@ const CustomizeStorefront: React.FC = () => {
             onEdit={() => openSidebar("customMessage")}
             requiresEdit
           />
-        </div>
+        </div> */}
         {/* PRODUCT VARIATION */}
-        <div className="bg-white rounded-lg shadow p-6">
+        {/* <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-3">
             Product Variation
           </h2>
@@ -280,7 +288,7 @@ const CustomizeStorefront: React.FC = () => {
             onEdit={() => openSidebar("productVariation")}
             requiresEdit
           />
-        </div>
+        </div> */}
         {/* WHATSAPP */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-3">
@@ -305,7 +313,7 @@ const CustomizeStorefront: React.FC = () => {
           onClose={() => setSidebar(null)}
         />
       )}
-      {/* {sidebar === "about" && (
+      {sidebar === "about" && (
         <AboutSidebar
           initialData={storefrontData.about}
           onSave={(data: any) => saveSidebarData("about", data)}
@@ -319,13 +327,13 @@ const CustomizeStorefront: React.FC = () => {
           onClose={() => setSidebar(null)}
         />
       )}
-      {sidebar === "location" && (
+      {/* {sidebar === "location" && (
         <LocationSidebar
           initialData={storefrontData.location}
           onSave={(data: any) => saveSidebarData("location", data)}
           onClose={() => setSidebar(null)}
         />
-      )}
+      )} */}
       {sidebar === "newsletter" && (
         <NewsletterSidebar
           initialData={storefrontData.newsletter}
@@ -333,13 +341,13 @@ const CustomizeStorefront: React.FC = () => {
           onClose={() => setSidebar(null)}
         />
       )}
-      {sidebar === "productListing" && (
+      {/* {sidebar === "productListing" && (
         <ProductListingSidebar
           initialData={storefrontData.productListing}
           onSave={(data: any) => saveSidebarData("productListing", data)}
           onClose={() => setSidebar(null)}
         />
-      )}
+      )} */}
       {sidebar === "returnPolicy" && (
         <ReturnPolicySidebar
           initialData={storefrontData.returnPolicy}
@@ -354,7 +362,7 @@ const CustomizeStorefront: React.FC = () => {
           onClose={() => setSidebar(null)}
         />
       )}
-      {sidebar === "customMessage" && (
+      {/* {sidebar === "customMessage" && (
         <CustomMessageSidebar
           initialData={storefrontData.customMessage}
           onSave={(data: any) => saveSidebarData("customMessage", data)}
@@ -367,14 +375,14 @@ const CustomizeStorefront: React.FC = () => {
           onSave={(data: any) => saveSidebarData("productVariation", data)}
           onClose={() => setSidebar(null)}
         />
-      )}
+      )}*/}
       {sidebar === "whatsapp" && (
-        <WhatsappSidebar
+        <WhatsAppSidebar
           initialData={storefrontData.whatsapp}
           onSave={(data: any) => saveSidebarData("whatsapp", data)}
           onClose={() => setSidebar(null)}
         />
-      )} */}
+      )}
     </div>
   );
 };
