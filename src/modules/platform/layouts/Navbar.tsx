@@ -1,7 +1,7 @@
 "use client"; // not needed in CRA but leaving won’t hurt
 
 import { Link, useLocation } from "react-router-dom";
-import { ArrowUpRight, Menu, X } from "lucide-react";
+import { ArrowUpRight, LogIn, Menu, UserPlus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 // import RequestQuoteCard from "./RequestQuoteCard";
@@ -54,6 +54,13 @@ export default function Header() {
     // }
   }, [pathname]);
 
+  const isLocalhost = window.location.hostname === "mtec.localhost";
+
+  // 🌐 Define admin login URL
+  const adminLoginUrl = isLocalhost
+    ? "http://admin.localhost:3000" // <-- your local admin port
+    : "https://admin.yourdomain.com"; // <-- production admin domain
+
   return (
     <section
       className={`bg-transparent absolute top-0 w-full z-50 box-border  ${bgColor} ${
@@ -91,20 +98,29 @@ export default function Header() {
           </div>
 
           {/* Desktop CTA */}
-          <button
-            // onClick={() => setIsCardOpen(true)}
-            className="ml-4 hidden md:inline-flex items-center gap-2 rounded-full bg-[#09385F] px-5 py-2 text-white text-sm font-medium hover:bg-[#cc6e68] transition"
-          >
-            Login
-            <span className="inline-flex items-center justify-center bg-white text-[#09385F] rounded-full p-1">
-              <ArrowUpRight size={14} />
-            </span>
-          </button>
+
+          <div className="">
+            <a href={adminLoginUrl}>
+              <button className="ml-4 hidden md:inline-flex items-center gap-2 rounded-md bg-transparent border border-purple-600 px-5 py-2 text-purple-600 text-sm font-medium transition">
+                <LogIn className="w-4 h-4" />
+                Login
+              </button>
+            </a>
+            <Link to={`${adminLoginUrl}/signup`}>
+              <button
+                // onClick={() => setIsCardOpen(true)}
+                className="ml-4 hidden md:inline-flex items-center gap-2 rounded-md bg-purple-600 px-5 py-2 text-white text-sm font-medium hover:bg-purple-700 transition"
+              >
+                <UserPlus className="w-4 h-4" />
+                Sign Up
+              </button>
+            </Link>
+          </div>
 
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden text-[#09385F] focus:outline-none"
+            className="lg:hidden text-purbg-purple-600 focus:outline-none"
           >
             {isOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
