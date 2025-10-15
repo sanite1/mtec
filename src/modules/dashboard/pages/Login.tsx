@@ -1,17 +1,14 @@
 import React, { useState } from "react";
-import signin from "../assets/signin.png";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // ✅ adjust path if needed
+import { useAuth } from "../context/AuthContext";
 
-// ✅ Schema with Zod
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
-
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function Login() {
@@ -20,14 +17,11 @@ export default function Login() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-  });
+  } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
 
   const navigate = useNavigate();
-  const { login } = useAuth(); // ✅ get login function
+  const { login } = useAuth();
 
-  // ✅ Form submit handler
   const onSubmit = async (data: LoginFormData) => {
     try {
       await login();
@@ -39,135 +33,133 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left Image Section (hidden on small screens) */}
-      <div className="hidden md:flex w-1/2 bg-purple-100 items-center justify-center">
-        <img
-          src={signin}
-          alt="Sign In"
-          className="max-w-md w-full object-contain"
-        />
+    <section
+      className="
+        relative min-h-screen 
+        flex justify-center items-start 
+        bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 
+        text-white overflow-auto
+        py-8 sm:py-12
+      "
+    >
+      {/* Background Decorative Blurs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-32 -left-20 w-[32rem] h-[32rem] bg-purple-600 rounded-full blur-3xl opacity-30"></div>
+        <div className="absolute top-1/2 -right-40 w-[28rem] h-[28rem] bg-blue-600 rounded-full blur-3xl opacity-25"></div>
+        <div className="absolute bottom-0 left-1/3 w-[18rem] h-[18rem] bg-pink-500 rounded-full blur-3xl opacity-20"></div>
       </div>
 
-      {/* Right Form Section */}
-      <div className="flex-1 flex items-center justify-center px-6 sm:px-12 lg:px-20">
-        <div className="w-full max-w-md">
-          <h2 className="text-3xl font-bold text-gray-800 mb-6">Sign In</h2>
-          <p className="text-gray-500 mb-8">
-            Welcome back! Please sign in to continue.
-          </p>
-
-          {/* Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Email */}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Email Address
-              </label>
-              <input
-                type="email"
-                id="email"
-                placeholder="you@example.com"
-                {...register("email")}
-                className={`w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 ${
-                  errors.email
-                    ? "border-red-500 focus:ring-red-500"
-                    : "focus:ring-purple-500 focus:border-purple-500"
-                }`}
-              />
-              {errors.email && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
-
-            {/* Password */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Password
-              </label>
-              <input
-                type={showPassword ? "text" : "password"}
-                id="password"
-                placeholder="••••••••"
-                {...register("password")}
-                className={`w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 ${
-                  errors.password
-                    ? "border-red-500 focus:ring-red-500"
-                    : "focus:ring-purple-500 focus:border-purple-500"
-                }`}
-              />
-              {errors.password && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-
-            {/* Show Password */}
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={showPassword}
-                  onChange={() => setShowPassword((prev) => !prev)}
-                  className="w-4 h-4 border-gray-300"
-                />
-                <span className="text-gray-600">Show Password</span>
-              </label>
-              <a
-                href="/forgot-password"
-                className="text-purple-600 hover:underline"
-              >
-                Forgot Password?
-              </a>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              className="w-full py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition shadow-md"
-            >
-              Sign In
-            </button>
-          </form>
-
-          {/* Divider */}
-          <div className="flex items-center my-8">
-            <div className="flex-grow h-px bg-gray-300" />
-            <span className="px-3 text-gray-500 text-sm">or</span>
-            <div className="flex-grow h-px bg-gray-300" />
-          </div>
-
-          {/* Social Sign-in */}
-          <div className="flex gap-3">
-            <button
-              onClick={async () => {
-                await login();
-                navigate("/");
-              }}
-              className="flex-1 py-3 border rounded-lg hover:bg-gray-100 transition"
-            >
-              Continue with Google
-            </button>
-          </div>
-
-          {/* Sign up link */}
-          <p className="text-sm text-center mt-6 text-gray-600">
-            Don’t have an account?{" "}
-            <a href="/signup" className="text-purple-600 hover:underline">
-              Sign Up
-            </a>
+      {/* Center Card */}
+      <div
+        className="
+          relative z-10 
+          w-full max-w-md 
+          mx-4 sm:mx-0 
+          bg-white/10 backdrop-blur-xl 
+          border border-white/20 
+          rounded-2xl shadow-2xl 
+          p-6 sm:p-10
+        "
+      >
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold mt-4">Welcome Back</h2>
+          <p className="text-gray-300 text-sm mt-2">
+            Please sign in to access your dashboard
           </p>
         </div>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium text-gray-200 mb-2">
+              Email Address
+            </label>
+            <input
+              type="email"
+              {...register("email")}
+              placeholder="you@example.com"
+              className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${
+                errors.email ? "border-red-500" : "border-white/30"
+              } text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500`}
+            />
+            {errors.email && (
+              <p className="text-red-400 text-sm mt-1">
+                {errors.email.message}
+              </p>
+            )}
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-medium text-gray-200 mb-2">
+              Password
+            </label>
+            <input
+              type={showPassword ? "text" : "password"}
+              {...register("password")}
+              placeholder="••••••••"
+              className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${
+                errors.password ? "border-red-500" : "border-white/30"
+              } text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500`}
+            />
+            {errors.password && (
+              <p className="text-red-400 text-sm mt-1">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+
+          {/* Show Password & Forgot */}
+          <div className="flex items-center justify-between text-sm text-gray-300 flex-wrap gap-2">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={showPassword}
+                onChange={() => setShowPassword(!showPassword)}
+                className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+              />
+              <span>Show Password</span>
+            </label>
+            <a href="/forgot-password" className="hover:text-purple-400">
+              Forgot Password?
+            </a>
+          </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg shadow-lg transition"
+          >
+            Sign In
+          </button>
+        </form>
+
+        {/* Divider */}
+        <div className="flex items-center my-8">
+          <div className="flex-grow h-px bg-white/20" />
+          <span className="px-3 text-gray-400 text-sm">or</span>
+          <div className="flex-grow h-px bg-white/20" />
+        </div>
+
+        {/* Social Sign-in */}
+        <button
+          onClick={async () => {
+            await login();
+            navigate("/");
+          }}
+          className="w-full py-3 border border-white/20 bg-white/10 rounded-lg hover:bg-white/20 transition"
+        >
+          Continue with Google
+        </button>
+
+        {/* Sign Up */}
+        <p className="text-sm text-center mt-6 text-gray-300">
+          Don’t have an account?{" "}
+          <a href="/signup" className="text-purple-400 hover:underline">
+            Sign Up
+          </a>
+        </p>
       </div>
-    </div>
+    </section>
   );
 }
