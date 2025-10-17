@@ -136,7 +136,7 @@ export default function EditProduct() {
       setPreviews(newFiles.map((f) => URL.createObjectURL(f)));
       setValue("images", newFiles as any);
     },
-    [files, setValue]
+    [files, setValue],
   );
 
   const handleFileRemove = (index: number) => {
@@ -217,7 +217,7 @@ export default function EditProduct() {
                 className="border-dashed cursor-pointer border-2 text-gray-400 border-gray-200 hover:border-black hover:text-black rounded-md p-6 flex items-center justify-between gap-4"
                 onClick={() => {
                   const el = document.getElementById(
-                    "product-files"
+                    "product-files",
                   ) as HTMLInputElement;
                   el?.click();
                 }}
@@ -314,7 +314,7 @@ export default function EditProduct() {
                   type="button"
                   onClick={() => {
                     const el = document.getElementById(
-                      "desc"
+                      "desc",
                     ) as HTMLTextAreaElement;
                     if (!el) return;
                     const cur = el.value;
@@ -329,7 +329,7 @@ export default function EditProduct() {
                   type="button"
                   onClick={() => {
                     const el = document.getElementById(
-                      "desc"
+                      "desc",
                     ) as HTMLTextAreaElement;
                     if (!el) return;
                     const cur = el.value;

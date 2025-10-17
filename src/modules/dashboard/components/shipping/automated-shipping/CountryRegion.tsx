@@ -24,7 +24,7 @@ const formattedCountries: Country[] = allCountries.map(
       name,
       shortCode: shortCode || undefined,
     })),
-  })
+  }),
 );
 
 export default function CountryRegionDialog({
@@ -42,7 +42,7 @@ export default function CountryRegionDialog({
   const handleCountryCheck = (
     countryName: string,
     regions: Region[],
-    checked: boolean
+    checked: boolean,
   ) => {
     setSelected((prev) => {
       const newState = { ...prev };
@@ -58,7 +58,7 @@ export default function CountryRegionDialog({
   const handleRegionCheck = (
     countryName: string,
     regionName: string,
-    checked: boolean
+    checked: boolean,
   ) => {
     setSelected((prev) => {
       const countryRegions = prev[countryName] || [];
@@ -94,7 +94,7 @@ export default function CountryRegionDialog({
   const filteredCountries = useMemo(() => {
     if (!search.trim()) return formattedCountries;
     return formattedCountries.filter((c) =>
-      c.countryName.toLowerCase().includes(search.toLowerCase())
+      c.countryName.toLowerCase().includes(search.toLowerCase()),
     );
   }, [search]);
 
@@ -164,7 +164,7 @@ export default function CountryRegionDialog({
                             handleCountryCheck(
                               countryName,
                               regions,
-                              e.target.checked
+                              e.target.checked,
                             )
                           }
                           className="w-4 h-4 accent-purple-600"
@@ -184,13 +184,13 @@ export default function CountryRegionDialog({
                             <input
                               type="checkbox"
                               checked={selected[countryName]?.includes(
-                                region.name
+                                region.name,
                               )}
                               onChange={(e) =>
                                 handleRegionCheck(
                                   countryName,
                                   region.name,
-                                  e.target.checked
+                                  e.target.checked,
                                 )
                               }
                               className="w-4 h-4 accent-purple-600"
@@ -204,7 +204,7 @@ export default function CountryRegionDialog({
                     )}
                   </div>
                 );
-              }
+              },
             )
           )}
         </div>

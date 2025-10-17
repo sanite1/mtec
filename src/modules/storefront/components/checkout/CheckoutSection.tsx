@@ -47,7 +47,7 @@ const CheckoutSection: React.FC = () => {
 
   const subtotal = useMemo(
     () => cart.reduce((s, i) => s + i.price * i.quantity, 0),
-    [cart]
+    [cart],
   );
   const shipping = 0; // placeholder—integrate provider later
   const total = subtotal + shipping;
@@ -168,7 +168,7 @@ const CheckoutSection: React.FC = () => {
                                   </span>{" "}
                                   {String(value)}
                                 </p>
-                              )
+                              ),
                             )}
                           </div>
                         )}

@@ -49,7 +49,7 @@ const fetchTaxes = async (params: any) => {
     filtered = filtered.filter(
       (t) =>
         t.name.toLowerCase().includes(search.toLowerCase()) ||
-        t.description.toLowerCase().includes(search.toLowerCase())
+        t.description.toLowerCase().includes(search.toLowerCase()),
     );
   }
 

@@ -29,6 +29,7 @@
     "dayjs": "^1.11.13",
     "framer-motion": "^12.23.12",
     "fullpage.js": "^4.0.37",
+    "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.541.0",
@@ -51,7 +52,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "check-format": "prettier --check .",
+    "check-types": "tsc --noEmit"
   },
   "eslintConfig": {
     "extends": [
@@ -74,11 +77,12 @@
   "devDependencies": {
     "@types/aos": "^3.0.7",
     "@types/fullpage.js": "^2.9.6",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "22.13.9",
     "@types/react": "19.0.10",
     "eslint": "^8",
     "eslint-config-next": "15.0.4",
-    "husky": "^8.0.0",
+    "husky": "^8.0.3",
     "postcss": "^8",
     "prettier": "^3.5.3",
     "tailwindcss": "^3.4.1",

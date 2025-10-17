@@ -235,7 +235,7 @@ const TeamFormSidebar: React.FC<TeamFormSidebarProps> = ({
                             setValue(
                               `permissions.${feature}.${perm}` as any,
                               val,
-                              { shouldValidate: true }
+                              { shouldValidate: true },
                             )
                           }
                         />

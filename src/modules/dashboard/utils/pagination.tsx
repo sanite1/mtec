@@ -36,7 +36,7 @@ const Pagination: React.FC<PaginationProps> = ({
   // Remove consecutive ellipses
   const filteredPageNumbers = pageNumbers.filter(
     (num, index, array) =>
-      index === 0 || num !== "..." || array[index - 1] !== "..."
+      index === 0 || num !== "..." || array[index - 1] !== "...",
   );
 
   return (

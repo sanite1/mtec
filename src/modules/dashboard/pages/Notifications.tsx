@@ -28,7 +28,7 @@ export default function NotificationsPage() {
       prev.map((n) => ({
         ...n,
         read: true,
-      }))
+      })),
     );
   };
 

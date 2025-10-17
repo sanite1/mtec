@@ -46,7 +46,7 @@ export default function NewsletterSidebar({
 
   const imgFile = watch("img") as File | null;
   const [preview, setPreview] = useState<string | null>(
-    imgFile ? URL.createObjectURL(imgFile) : null
+    imgFile ? URL.createObjectURL(imgFile) : null,
   );
 
   const onSubmit = (data: NewsletterForm) => {

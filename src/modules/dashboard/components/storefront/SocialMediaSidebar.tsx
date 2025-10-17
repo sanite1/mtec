@@ -16,14 +16,14 @@ const socialMediaSchema = z.object({
           message: "Select a valid platform",
         }),
         handle: z.string().min(1, "Handle is required"),
-      })
+      }),
     )
     .refine(
       (arr) => {
         const unique = new Set(arr.map((s) => s.platform));
         return unique.size === arr.length;
       },
-      { message: "Duplicate platforms are not allowed" }
+      { message: "Duplicate platforms are not allowed" },
     ),
 });
 

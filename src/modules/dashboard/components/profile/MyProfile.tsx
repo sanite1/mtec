@@ -16,7 +16,7 @@ export default function ProfilePage() {
   const handlePasswordChange = (
     oldPass: string,
     newPass: string,
-    confirmPass: string
+    confirmPass: string,
   ) => {
     setShowPasswordModal(false);
     console.log("Password changed:", { oldPass, newPass, confirmPass });

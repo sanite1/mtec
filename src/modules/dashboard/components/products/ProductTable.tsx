@@ -156,14 +156,14 @@ const fetchProducts = async (params: any) => {
     filteredProducts = filteredProducts.filter(
       (product) =>
         product.name.toLowerCase().includes(search.toLowerCase()) ||
-        product.category.toLowerCase().includes(search.toLowerCase())
+        product.category.toLowerCase().includes(search.toLowerCase()),
     );
   }
 
   // Filter products based on status (if provided)
   if (status) {
     filteredProducts = filteredProducts.filter(
-      (product) => product.status === status
+      (product) => product.status === status,
     );
   }
 

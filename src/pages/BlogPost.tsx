@@ -66,7 +66,7 @@ export default function BlogPost() {
                   const lines = block.trim().split(/\n/).filter(Boolean);
 
                   const isListBlock = lines.every((line) =>
-                    line.trim().startsWith("-")
+                    line.trim().startsWith("-"),
                   );
 
                   if (isListBlock) {
@@ -82,7 +82,7 @@ export default function BlogPost() {
                                   <strong key={k}>{chunk.slice(2, -2)}</strong>
                                 ) : (
                                   chunk
-                                )
+                                ),
                               )}
                           </li>
                         ))}
@@ -110,7 +110,7 @@ export default function BlogPost() {
                                     </strong>
                                   ) : (
                                     chunk
-                                  )
+                                  ),
                                 )}
                             </li>
                           </ul>
@@ -127,7 +127,7 @@ export default function BlogPost() {
                                 <strong key={k}>{chunk.slice(2, -2)}</strong>
                               ) : (
                                 chunk
-                              )
+                              ),
                             )}
                         </p>
                       );

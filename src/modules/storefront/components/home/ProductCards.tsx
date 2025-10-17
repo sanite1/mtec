@@ -13,7 +13,7 @@ const ProductCards: React.FC<ProductCardsProps> = ({ products }) => {
 
   const categories = useMemo(() => {
     const unique = Array.from(new Set(products.map((p) => p.category))).filter(
-      Boolean
+      Boolean,
     ) as string[]; // removes undefined/null
     return ["All", ...unique];
   }, [products]);

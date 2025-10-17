@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { DataTable } from "../../utils/data-table";
 import EmptyState from "../../utils/EmptyState";
-import { Edit, Trash, CreditCard } from "lucide-react";
+import { CreditCard } from "lucide-react";
 
 export interface Transaction {
   id: string;
@@ -58,7 +58,7 @@ const fetchTransactions = async (params: any) => {
     filtered = filtered.filter(
       (t) =>
         t.customer.toLowerCase().includes(search.toLowerCase()) ||
-        t.id.toLowerCase().includes(search.toLowerCase())
+        t.id.toLowerCase().includes(search.toLowerCase()),
     );
   }
 

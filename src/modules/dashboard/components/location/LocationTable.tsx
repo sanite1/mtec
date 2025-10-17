@@ -65,7 +65,7 @@ const fetchLocations = async (params: any) => {
         loc.name.toLowerCase().includes(search.toLowerCase()) ||
         loc.city.toLowerCase().includes(search.toLowerCase()) ||
         loc.state.toLowerCase().includes(search.toLowerCase()) ||
-        loc.country.toLowerCase().includes(search.toLowerCase())
+        loc.country.toLowerCase().includes(search.toLowerCase()),
     );
   }
 

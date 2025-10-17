@@ -69,7 +69,7 @@ export default function Cart() {
                                 </span>{" "}
                                 {String(value)}
                               </p>
-                            )
+                            ),
                           )}
                         </div>
                       )}

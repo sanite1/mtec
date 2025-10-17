@@ -58,7 +58,7 @@ export default function CreateCollectionModal({
             className="flex items-center gap-3 border-dashed border-2 border-gray-200 rounded-md p-3 cursor-pointer"
             onClick={() => {
               const el = document.getElementById(
-                "col-file"
+                "col-file",
               ) as HTMLInputElement;
               el?.click();
             }}

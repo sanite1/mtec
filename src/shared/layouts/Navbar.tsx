@@ -13,7 +13,7 @@ export default function Header() {
   const [bgColor, setBgColor] = useState(
     pathname.pathname === "/home"
       ? "bg-transparent text-white"
-      : "bg-transparent text-black"
+      : "bg-transparent text-black",
   );
   //   const [isCardOpen, setIsCardOpen] = useState(false);
 

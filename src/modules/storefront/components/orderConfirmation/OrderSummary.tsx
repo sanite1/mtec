@@ -59,7 +59,7 @@ export default function OrderCSummary() {
                             </span>{" "}
                             {String(value)}
                           </p>
-                        )
+                        ),
                       )}
                     </div>
                   )}
