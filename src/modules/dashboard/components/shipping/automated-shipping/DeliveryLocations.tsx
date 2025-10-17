@@ -14,19 +14,10 @@ export default function ShippingLocationsSidebar({
   const [allWorldwide, setAllWorldwide] = useState(false);
   const [specificLocations, setSpecificLocations] = useState(true);
   const [locationType, setLocationType] = useState<"zone" | "country" | null>(
-    "country"
+    "country",
   );
-  const [selectedCountries, setSelectedCountries] = useState<string[]>([
-    "Nigeria",
-    "Abia",
-    "Abuja",
-    "Adamawa",
-  ]);
+  const selectedCountries = ["Nigeria", "Abia", "Abuja", "Adamawa"];
   const [shipByDistance, setShipByDistance] = useState(false);
-
-  const openCountryDialog = () => {
-    alert("Open country/region selection dialog here");
-  };
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);

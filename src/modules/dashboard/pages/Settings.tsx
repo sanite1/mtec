@@ -1,12 +1,12 @@
 // components/settings/SettingsPage.tsx
 import React, { useState } from "react";
-import { Settings, Package, ShoppingCart, Boxes } from "lucide-react";
+import { Package, Boxes } from "lucide-react";
 import InventorySettings from "../components/settings/Inventory";
 import ProductSettings from "../components/settings/Product";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<"inventory" | "products">(
-    "inventory"
+    "inventory",
   );
 
   const renderContent = () => {

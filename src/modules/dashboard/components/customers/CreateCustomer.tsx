@@ -461,7 +461,7 @@ export default function CreateCustomer() {
               <button
                 onClick={() => {
                   const input = document.getElementById(
-                    "newGroupName"
+                    "newGroupName",
                   ) as HTMLInputElement;
                   if (input.value.trim()) {
                     setGroups((prev) => [

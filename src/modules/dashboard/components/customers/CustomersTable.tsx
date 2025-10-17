@@ -1,7 +1,6 @@
 // components/customers/CustomersTable.tsx
 import React, { useState } from "react";
 import { DataTable } from "../../utils/data-table";
-import { useNavigate } from "react-router-dom";
 import person from "../../assets/personEmpty.png";
 import EmptyState from "../../utils/EmptyState";
 import { Edit, Trash } from "lucide-react";
@@ -54,7 +53,7 @@ const fetchCustomers = async (params: any) => {
     filtered = filtered.filter(
       (c) =>
         c.name.toLowerCase().includes(search.toLowerCase()) ||
-        c.email.toLowerCase().includes(search.toLowerCase())
+        c.email.toLowerCase().includes(search.toLowerCase()),
     );
   }
 
@@ -77,7 +76,6 @@ const fetchCustomers = async (params: any) => {
 
 const CustomersTable = () => {
   const [selected, setSelected] = useState<Customer[]>([]);
-  const navigate = useNavigate();
 
   const handleRowClick = (customer: Customer) => {
     console.log("Customer clicked:", customer);

@@ -1,7 +1,6 @@
 // components/orders/OrdersTable.tsx
 import React, { useState } from "react";
 import { DataTable } from "../../utils/data-table";
-import { useNavigate } from "react-router-dom";
 
 // Define the Order type
 export interface Order {
@@ -94,7 +93,7 @@ const fetchOrders = async (params: any) => {
     filteredOrders = filteredOrders.filter(
       (order) =>
         order.customer.toLowerCase().includes(search.toLowerCase()) ||
-        order.id.includes(search)
+        order.id.includes(search),
     );
   }
 
@@ -119,7 +118,6 @@ const fetchOrders = async (params: any) => {
 // Orders Table Component
 const OrdersTable = () => {
   const [selectedOrders, setSelectedOrders] = useState<Order[]>([]);
-  const navigate = useNavigate();
 
   const handleRowClick = (order: Order) => {
     console.log("Order clicked:", order);

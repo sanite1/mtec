@@ -6,7 +6,6 @@ import EmptyState from "../../utils/EmptyState";
 import box from "../../assets/boxEmpty.png";
 import DeleteShippingModal from "./DeleteShippingModal";
 import EditShippingSidebar from "./EditShippingSidebar";
-import CreateShippingSidebar from "./CreateShippingSidebar";
 
 export interface Shipping {
   id: string;
@@ -50,7 +49,7 @@ const fetchShipping = async (params: any) => {
     filtered = filtered.filter(
       (s) =>
         s.locationName.toLowerCase().includes(search.toLowerCase()) ||
-        s.description.toLowerCase().includes(search.toLowerCase())
+        s.description.toLowerCase().includes(search.toLowerCase()),
     );
   }
 

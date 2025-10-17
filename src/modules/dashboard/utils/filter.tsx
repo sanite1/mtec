@@ -27,8 +27,8 @@ const ColumnFilterSelect = <TData, TValue>({
       prev.map((col) =>
         col.columnDef.accessorKey === columnKey
           ? { ...col, isVisible: !col.isVisible }
-          : col
-      )
+          : col,
+      ),
     );
   };
 

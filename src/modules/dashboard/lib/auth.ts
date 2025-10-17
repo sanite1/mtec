@@ -8,7 +8,7 @@ export interface DecodedJwt {
   [key: string]: any; // Allow extra claims
 }
 
-export const setToken = (token: string): void => {
+export const setAuthToken = (token: string): void => {
   localStorage.setItem("token", token);
 };
 
@@ -43,12 +43,12 @@ export const removeDomainObj = (): void => {
   localStorage.removeItem("domain");
 };
 
-export const removeToken = (): void => {
+export const removeAuthToken = (): void => {
   localStorage.removeItem("token");
 };
 
 export const logOut = (): void => {
-  removeToken();
+  removeAuthToken();
 };
 
 export const isAuthenticated = (): boolean => {

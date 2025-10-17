@@ -396,7 +396,7 @@ export default function EditSidebar({
               <button
                 onClick={() => {
                   const input = document.getElementById(
-                    "newGroupName"
+                    "newGroupName",
                   ) as HTMLInputElement;
                   if (input.value.trim()) {
                     setGroups((prev) => [

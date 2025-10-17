@@ -209,7 +209,7 @@ const AddTeamMember: React.FC = () => {
                             setValue(
                               `permissions.${feature}.${perm}` as any,
                               val,
-                              { shouldValidate: true }
+                              { shouldValidate: true },
                             )
                           }
                         />

@@ -9,7 +9,7 @@ import { toast } from "sonner";
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>(); // get id from params
   const product: Product | undefined = sampleProducts.find(
-    (p) => p.id.toString() === id
+    (p) => p.id.toString() === id,
   );
 
   const [selectedAttributes, setSelectedAttributes] = useState<

@@ -5,7 +5,6 @@ import { Edit, Trash } from "lucide-react";
 import EmptyState from "../../utils/EmptyState";
 import gift from "../../assets/boxEmpty.png";
 import DeleteDiscountModal from "./DeleteDiscountModal";
-import EditDiscountSidebar from "./DiscountFormSidebar";
 import DiscountFormSidebar from "./DiscountFormSidebar";
 
 // ----------------- Types -----------------
@@ -77,7 +76,7 @@ const fetchDiscounts = async (params: any) => {
     filtered = filtered.filter(
       (d) =>
         d.name.toLowerCase().includes(search.toLowerCase()) ||
-        d.description?.toLowerCase().includes(search.toLowerCase())
+        d.description?.toLowerCase().includes(search.toLowerCase()),
     );
   }
 

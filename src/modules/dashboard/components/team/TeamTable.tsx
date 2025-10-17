@@ -110,7 +110,7 @@ const fetchTeam = async (params: {
       (m) =>
         m.lastName.toLowerCase().includes(query) ||
         m.email.toLowerCase().includes(query) ||
-        m.staffRole.toLowerCase().includes(query)
+        m.staffRole.toLowerCase().includes(query),
     );
   }
 
@@ -132,7 +132,7 @@ const fetchTeam = async (params: {
 const TeamTable = () => {
   const [selected, setSelected] = useState<TeamMemberFormData[]>([]);
   const [deleteTarget, setDeleteTarget] = useState<TeamMemberFormData | null>(
-    null
+    null,
   );
   const [editTarget, setEditTarget] = useState<TeamMemberFormData | null>(null);
 

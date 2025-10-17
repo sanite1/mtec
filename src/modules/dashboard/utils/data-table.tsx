@@ -74,7 +74,7 @@ export function DataTable<TData, TValue>({
   setSelected,
 }: DataTableProps<TData, TValue>) {
   const [activeTab, setActiveTab] = useState(
-    hasAllTab ? "all" : tabInfo ? tabInfo[0].name : ""
+    hasAllTab ? "all" : tabInfo ? tabInfo[0].name : "",
   );
   const emptyStateComponent =
     tabInfo && tabInfo?.length > 0
@@ -83,7 +83,7 @@ export function DataTable<TData, TValue>({
 
   // For URL parameters in React (without Next.js)
   const [searchParams, setSearchParams] = useState<URLSearchParams>(
-    new URLSearchParams(window.location.search)
+    new URLSearchParams(window.location.search),
   );
 
   // Update URL when searchParams change
@@ -241,7 +241,7 @@ export function DataTable<TData, TValue>({
   // Memoize selected rows
   const selectedRows = useMemo(
     () => table.getSelectedRowModel().rows.map((v) => v.original),
-    [table]
+    [table],
   );
 
   useEffect(() => {
@@ -346,7 +346,7 @@ export function DataTable<TData, TValue>({
                               ? null
                               : flexRender(
                                   header.column.columnDef.header,
-                                  header.getContext()
+                                  header.getContext(),
                                 )}
                           </th>
                         ))}
@@ -370,7 +370,7 @@ export function DataTable<TData, TValue>({
                             >
                               {flexRender(
                                 cell.column.columnDef.cell,
-                                cell.getContext()
+                                cell.getContext(),
                               )}
                             </td>
                           ))}

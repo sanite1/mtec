@@ -4,6 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useLogin } from "../lib/api/onboarding";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -20,15 +21,21 @@ export default function Login() {
   } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
 
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { mutateAsync: login } = useLogin();
 
+  const { login: auth } = useAuth();
   const onSubmit = async (data: LoginFormData) => {
     try {
-      await login();
-      navigate("/");
-    } catch (err) {
-      console.error("Login failed:", err);
-      alert("Invalid credentials. Please try again.");
+      await login({ email: data.email, password: data.password });
+
+      setTimeout(() => {
+        navigate("");
+      }, 1500);
+    } catch (error: any) {
+      // Extract error message properly
+      const errorMessage =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
     }
   };
 
@@ -144,7 +151,7 @@ export default function Login() {
         {/* Social Sign-in */}
         <button
           onClick={async () => {
-            await login();
+            await auth();
             navigate("/");
           }}
           className="w-full py-3 border border-white/20 bg-white/10 rounded-lg hover:bg-white/20 transition"

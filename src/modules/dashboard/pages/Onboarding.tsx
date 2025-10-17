@@ -70,7 +70,7 @@ export default function OnboardingPage() {
   // Progress calculation
   const totalSteps = steps.filter((step) => !step.optional).length;
   const completedSteps = steps.filter(
-    (step) => step.completed && !step.optional
+    (step) => step.completed && !step.optional,
   ).length;
   const progress = Math.round((completedSteps / totalSteps) * 100);
 

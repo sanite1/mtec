@@ -1,6 +1,6 @@
 export const updateSearchParams = (
   params: Record<string, string>,
-  currentParams: URLSearchParams
+  currentParams: URLSearchParams,
 ): URLSearchParams => {
   const newParams = new URLSearchParams(currentParams.toString());
 
@@ -30,7 +30,7 @@ export const exportToCSV = (data: any[], filename: string) => {
             ? `"${value}"`
             : value;
         })
-        .join(",")
+        .join(","),
     ),
   ].join("\n");
 
