@@ -33,9 +33,9 @@ export default function Login() {
       }, 1500);
     } catch (error: any) {
       // Extract error message properly
-      const errorMessage =
-        error.response?.data?.message ||
-        "Something went wrong. Please try again.";
+      // const errorMessage =
+      //   error.response?.data?.message ||
+      //   "Something went wrong. Please try again.";
     }
   };
 

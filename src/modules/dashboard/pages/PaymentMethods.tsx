@@ -1,14 +1,7 @@
 // pages/PaymentMethods.tsx
 import React, { useState } from "react";
 import { Switch } from "@headlessui/react";
-import {
-  CreditCard,
-  Wallet,
-  Globe,
-  Save,
-  Users,
-  ShieldCheck,
-} from "lucide-react";
+import { CreditCard, Wallet, Globe, ShieldCheck } from "lucide-react";
 
 const PaymentMethods = () => {
   const [onlineEnabled, setOnlineEnabled] = useState(true);

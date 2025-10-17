@@ -1,7 +1,7 @@
 // pages/ProductSettings.tsx
-import React, { useState } from "react";
+import React from "react";
 import { Switch } from "@headlessui/react";
-import { Save, StickyNote } from "lucide-react";
+import { Save } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";

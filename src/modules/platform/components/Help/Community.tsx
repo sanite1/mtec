@@ -31,19 +31,19 @@ const JoinCommunity = () => {
         {/* Socials / Extra Info */}
         <div className="mt-8 flex justify-center gap-6">
           <a
-            href="#"
+            href="/"
             className="text-white hover:text-yellow-400 transition text-sm"
           >
             Twitter
           </a>
           <a
-            href="#"
+            href="/"
             className="text-white hover:text-yellow-400 transition text-sm"
           >
             LinkedIn
           </a>
           <a
-            href="#"
+            href="/"
             className="text-white hover:text-yellow-400 transition text-sm"
           >
             Discord

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Globe, Link, PlusCircle, Settings, Tag } from "lucide-react";
+import { Link, Tag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import EditDefaultDomainModal from "./EditDefaultDomainModal";
 

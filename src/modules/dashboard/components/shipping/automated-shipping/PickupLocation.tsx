@@ -1,7 +1,6 @@
 // components/shipping/PickupLocationsSidebar.tsx
 import React, { useState } from "react";
 import { X, PlusCircle } from "lucide-react";
-import CountryRegionDialog from "./CountryRegion";
 import boxEmpty from "../../../assets/boxEmpty.png";
 import AddPickupLocationModal from "./AddPickupLoactionModal";
 
@@ -39,12 +38,12 @@ export default function PickupLocationsSidebar({
   //     },
   //   ]);
 
-  const handleAddLocation = (newLocation: PickupLocation) => {
-    setLocations((prev) => [
-      ...prev,
-      { ...newLocation, id: Date.now().toString() },
-    ]);
-  };
+  // const handleAddLocation = (newLocation: PickupLocation) => {
+  //   setLocations((prev) => [
+  //     ...prev,
+  //     { ...newLocation, id: Date.now().toString() },
+  //   ]);
+  // };
 
   return (
     <div className="fixed inset-0 z-50 flex">

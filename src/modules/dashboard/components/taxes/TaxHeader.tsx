@@ -1,10 +1,8 @@
 import { PlusCircle } from "lucide-react";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import CreateTaxSidebar, { TaxForm } from "./CreateTaxSidebar";
 
 export default function TaxHeader() {
-  const navigate = useNavigate();
   const [openCreate, setOpenCreate] = useState<boolean>(false);
   const handleSave = (data: TaxForm) => {
     console.log("Saved Tax:", data);

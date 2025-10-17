@@ -32,7 +32,7 @@ import BuyDomain from "./components/domain/BuyDomain";
 import ConnectDomain from "./components/domain/ConnectDomain";
 import Team from "./pages/Team";
 import AddTeamMember from "./pages/AddTeamMember";
-import ErrorPage from "./pages/ErrorPage";
+// import ErrorPage from "./pages/ErrorPage";
 import Settings from "./pages/Settings";
 import Location from "./pages/Location";
 import Storefront from "./pages/Storefront";

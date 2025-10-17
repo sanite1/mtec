@@ -5,11 +5,8 @@ import {
   CheckCircle,
   Clock,
   RefreshCw,
-  Settings,
   PlusCircle,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import EditDiscountSidebar from "./DiscountFormSidebar";
 import DiscountFormSidebar from "./DiscountFormSidebar";
 // import CreateCouponSidebar from "./CreateCouponSidebar";
 
@@ -26,7 +23,6 @@ export default function DiscountSummary({
   scheduledCoupons,
   expiredCoupons,
 }: DiscountSummaryProps) {
-  const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (

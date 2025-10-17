@@ -1,11 +1,9 @@
 // components/location/LocationHeader.tsx
 import React, { useState } from "react";
 import { MapPin, Plus, AlertCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import EditLocationSidebar from "./LocationFormSidebar";
 
 export default function LocationHeader() {
-  const navigate = useNavigate();
   const [editTarget, setEditTarget] = useState(false);
 
   return (
