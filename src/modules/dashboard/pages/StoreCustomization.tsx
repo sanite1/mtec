@@ -8,9 +8,9 @@ import AboutSidebar from "../components/storefront/AboutSidebar";
 import ContactSidebar from "../components/storefront/ContactSidebar";
 import NewsletterSidebar from "../components/storefront/NewsletterSidebar";
 import ReturnPolicySidebar from "../components/storefront/ReturnPolicySidebar";
-import SocialMediaSidebar, {
-  SocialMediaForm,
-} from "../components/storefront/SocialMediaSidebar";
+// import SocialMediaSidebar, {
+//   SocialMediaForm,
+// } from "../components/storefront/SocialMediaSidebar";
 import WhatsAppSidebar from "../components/storefront/WhatsAppSidebar";
 
 // ----------------- TYPES -----------------
@@ -43,7 +43,7 @@ interface StorefrontData {
   location?: { address: string };
   newsletter?: { headline: string; subtext: string; img: File };
   returnPolicy?: { content: string };
-  socialMedia?: SocialMediaForm;
+  // socialMedia?: SocialMediaForm;
   customMessage?: { message: string };
   productVariation?: { enabled: boolean };
   whatsapp?: { number: string };
@@ -355,13 +355,13 @@ const CustomizeStorefront: React.FC = () => {
           onClose={() => setSidebar(null)}
         />
       )}
-      {sidebar === "socialMedia" && (
+      {/* {sidebar === "socialMedia" && (
         <SocialMediaSidebar
           initialData={storefrontData.socialMedia}
           onSave={(data: any) => saveSidebarData("socialMedia", data)}
           onClose={() => setSidebar(null)}
         />
-      )}
+      )} */}
       {/* {sidebar === "customMessage" && (
         <CustomMessageSidebar
           initialData={storefrontData.customMessage}
