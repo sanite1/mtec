@@ -9,14 +9,18 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const getModule = (): "platform" | "storefront" | "dashboard" => {
   const hostname = window.location.hostname;
 
-  if (hostname === "mtec.localhost") {
-    return "platform";
-  }
-  if (hostname === "admin.localhost") {
-    return "dashboard";
+  // --- Local environment ---
+  if (hostname.includes("localhost")) {
+    if (hostname.startsWith("admin.")) return "dashboard";
+    if (hostname.startsWith("mtec.")) return "platform";
+    return "storefront";
   }
 
-  // default → storefront (tenant store)
+  // --- Production environment ---
+  if (hostname.startsWith("admin.")) return "dashboard";
+  if (hostname.startsWith("platform.")) return "platform";
+
+  // Default: storefront (tenant)
   return "storefront";
 };
 
