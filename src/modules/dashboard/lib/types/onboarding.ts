@@ -17,19 +17,10 @@ export interface LoginResponse {
 
 // ✅ Signup
 export interface SignupPayload {
-  fullName: string;
+  firstname: string;
+  lastname: string;
   email: string;
   password: string;
-  confirmPassword: string;
-  phone?: string;
-  country?: string;
-  state?: string;
-  city?: string;
-  address?: string;
-  role?: string;
-  languages?: string[];
-  certifications?: string[];
-  profilePicture?: File | string;
 }
 
 // ✅ Update Password

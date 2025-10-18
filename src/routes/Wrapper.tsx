@@ -8,19 +8,18 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // Helper: detect which module to load
 const getModule = (): "platform" | "storefront" | "dashboard" => {
   const hostname = window.location.hostname;
+  const port = window.location.port;
 
   // --- Local environment ---
-  if (hostname.includes("localhost")) {
-    if (hostname.startsWith("admin.")) return "dashboard";
-    if (hostname.startsWith("mtec.")) return "platform";
-    return "storefront";
+  if (hostname === "localhost") {
+    if (port === "3001") return "dashboard";
+    if (port === "3002") return "storefront";
+    return "platform"; // default on 3000
   }
 
   // --- Production environment ---
   if (hostname.startsWith("admin.")) return "dashboard";
   if (hostname.startsWith("platform.")) return "platform";
-
-  // Default: storefront (tenant)
   return "storefront";
 };
 

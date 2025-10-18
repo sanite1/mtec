@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
+import { useSignup } from "../lib/api/onboarding";
 
 // ✅ Schema
 const signupSchema = z
@@ -28,7 +29,7 @@ export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
-  const { signup } = useAuth();
+  const { signup: setToken } = useAuth();
 
   const {
     register,
@@ -38,30 +39,58 @@ export default function Signup() {
     resolver: zodResolver(signupSchema),
   });
 
+  const { mutateAsync: signup, isPending } = useSignup();
+
   const onSubmit = async (data: SignupFormData) => {
     try {
-      await signup();
-      toast.success("Account created successfully!");
-      navigate("/onboarding");
-    } catch (err) {
-      console.error("Signup failed:", err);
-      toast.error("Signup failed. Please try again.");
+      const res = await signup({
+        email: data.email,
+        password: data.password,
+        firstname: data.firstName,
+        lastname: data.lastName,
+      });
+      console.log(res.data);
+
+      // setTimeout(() => {
+      navigate("/confirm-email");
+      // }, 1500);
+    } catch (error: any) {
+      // Extract error message properly
+      const errorMessage =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+      toast(errorMessage);
+      console.log(errorMessage);
     }
   };
+  // const onSubmit = async (data: SignupFormData) => {
+  //   try {
+  //     await setToken();
+  //     console.log(data);
+
+  //     toast("Account created successfully!");
+  //     // navigate("/onboarding");
+  //   } catch (err) {
+  //     console.error("Signup failed:", err);
+  //     toast.error("Signup failed. Please try again.");
+  //   }
+  // };
 
   return (
     <section
       className="
-        relative min-h-screen flex justify-center items-start 
-        bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 
-        text-white overflow-auto py-8 sm:py-12
+      relative min-h-screen 
+        flex justify-center items-start 
+        lg:bg-gradient-to-b lg:from-gray-900 lg:via-gray-800 lg:to-gray-900 
+        text-white overflow-auto
+        py-8 sm:py-12
       "
     >
       {/* Background Glows */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-32 -left-20 w-[32rem] h-[32rem] bg-purple-600 rounded-full blur-3xl opacity-30"></div>
-        <div className="absolute top-1/2 -right-40 w-[28rem] h-[28rem] bg-blue-600 rounded-full blur-3xl opacity-25"></div>
-        <div className="absolute bottom-0 left-1/3 w-[18rem] h-[18rem] bg-pink-500 rounded-full blur-3xl opacity-20"></div>
+        <div className="absolute -top-32 -left-20 w-[32rem] h-[32rem] lg:bg-purple-600 rounded-full blur-3xl opacity-30"></div>
+        <div className="absolute top-1/2 -right-40 w-[28rem] h-[28rem] lg:bg-blue-600 rounded-full blur-3xl opacity-25"></div>
+        <div className="absolute bottom-0 left-1/3 w-[18rem] h-[18rem] lg:bg-pink-500 rounded-full blur-3xl opacity-20"></div>
       </div>
 
       {/* Center Card */}
@@ -73,8 +102,10 @@ export default function Signup() {
         "
       >
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold mt-4">Create Account</h2>
-          <p className="text-gray-300 text-sm mt-2">
+          <h2 className="text-3xl font-bold mt-4 text-gray-900 lg:text-white">
+            Create Account
+          </h2>
+          <p className="text-gray-700 text-sm mt-2 lg:text-gray-300">
             Get started by creating your free account.
           </p>
         </div>
@@ -85,7 +116,7 @@ export default function Signup() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* First Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-200 mb-2">
+              <label className="block text-sm font-medium text-gray-900 lg:text-gray-200 mb-2">
                 First Name
               </label>
               <input
@@ -94,7 +125,7 @@ export default function Signup() {
                 placeholder="John"
                 className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${
                   errors.firstName ? "border-red-500" : "border-white/30"
-                } text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                } text-gray-900 lg:text-white placeholder-gray-500 lg:placeholder-gray-400 ring-1 lg:ring-0 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500`}
               />
               {errors.firstName && (
                 <p className="text-red-400 text-sm mt-1">
@@ -105,7 +136,7 @@ export default function Signup() {
 
             {/* Last Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-200 mb-2">
+              <label className="block text-sm font-medium text-gray-900 lg:text-gray-200 mb-2">
                 Last Name
               </label>
               <input
@@ -114,7 +145,7 @@ export default function Signup() {
                 placeholder="Doe"
                 className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${
                   errors.lastName ? "border-red-500" : "border-white/30"
-                } text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                } text-gray-900 lg:text-white placeholder-gray-500 lg:placeholder-gray-400 ring-1 lg:ring-0 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500`}
               />
               {errors.lastName && (
                 <p className="text-red-400 text-sm mt-1">
@@ -126,7 +157,7 @@ export default function Signup() {
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-2">
+            <label className="block text-sm font-medium text-gray-900 lg:text-gray-200 mb-2">
               Email Address
             </label>
             <input
@@ -135,7 +166,7 @@ export default function Signup() {
               placeholder="you@example.com"
               className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${
                 errors.email ? "border-red-500" : "border-white/30"
-              } text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500`}
+              } text-gray-900 lg:text-white placeholder-gray-500 lg:placeholder-gray-400 ring-1 lg:ring-0 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500`}
             />
             {errors.email && (
               <p className="text-red-400 text-sm mt-1">
@@ -148,7 +179,7 @@ export default function Signup() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Password */}
             <div className="relative">
-              <label className="block text-sm font-medium text-gray-200 mb-2">
+              <label className="block text-sm font-medium text-gray-900 lg:text-gray-200 mb-2">
                 Password
               </label>
               <div className="relative">
@@ -158,7 +189,7 @@ export default function Signup() {
                   placeholder="••••••••"
                   className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${
                     errors.password ? "border-red-500" : "border-white/30"
-                  } text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                  } text-gray-900 lg:text-white placeholder-gray-500 lg:placeholder-gray-400 ring-1 lg:ring-0 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500`}
                 />
 
                 <button
@@ -180,7 +211,7 @@ export default function Signup() {
 
             {/* Confirm Password */}
             <div className="">
-              <label className="block text-sm font-medium text-gray-200 mb-2">
+              <label className="block text-sm font-medium text-gray-900 lg:text-gray-200 mb-2">
                 Confirm Password
               </label>
               <div className="relative">
@@ -192,7 +223,7 @@ export default function Signup() {
                     errors.confirmPassword
                       ? "border-red-500"
                       : "border-white/30"
-                  } text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                  } text-gray-900 lg:text-white placeholder-gray-500 lg:placeholder-gray-400 ring-1 lg:ring-0 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500`}
                 />
                 <button
                   type="button"
@@ -219,31 +250,39 @@ export default function Signup() {
           {/* Submit */}
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isPending}
             className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg shadow-lg transition disabled:opacity-50"
           >
-            {isSubmitting ? "Creating Account..." : "Sign Up"}
+            {isPending ? "Creating Account..." : "Sign Up"}
           </button>
         </form>
 
         {/* Divider */}
         <div className="flex items-center my-8">
-          <div className="flex-grow h-px bg-white/20" />
-          <span className="px-3 text-gray-400 text-sm">or</span>
-          <div className="flex-grow h-px bg-white/20" />
+          <div className="flex-grow h-px bg-gray-300 lg:bg-white/20" />
+          <span className="px-3 text-gray-500 lg:text-gray-400 text-sm">
+            or
+          </span>
+          <div className="flex-grow h-px bg-gray-300 lg:bg-white/20" />
         </div>
 
-        {/* Social Sign-up */}
-        <button className="w-full py-3 border border-white/30 text-white rounded-lg hover:bg-white/10 transition">
+        {/* Social Sign-in */}
+        <button
+          onClick={async () => {
+            // await auth();
+            navigate("/");
+          }}
+          className="w-full py-3 border border-gray-300 lg:border-white/20 bg-gray-100 lg:bg-white/10 rounded-lg hover:bg-gray-200 lg:hover:bg-white/20 transition text-gray-800 lg:text-white"
+        >
           Continue with Google
         </button>
 
-        {/* Already have an account */}
-        <p className="text-sm text-center mt-6 text-gray-300">
+        {/* Sign Up */}
+        <p className="text-sm text-center mt-6 text-gray-700 lg:text-gray-300">
           Already have an account?{" "}
           <button
             onClick={() => navigate("/login")}
-            className="text-purple-400 hover:underline"
+            className="text-purple-600 hover:underline lg:text-purple-400"
           >
             Sign In
           </button>

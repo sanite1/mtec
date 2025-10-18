@@ -136,9 +136,9 @@ export const signup = async (payload: SignupPayload): Promise<ApiResponse> => {
   });
 
   // Append file separately
-  if (payload.profilePicture instanceof File) {
-    formData.append("profilePicture", payload.profilePicture);
-  }
+  // if (payload.profilePicture instanceof File) {
+  //   formData.append("profilePicture", payload.profilePicture);
+  // }
 
   const res = await api.post<ApiResponse>("/users", formData, {
     headers: { "Content-Type": "multipart/form-data" },

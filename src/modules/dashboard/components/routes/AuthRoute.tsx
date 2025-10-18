@@ -5,6 +5,7 @@ import Signup from "../../pages/Signup";
 import ForgotPassword from "../../pages/ForgotPassword";
 import VerifyEmail from "../../pages/VerifyEmail";
 import ResetPassword from "../../pages/ResetPassword";
+import ConfirmEmail from "../../pages/ConfirmEmail";
 
 export const Auth: React.FC = () => {
   return (
@@ -12,9 +13,10 @@ export const Auth: React.FC = () => {
       {/* <Route path="/" element={<Home />} /> */}
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/confirm-email" element={<ConfirmEmail />} />
+      <Route path="/verify/:id/:token" element={<VerifyEmail />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/verify-email" element={<VerifyEmail />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/reset-password/:id/:token" element={<ResetPassword />} />
     </Routes>
   );
 };
