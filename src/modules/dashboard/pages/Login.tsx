@@ -6,14 +6,18 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useLogin } from "../lib/api/onboarding";
 
+// ✅ Validation schema
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
+
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const {
     register,
     handleSubmit,
@@ -21,21 +25,26 @@ export default function Login() {
   } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
 
   const navigate = useNavigate();
-  const { mutateAsync: login } = useLogin();
-
+  const { mutateAsync: login, isPending } = useLogin();
   const { login: auth } = useAuth();
+
   const onSubmit = async (data: LoginFormData) => {
+    setErrorMessage(null);
     try {
       await login({ email: data.email, password: data.password });
 
+      // ✅ Successful login
       setTimeout(() => {
-        navigate("");
+        auth();
+        navigate("/");
       }, 1500);
     } catch (error: any) {
-      // Extract error message properly
-      // const errorMessage =
-      //   error.response?.data?.message ||
-      //   "Something went wrong. Please try again.";
+      // ✅ Extract error message properly
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong. Please try again.";
+      setErrorMessage(message);
     }
   };
 
@@ -59,14 +68,14 @@ export default function Login() {
       {/* Center Card */}
       <div
         className="
-    relative z-10 
-    w-full max-w-md 
-    mx-4 sm:mx-0 
-    bg-white/10 backdrop-blur-xl 
-    border border-white/20 
-    rounded-2xl shadow-2xl 
-    p-6 sm:p-10
-  "
+          relative z-10 
+          w-full max-w-md 
+          mx-4 sm:mx-0 
+          bg-white/10 backdrop-blur-xl 
+          border border-white/20 
+          rounded-2xl shadow-2xl 
+          p-6 sm:p-10
+        "
       >
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold mt-4 text-gray-900 lg:text-white">
@@ -76,6 +85,13 @@ export default function Login() {
             Please sign in to access your dashboard
           </p>
         </div>
+
+        {/* ✅ Error Message */}
+        {errorMessage && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-300 text-red-700 text-sm rounded-lg">
+            {errorMessage}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* Email */}
@@ -137,12 +153,13 @@ export default function Login() {
             </a>
           </div>
 
-          {/* Submit */}
+          {/* ✅ Submit Button with Pending State */}
           <button
             type="submit"
-            className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg shadow-lg transition"
+            disabled={isPending}
+            className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Sign In
+            {isPending ? "Signing In..." : "Sign In"}
           </button>
         </form>
 

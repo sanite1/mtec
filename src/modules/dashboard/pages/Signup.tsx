@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+// import { useAuth } from "../context/AuthContext";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import { useSignup } from "../lib/api/onboarding";
@@ -29,12 +29,12 @@ export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
-  const { signup: setToken } = useAuth();
+  // const { signup: setToken } = useAuth();
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
   });
@@ -43,13 +43,12 @@ export default function Signup() {
 
   const onSubmit = async (data: SignupFormData) => {
     try {
-      const res = await signup({
+      await signup({
         email: data.email,
         password: data.password,
         firstname: data.firstName,
         lastname: data.lastName,
       });
-      console.log(res.data);
 
       // setTimeout(() => {
       navigate("/confirm-email");
@@ -63,18 +62,6 @@ export default function Signup() {
       console.log(errorMessage);
     }
   };
-  // const onSubmit = async (data: SignupFormData) => {
-  //   try {
-  //     await setToken();
-  //     console.log(data);
-
-  //     toast("Account created successfully!");
-  //     // navigate("/onboarding");
-  //   } catch (err) {
-  //     console.error("Signup failed:", err);
-  //     toast.error("Signup failed. Please try again.");
-  //   }
-  // };
 
   return (
     <section
