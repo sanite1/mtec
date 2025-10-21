@@ -4,7 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, CheckCircle, XCircle } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useResetPassword } from "../lib/api/onboarding";
+import { useResetPassword } from "../lib/api/authOnboarding";
 
 // ✅ Validation Schema
 const resetPasswordSchema = z

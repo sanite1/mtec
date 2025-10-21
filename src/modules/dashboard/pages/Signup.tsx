@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 // import { useAuth } from "../context/AuthContext";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
-import { useSignup } from "../lib/api/onboarding";
+import { useSignup } from "../lib/api/authOnboarding";
 
 // ✅ Schema
 const signupSchema = z

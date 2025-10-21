@@ -14,7 +14,7 @@ import {
   UpdateUserPayload,
   UserData,
   forgotPasswordPayload,
-} from "../types/onboarding";
+} from "../types/authOnboarding";
 // import { DecodedUser } from "@/components/layouts/Header";
 import { jwtDecode } from "jwt-decode";
 import { removeAuthToken, setAuthToken } from "../auth";

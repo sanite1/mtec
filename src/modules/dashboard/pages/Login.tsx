@@ -4,7 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useLogin } from "../lib/api/onboarding";
+import { useLogin } from "../lib/api/authOnboarding";
 
 // ✅ Validation schema
 const loginSchema = z.object({

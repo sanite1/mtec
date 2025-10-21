@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useVerifyAccount } from "../lib/api/onboarding";
+import { useVerifyAccount } from "../lib/api/authOnboarding";
 import { Loader2 } from "lucide-react";
 
 export default function VerifyEmailSuccess() {

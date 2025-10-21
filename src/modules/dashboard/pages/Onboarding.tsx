@@ -1,6 +1,7 @@
 import React from "react";
 import { CheckCircle, Circle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { getDecodedJwt } from "../lib/auth";
 
 interface Step {
   id: number;
@@ -66,6 +67,7 @@ const initialSteps: Step[] = [
 export default function OnboardingPage() {
   const navigate = useNavigate();
   const steps = initialSteps;
+  const user = getDecodedJwt();
 
   // Progress calculation
   const totalSteps = steps.filter((step) => !step.optional).length;
