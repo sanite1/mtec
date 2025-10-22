@@ -1,5 +1,19 @@
-import React from "react";
+// ----------------- Types -----------------
+export interface OnboardingStep {
+  key: string;
+  completed: boolean;
+  optional: boolean;
+  completedAt?: string;
+}
 
-export default function onboardingSteps() {
-  return 0;
+export interface OnboardingData {
+  _id: string;
+  userId: string;
+  steps: OnboardingStep[];
+  overallProgress: number;
+  completedSteps: number;
+  totalSteps: number;
+  isCompleted: boolean;
+  createdAt: string;
+  updatedAt: string;
 }

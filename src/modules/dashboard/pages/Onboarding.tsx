@@ -2,82 +2,120 @@ import React from "react";
 import { CheckCircle, Circle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getDecodedJwt } from "../lib/auth";
+import {
+  useOnboardingProgress,
+  useUpdateOnboardingStep,
+} from "../lib/api/onboardingSteps";
 
-interface Step {
-  id: number;
-  title: string;
-  description: string;
-  link: string;
-  optional?: boolean;
-  completed?: boolean;
+// ---------------- Skeleton Loader ----------------
+function OnboardingSkeleton() {
+  return (
+    <div className="max-w-4xl mx-auto py-6 space-y-5 animate-pulse">
+      <div className="space-y-2 text-center">
+        <div className="h-6 w-3/4 mx-auto bg-gray-200 rounded"></div>
+        <div className="h-4 w-1/2 mx-auto bg-gray-200 rounded"></div>
+      </div>
+      <div className="w-full h-2 bg-gray-200 rounded-full"></div>
+
+      <div className="grid md:grid-cols-2 gap-6 mt-4">
+        {Array.from({ length: 6 }).map((_, idx) => (
+          <div
+            key={idx}
+            className="p-6 border rounded-2xl bg-gray-100 h-28 flex gap-4"
+          >
+            <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
+            <div className="flex-1 space-y-3">
+              <div className="h-4 bg-gray-300 rounded w-2/3"></div>
+              <div className="h-3 bg-gray-300 rounded w-full"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
-const initialSteps: Step[] = [
+// ---------------- Static Step Metadata ----------------
+const initialSteps = [
   {
-    id: 1,
+    key: "storeDetails",
     title: "Set up your store details",
     description:
       "Add your store name, logo, and currency to personalize your website.",
     link: "/onboarding/store-details",
-    completed: true,
   },
   {
-    id: 2,
+    key: "products",
     title: "Upload your first products",
     description:
       "Start building your catalog by adding products. You can always add more later.",
     link: "/onboarding/products",
-    completed: false,
   },
   {
-    id: 3,
+    key: "shipping",
     title: "Configure shipping options",
     description:
       "Define shipping rules and prices so customers can check out seamlessly.",
     link: "/onboarding/shipping",
-    completed: true,
   },
   {
-    id: 4,
+    key: "payout",
     title: "Connect your payout method",
     description:
       "Add your bank or payment details to receive customer payments.",
     link: "/onboarding/payout",
-    completed: true,
   },
   {
-    id: 5,
+    key: "preview",
     title: "Preview your store",
     description:
       "Take a quick look at your storefront to see how everything appears before launch.",
     link: "https://yourstore.com/preview",
-    optional: true,
-    completed: false,
   },
   {
-    id: 6,
+    key: "trial",
     title: "Activate your free trial",
     description: "Unlock premium features after completing the setup steps.",
     link: "/onboarding/trial",
-    optional: true,
-    completed: true,
   },
 ];
 
+// ---------------- Main Component ----------------
 export default function OnboardingPage() {
   const navigate = useNavigate();
-  const steps = initialSteps;
   const user = getDecodedJwt();
 
-  // Progress calculation
-  const totalSteps = steps.filter((step) => !step.optional).length;
-  const completedSteps = steps.filter(
-    (step) => step.completed && !step.optional,
-  ).length;
-  const progress = Math.round((completedSteps / totalSteps) * 100);
+  const { data, isLoading } = useOnboardingProgress(user?.id);
 
-  // Check if store details are completed
-  const storeDetailsCompleted = steps.find((s) => s.id === 1)?.completed;
+  const { mutate: updateStep, isPending } = useUpdateOnboardingStep(user?.id);
+
+  if (isLoading) return <OnboardingSkeleton />;
+
+  if (!data)
+    return (
+      <div className="text-center mt-20 text-gray-500">
+        No onboarding data found.
+      </div>
+    );
+
+  // Merge backend progress with frontend step metadata
+  const steps = initialSteps.map((metaStep, index) => {
+    const backendStep = data.steps.find((s) => s.key === metaStep.key);
+    return {
+      id: index + 1,
+      ...metaStep,
+      completed: backendStep?.completed ?? false,
+      optional: backendStep?.optional ?? false,
+    };
+  });
+
+  const totalSteps = data.totalSteps || 0;
+  const completedSteps = data.completedSteps || 0;
+  const progress = data.overallProgress || 0;
+
+  const storeDetailsCompleted = steps.find(
+    (s) => s.key === "storeDetails",
+  )?.completed;
 
   return (
     <div className="max-w-4xl mx-auto py-6 space-y-5">
@@ -106,23 +144,22 @@ export default function OnboardingPage() {
       <div className="grid md:grid-cols-2 gap-6">
         {steps.map((step) => {
           const isCompleted = step.completed;
-          const isPreview = step.id === 5;
-
-          // Disable Preview if store details not completed
+          const isPreview = step.key === "preview";
           const isDisabledPreview = isPreview && !storeDetailsCompleted;
 
           const handleClick = () => {
             if (isDisabledPreview) return;
             if (isPreview) {
-              window.open(step.link, "_blank"); // open new tab
+              window.open(step.link, "_blank");
             } else if (!isCompleted) {
-              navigate(step.link); // normal navigation
+              updateStep({ key: step.key, completed: true });
+              navigate(step.link);
             }
           };
 
           return (
             <div
-              key={step.id}
+              key={step.key}
               onClick={handleClick}
               className={`group relative p-6 border rounded-2xl shadow-sm transition flex items-start gap-4
                 ${
@@ -133,7 +170,7 @@ export default function OnboardingPage() {
                 ${isDisabledPreview ? "opacity-60 cursor-not-allowed" : ""}
               `}
             >
-              {/* Tooltip when preview disabled */}
+              {/* Tooltip */}
               {isDisabledPreview && (
                 <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-3 py-1 rounded shadow-md">
                   Complete store setup first
