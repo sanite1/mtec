@@ -1,36 +1,63 @@
 import React from "react";
-import { Tag, Percent, Calendar, Package, Layers, User } from "lucide-react";
+import {
+  Tag,
+  Percent,
+  Calendar,
+  Package,
+  Layers,
+  User,
+  Box,
+} from "lucide-react";
+import { ProductDetailsResponse } from "../../lib/types/products";
+import { getDecodedJwt } from "../../lib/auth";
 
-export default function ProductDetails() {
+interface ProductDetailsProps {
+  productDetails?: ProductDetailsResponse;
+}
+
+export default function ProductDetails({
+  productDetails,
+}: ProductDetailsProps) {
+  const user = getDecodedJwt();
+
   const details = [
     {
       label: "Cost Price",
-      value: "₦80,000.00",
+      value: `₦${productDetails?.costPrice?.toLocaleString() || "—"}`,
+      icon: <Box className="w-4 h-4 text-green-500" />,
+    },
+    {
+      label: "Retail Price",
+      value: `₦${productDetails?.price?.toLocaleString() || "—"}`,
       icon: <Tag className="w-4 h-4 text-blue-500" />,
     },
     {
       label: "Discounted Price",
-      value: "₦85,000.00",
+      value: `₦${productDetails?.discountPrice?.toLocaleString() || "—"}`,
       icon: <Percent className="w-4 h-4 text-green-500" />,
     },
     {
-      label: "Date Added",
-      value: "11 Sep 2025",
-      icon: <Calendar className="w-4 h-4 text-purple-500" />,
-    },
-    {
       label: "Unit",
-      value: "pc",
+      value: productDetails?.unit || "—",
       icon: <Package className="w-4 h-4 text-orange-500" />,
     },
     {
-      label: "Min & Max Qty",
-      value: "1 - ∞",
-      icon: <Layers className="w-4 h-4 text-pink-500" />,
+      label: "Date Added",
+      value: productDetails?.createdAt
+        ? new Date(productDetails.createdAt).toLocaleDateString()
+        : "—",
+      icon: <Calendar className="w-4 h-4 text-purple-500" />,
+    },
+    {
+      label: "Last Updated",
+      value: productDetails?.updatedAt
+        ? new Date(productDetails.updatedAt).toLocaleDateString()
+        : "—",
+      icon: <Calendar className="w-4 h-4 text-purple-500" />,
     },
     {
       label: "Created By",
-      value: "Collins Sanni",
+      value: `${user?.firstname} ${user?.lastname}`,
       icon: <User className="w-4 h-4 text-teal-500" />,
       highlight: true,
     },

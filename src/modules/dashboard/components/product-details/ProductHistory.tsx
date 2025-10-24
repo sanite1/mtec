@@ -1,57 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { DataTable } from "../../utils/data-table";
+import { IProductHistory } from "../../lib/types/products";
+import { formatDate, formatDateTime } from "../../lib/utils/formatDate";
 
-// Define the ProductHistory type
-interface ProductHistoryEntry {
-  id: string;
-  date: string;
-  source: string;
-  activity: "sold" | "added" | "removed" | "returned";
-  qtyBefore: number;
-  qty: number;
-  qtyAfter: number;
-}
-
-// Mock data
-const mockHistory: ProductHistoryEntry[] = [
-  {
-    id: "1",
-    date: "2025-09-11",
-    source: "POS",
-    activity: "sold",
-    qtyBefore: 100,
-    qty: -2,
-    qtyAfter: 98,
-  },
-  {
-    id: "2",
-    date: "2025-09-10",
-    source: "Admin",
-    activity: "added",
-    qtyBefore: 80,
-    qty: 20,
-    qtyAfter: 100,
-  },
-  {
-    id: "3",
-    date: "2025-09-08",
-    source: "POS",
-    activity: "returned",
-    qtyBefore: 78,
-    qty: 2,
-    qtyAfter: 80,
-  },
-];
-
-// Define table columns
+// ---------------- Columns ----------------
 const historyColumns = [
   {
-    accessorKey: "date",
+    accessorKey: "createdAt",
     header: "Date",
+    cell: (info: any) => {
+      const val = info.getValue();
+      return formatDate(val);
+    },
   },
   {
     accessorKey: "source",
     header: "Source",
+    cell: (info: any) => {
+      const val = info.getValue();
+      return val.toUpperCase();
+    },
   },
   {
     accessorKey: "activity",
@@ -77,7 +45,7 @@ const historyColumns = [
     header: "Qty Before",
   },
   {
-    accessorKey: "qty",
+    accessorKey: "qtyChange",
     header: "Change",
     cell: (info: any) => {
       const val = info.getValue();
@@ -94,43 +62,43 @@ const historyColumns = [
   },
 ];
 
-// Mock API function
-const fetchHistory = async (params: any) => {
-  await new Promise((resolve) => setTimeout(resolve, 400));
+// ---------------- Component ----------------
+const ProductHistory = ({
+  history,
+  isLoading,
+  error,
+}: {
+  history: IProductHistory[];
+  isLoading: boolean;
+  error: any;
+}) => {
+  const [selectedRows, setSelectedRows] = useState<IProductHistory[]>([]);
 
-  const { page = 1, perPage = 10, activity } = params;
+  // Group by activity type
+  const groupedHistory = useMemo(() => {
+    return {
+      all: history || [],
+      sold: history?.filter((h) => h.activity === "sold") || [],
+      added: history?.filter((h) => h.activity === "added") || [],
+      removed: history?.filter((h) => h.activity === "removed") || [],
+      returned: history?.filter((h) => h.activity === "returned") || [],
+    };
+  }, [history]);
 
-  let filtered = mockHistory;
+  const handleRowClick = (entry: IProductHistory) => {
+    console.log("History entry clicked:", entry);
+  };
 
-  if (activity) {
-    filtered = filtered.filter((item) => item.activity === activity);
+  if (error) {
+    return (
+      <div className="p-4 bg-red-50 text-red-600 rounded-md">
+        Failed to load product history.
+      </div>
+    );
   }
 
-  const startIndex = (page - 1) * perPage;
-  const endIndex = startIndex + perPage;
-
-  return {
-    data: filtered.slice(startIndex, endIndex),
-    meta: {
-      total: filtered.length,
-      page,
-      perPage,
-    },
-  };
-};
-
-// ProductHistory Component
-const ProductHistory = () => {
-  const [selectedRows, setSelectedRows] = useState<ProductHistoryEntry[]>([]);
-  //   const navigate = useNavigate();
-
-  const handleRowClick = (entry: ProductHistoryEntry) => {
-    console.log("History entry clicked:", entry);
-    // navigate(`/history/${entry.id}`);
-  };
-
   return (
-    <div className="bg-gray-50 ">
+    <div className="bg-gray-50">
       <div className="mb-3">
         <p className="text-gray-600">
           Track all product history activities (sales, additions, removals, and
@@ -139,10 +107,11 @@ const ProductHistory = () => {
       </div>
 
       <div className="bg-white rounded-lg shadow p-4">
-        <DataTable<ProductHistoryEntry, unknown>
+        <DataTable<IProductHistory, unknown>
           columns={historyColumns}
-          fetchData={fetchHistory}
-          totalItems={mockHistory.length}
+          data={groupedHistory.all}
+          isLoading={isLoading}
+          totalItems={groupedHistory.all.length}
           tableKey="product-history"
           onRowClick={handleRowClick}
           setSelected={setSelectedRows}
@@ -152,8 +121,7 @@ const ProductHistory = () => {
             {
               name: "Sold",
               columns: historyColumns,
-              fetchData: (params) =>
-                fetchHistory({ ...params, activity: "sold" }),
+              data: groupedHistory.sold,
               tableKey: "sold-history",
               onRowClick: handleRowClick,
               emptyState: "No sold history entries.",
@@ -161,8 +129,7 @@ const ProductHistory = () => {
             {
               name: "Added",
               columns: historyColumns,
-              fetchData: (params) =>
-                fetchHistory({ ...params, activity: "added" }),
+              data: groupedHistory.added,
               tableKey: "added-history",
               onRowClick: handleRowClick,
               emptyState: "No added stock entries.",
@@ -170,8 +137,7 @@ const ProductHistory = () => {
             {
               name: "Removed",
               columns: historyColumns,
-              fetchData: (params) =>
-                fetchHistory({ ...params, activity: "removed" }),
+              data: groupedHistory.removed,
               tableKey: "removed-history",
               onRowClick: handleRowClick,
               emptyState: "No removed stock entries.",
@@ -179,8 +145,7 @@ const ProductHistory = () => {
             {
               name: "Returned",
               columns: historyColumns,
-              fetchData: (params) =>
-                fetchHistory({ ...params, activity: "returned" }),
+              data: groupedHistory.returned,
               tableKey: "returned-history",
               onRowClick: handleRowClick,
               emptyState: "No returned stock entries.",

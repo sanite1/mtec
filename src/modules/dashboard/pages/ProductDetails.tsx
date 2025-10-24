@@ -7,18 +7,49 @@ import ProductHistory from "../components/product-details/ProductHistory";
 import { ArrowLeft, Edit, Trash } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import DeleteProductModal from "../components/product-details/DeleteProductModal";
+import {
+  useDeleteProduct,
+  useFetchSingleProduct,
+  useProductHistory,
+} from "../lib/api/products";
+import { getDecodedJwt } from "../lib/auth";
 
 export default function ProductDetailsPage() {
   const [open, setOpen] = useState(false);
 
-  const handleDelete = () => {
-    setOpen(false);
-    console.log("Account deleted!");
-  };
-
-  const navigate = useNavigate();
-
   const { id } = useParams();
+
+  const user = getDecodedJwt();
+  const userId = user?.id;
+
+  const {
+    data: history,
+    isLoading: loadingHistory,
+    error: historyError,
+  } = useProductHistory(id as string, {
+    page: 1,
+    limit: 10,
+  });
+
+  const {
+    data: productDetails,
+    isLoading: loadingProductDetails,
+    error: productDetailsError,
+  } = useFetchSingleProduct(userId, id as string);
+
+  const { mutateAsync: deleteProduct, isPending: loadingDelete } =
+    useDeleteProduct();
+
+  const handleDelete = async () => {
+    try {
+      await deleteProduct(id as string);
+      setOpen(false);
+      navigate("/products");
+    } catch (err) {
+      console.error("Failed to delete product", err);
+    }
+  };
+  const navigate = useNavigate();
 
   return (
     <div className=" bg-gray-50 min-h-screen">
@@ -31,7 +62,7 @@ export default function ProductDetailsPage() {
           >
             <ArrowLeft className="w-6 h-6 text-gray-600" />
           </button>
-          <h1 className="text-2xl font-bold">Product Name</h1>
+          <h1 className="text-2xl font-bold">{productDetails?.name}</h1>
         </div>
 
         {
@@ -60,23 +91,30 @@ export default function ProductDetailsPage() {
         <DeleteProductModal
           onClose={() => setOpen(false)}
           onConfirm={handleDelete}
+          loading={loadingDelete}
         />
       )}
 
       {/* Top Stats */}
-      <ProductStats />
+      <ProductStats productDetails={productDetails} />
 
       {/* Middle Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <ProductDetails />
+        <div className="h-fit">
+          <ProductDetails productDetails={productDetails} />
+        </div>
         <div className="md:col-span-2 space-y-6">
-          <ProductQuantityControl />
-          <ProductImages />
+          <ProductQuantityControl productDetails={productDetails} />
+          <ProductImages images={productDetails?.images || []} />
         </div>
       </div>
 
       {/* Product History */}
-      <ProductHistory />
+      <ProductHistory
+        history={history?.history || []}
+        isLoading={loadingHistory}
+        error={historyError}
+      />
     </div>
   );
 }

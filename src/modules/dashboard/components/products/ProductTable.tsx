@@ -1,211 +1,129 @@
 import React, { useState } from "react";
 import { DataTable } from "../../utils/data-table";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { getDecodedJwt } from "../../lib/auth";
+import { Product } from "../../lib/types/products";
 
-// Define the Product type
-interface Product {
-  id: string;
-  name: string;
-  category: string;
-  price: number;
-  stock: number;
-  status: "active" | "out-of-stock" | "discontinued";
+// ✅ Safe product type with optional fallbacks
+export interface SafeProduct extends Partial<Product> {
+  _id?: string;
+  name?: string;
+  collection?: string;
+  price?: number;
+  totalStock?: number;
+  isActive?: boolean;
 }
 
-// Mock data for products
-const mockProducts: Product[] = [
-  {
-    id: "1",
-    name: "Wireless Headphones",
-    category: "Electronics",
-    price: 129.99,
-    stock: 45,
-    status: "active",
-  },
-  {
-    id: "2",
-    name: "Running Shoes",
-    category: "Footwear",
-    price: 89.99,
-    stock: 0,
-    status: "out-of-stock",
-  },
-  {
-    id: "3",
-    name: "Coffee Maker",
-    category: "Appliances",
-    price: 59.99,
-    stock: 12,
-    status: "active",
-  },
-  {
-    id: "4",
-    name: "Desk Lamp",
-    category: "Home",
-    price: 34.99,
-    stock: 23,
-    status: "active",
-  },
-  {
-    id: "5",
-    name: "Yoga Mat",
-    category: "Fitness",
-    price: 24.99,
-    stock: 7,
-    status: "active",
-  },
-  {
-    id: "6",
-    name: "Bluetooth Speaker",
-    category: "Electronics",
-    price: 79.99,
-    stock: 0,
-    status: "out-of-stock",
-  },
-  {
-    id: "7",
-    name: "Water Bottle",
-    category: "Kitchen",
-    price: 19.99,
-    stock: 56,
-    status: "active",
-  },
-  {
-    id: "8",
-    name: "Phone Case",
-    category: "Accessories",
-    price: 14.99,
-    stock: 89,
-    status: "active",
-  },
-  {
-    id: "9",
-    name: "Notebook",
-    category: "Office",
-    price: 9.99,
-    stock: 34,
-    status: "active",
-  },
-  {
-    id: "10",
-    name: "Old Smartphone",
-    category: "Electronics",
-    price: 199.99,
-    stock: 3,
-    status: "discontinued",
-  },
-];
+// ✅ Safe cell value helper
+const safeCurrency = (value?: number) => {
+  if (typeof value !== "number" || isNaN(value)) return "₦0.00";
+  return `₦${value.toFixed(2)}`;
+};
 
-// Define table columns
+// ✅ Product table columns with fallbacks
 const productColumns = [
   {
     accessorKey: "name",
     header: "Product Name",
+    cell: (info: any) => info.getValue() || "Untitled Product",
   },
   {
-    accessorKey: "category",
+    accessorKey: "collection",
     header: "Category",
+    cell: (info: any) => info.getValue() || "Uncategorized",
   },
   {
     accessorKey: "price",
     header: "Price",
-    cell: (info: any) => `₦${info.getValue().toFixed(2)}`,
+    cell: (info: any) => safeCurrency(info.getValue()),
   },
   {
-    accessorKey: "stock",
+    accessorKey: "totalStock",
     header: "Stock",
-    cell: (info: any) => (
-      <span className={info.getValue() === 0 ? "text-red-500 font-medium" : ""}>
-        {info.getValue()}
-      </span>
-    ),
+    cell: (info: any) => {
+      const stock = Number(info.getValue() ?? 0);
+      return (
+        <span className={stock === 0 ? "text-red-500 font-medium" : ""}>
+          {isNaN(stock) ? 0 : stock}
+        </span>
+      );
+    },
   },
   {
-    accessorKey: "status",
+    accessorKey: "isActive",
     header: "Status",
     cell: (info: any) => {
-      const status = info.getValue();
-      let statusClass = "";
+      const isActive = info.getValue() ?? true; // default to active
+      const status = isActive ? "Active" : "Inactive";
 
-      if (status === "active") statusClass = "bg-green-100 text-green-800";
-      if (status === "out-of-stock") statusClass = "bg-red-100 text-red-800";
-      if (status === "discontinued") statusClass = "bg-gray-100 text-gray-800";
+      const statusClass = isActive
+        ? "bg-green-100 text-green-800"
+        : "bg-gray-100 text-gray-800";
 
       return (
         <span
           className={`px-2 py-1 rounded-full text-sm font-semibold ${statusClass}`}
         >
-          {status.charAt(0).toUpperCase() + status.slice(1)}
+          {status}
         </span>
       );
     },
   },
 ];
 
-// Mock API function to fetch products
-const fetchProducts = async (params: any) => {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  const { page = 1, perPage = 10, search, status } = params;
-
-  // Filter products based on search term
-  let filteredProducts = mockProducts;
-
-  if (search) {
-    filteredProducts = filteredProducts.filter(
-      (product) =>
-        product.name.toLowerCase().includes(search.toLowerCase()) ||
-        product.category.toLowerCase().includes(search.toLowerCase()),
-    );
-  }
-
-  // Filter products based on status (if provided)
-  if (status) {
-    filteredProducts = filteredProducts.filter(
-      (product) => product.status === status,
-    );
-  }
-
-  // Calculate pagination
-  const startIndex = (page - 1) * perPage;
-  const endIndex = startIndex + perPage;
-  const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
-
-  return {
-    data: paginatedProducts,
-    meta: {
-      total: filteredProducts.length,
-      page,
-      perPage,
-    },
-  };
-};
-
-// Dashboard Products Page Component
-const ProductTable = () => {
-  const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
-
+const ProductTable = ({
+  products,
+  isLoading,
+  error,
+}: {
+  products: SafeProduct[];
+  isLoading: boolean;
+  error: any;
+}) => {
+  const [selectedProducts, setSelectedProducts] = useState<SafeProduct[]>([]);
   const navigate = useNavigate();
 
-  const handleRowClick = (product: Product) => {
-    console.log("Product clicked:", product);
-    navigate(`/products/${product.id}`);
-    // You could navigate to a product detail page or open a modal
+  // 🔹 Get logged-in user ID
+  const user = getDecodedJwt();
+  const userId = user?.id;
+
+  if (error) {
+    toast.error(error?.message || "Failed to load products");
+  }
+
+  const safeProducts = Array.isArray(products)
+    ? products.map((p) => ({
+        _id: p._id || crypto.randomUUID(),
+        name: p.name || "Untitled Product",
+        collection: p.collection || "Uncategorized",
+        price: typeof p.price === "number" ? p.price : 0,
+        totalStock:
+          typeof p.totalStock === "number" && !isNaN(p.totalStock)
+            ? p.totalStock
+            : 0,
+        isActive: p.isActive ?? true,
+      }))
+    : [];
+
+  const totalItems = safeProducts.length;
+
+  const handleRowClick = (product: SafeProduct) => {
+    navigate(`/products/${product._id}`);
   };
 
   return (
-    <div className=" bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 min-h-screen">
       <div className="mb-3">
-        {/* <h1 className="text-2xl font-bold text-gray-800">Inventory</h1> */}
         <p className="text-gray-600">Manage your product inventory</p>
       </div>
 
       <div className="bg-white rounded-lg shadow p-4">
-        <DataTable<Product, unknown>
+        <DataTable<SafeProduct, unknown>
           columns={productColumns}
-          fetchData={fetchProducts}
-          totalItems={mockProducts.length}
+          data={safeProducts}
+          isLoading={isLoading}
+          totalItems={totalItems}
           tableKey="products"
           onRowClick={handleRowClick}
           setSelected={setSelectedProducts}
@@ -215,46 +133,35 @@ const ProductTable = () => {
             {
               name: "Active",
               columns: productColumns,
-              fetchData: (params) => {
-                const activeParams = { ...params, status: "active" };
-                return fetchProducts(activeParams);
-              },
+              data: safeProducts.filter((p) => p.isActive === true),
               tableKey: "active-products",
               onRowClick: handleRowClick,
               emptyState: "No active products found.",
             },
             {
+              name: "Inactive",
+              columns: productColumns,
+              data: safeProducts.filter((p) => p.isActive === false),
+              tableKey: "inactive-products",
+              onRowClick: handleRowClick,
+              emptyState: "All products are active!",
+            },
+            {
               name: "Out of Stock",
               columns: productColumns,
-              fetchData: (params) => {
-                const outOfStockParams = { ...params, status: "out-of-stock" };
-                return fetchProducts(outOfStockParams);
-              },
+              data: safeProducts.filter((p) => (p.totalStock ?? 0) < 1),
               tableKey: "out-of-stock-products",
               onRowClick: handleRowClick,
               emptyState: "All products are in stock!",
             },
-            {
-              name: "Discontinued",
-              columns: productColumns,
-              fetchData: (params) => {
-                const discontinuedParams = {
-                  ...params,
-                  status: "discontinued",
-                };
-                return fetchProducts(discontinuedParams);
-              },
-              tableKey: "discontinued-products",
-              onRowClick: handleRowClick,
-              emptyState: "No discontinued products.",
-            },
           ]}
         />
 
-        {selectedProducts.length > 0 && (
+        {selectedProducts?.length > 0 && (
           <div className="mt-4 p-3 bg-blue-50 rounded-lg">
             <p className="text-blue-800">
-              {selectedProducts.length} product(s) selected
+              {selectedProducts?.length} product
+              {selectedProducts.length > 1 ? "s" : ""} selected
             </p>
           </div>
         )}
