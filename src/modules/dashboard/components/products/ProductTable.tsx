@@ -12,6 +12,7 @@ export interface SafeProduct extends Partial<Product> {
   collection?: string;
   price?: number;
   totalStock?: number;
+  priceRange?: string;
   isActive?: boolean;
 }
 
@@ -31,12 +32,45 @@ const productColumns = [
   {
     accessorKey: "collection",
     header: "Category",
-    cell: (info: any) => info.getValue() || "Uncategorized",
+    cell: (info: any) => info.getValue() || "N/A",
   },
   {
     accessorKey: "price",
     header: "Price",
-    cell: (info: any) => safeCurrency(info.getValue()),
+    cell: (info: any) => {
+      const value = info.getValue();
+      const row = info.row.original as SafeProduct;
+      const priceRange = row.priceRange;
+
+      // ✅ If priceRange exists as a string like "10000 - 15000"
+      if (typeof priceRange === "string" && priceRange.includes("-")) {
+        const [min, max] = priceRange
+          .split("-")
+          .map((v) => Number(v.trim()))
+          .filter((v) => !isNaN(v));
+
+        if (min && max) {
+          return `₦${min.toLocaleString("en-NG", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })} - ₦${max.toLocaleString("en-NG", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}`;
+        }
+      }
+
+      // ✅ Fallback to single numeric price
+      if (typeof value === "number" && !isNaN(value)) {
+        return `₦${value.toLocaleString("en-NG", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}`;
+      }
+
+      // ✅ Otherwise show a dash
+      return "—";
+    },
   },
   {
     accessorKey: "totalStock",
@@ -96,7 +130,8 @@ const ProductTable = ({
     ? products.map((p) => ({
         _id: p._id || crypto.randomUUID(),
         name: p.name || "Untitled Product",
-        collection: p.collection || "Uncategorized",
+        collection: p.collection || "N/A",
+        priceRange: p.priceRange || undefined,
         price: typeof p.price === "number" ? p.price : 0,
         totalStock:
           typeof p.totalStock === "number" && !isNaN(p.totalStock)

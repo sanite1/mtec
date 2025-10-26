@@ -19,27 +19,63 @@ export default function ProductDetails({
   productDetails,
 }: ProductDetailsProps) {
   const user = getDecodedJwt();
+  const hasVariants = productDetails?.variations?.length !== 0;
+
+  // 🧮 Calculate representative values if product has variations
+  const getVariantRange = (
+    field: keyof NonNullable<ProductDetailsResponse["variations"]>[number],
+  ): string => {
+    const variations = productDetails?.variations ?? [];
+
+    if (variations.length === 0) return "—";
+
+    const values = variations
+      .map((v) => v[field])
+      .filter((v): v is number => typeof v === "number");
+
+    if (values.length === 0) return "—";
+
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+
+    return min === max
+      ? `₦${min.toLocaleString()}`
+      : `₦${min.toLocaleString()} - ₦${max.toLocaleString()}`;
+  };
 
   const details = [
     {
       label: "Cost Price",
-      value: `₦${productDetails?.costPrice?.toLocaleString() || "—"}`,
+      value: hasVariants
+        ? getVariantRange("costPrice")
+        : `₦${productDetails?.costPrice?.toLocaleString() || "—"}`,
       icon: <Box className="w-4 h-4 text-green-500" />,
     },
     {
       label: "Retail Price",
-      value: `₦${productDetails?.price?.toLocaleString() || "—"}`,
+      value: hasVariants
+        ? getVariantRange("price")
+        : `₦${productDetails?.price?.toLocaleString() || "—"}`,
       icon: <Tag className="w-4 h-4 text-blue-500" />,
     },
     {
       label: "Discounted Price",
-      value: `₦${productDetails?.discountPrice?.toLocaleString() || "—"}`,
+      value: hasVariants
+        ? getVariantRange("discountPrice")
+        : `₦${productDetails?.discountPrice?.toLocaleString() || "—"}`,
       icon: <Percent className="w-4 h-4 text-green-500" />,
     },
     {
       label: "Unit",
       value: productDetails?.unit || "—",
       icon: <Package className="w-4 h-4 text-orange-500" />,
+    },
+    {
+      label: "Has Variations",
+      value: hasVariants
+        ? `${productDetails?.variations?.length} variant(s)`
+        : "No",
+      icon: <Layers className="w-4 h-4 text-indigo-500" />,
     },
     {
       label: "Date Added",

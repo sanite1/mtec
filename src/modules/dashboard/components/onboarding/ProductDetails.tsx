@@ -1,5 +1,5 @@
 // CreateProduct.tsx
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   useForm,
   Controller,
@@ -8,36 +8,136 @@ import {
 } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Trash, ImageIcon, FolderPlus } from "lucide-react";
+import {
+  Plus,
+  Trash,
+  ImageIcon,
+  FolderPlus,
+  Tag,
+  BadgeCheck,
+  Layers,
+  Pencil,
+} from "lucide-react";
 import CreateCollectionModal from "./CreateCollectionModal";
+import ReactQuill from "react-quill";
+import VariantBuilder, {
+  CombinationFormRow,
+  OptionGroup,
+} from "./VariantBuilder";
+import { useCreateProduct } from "../../lib/api/products";
+import { CreateProductPayload } from "../../lib/types/products";
 
 const variantSchema = z.object({
-  title: z.string().min(1),
-  price: z.string().min(1),
-  costPrice: z.string().optional(),
-  sku: z.string().optional(),
-  quantity: z.string().optional(),
-  attributes: z.record(z.string(), z.string()).optional(), // attributeName -> option
+  name: z
+    .string()
+    .min(1, "Combination name is required")
+    .describe("Auto-generated name like 'Red / Small'"),
+
+  sku: z
+    .string()
+    .optional()
+    .describe("Unique SKU for this specific variant combination"),
+
+  price: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/, "Enter a valid price (e.g. 1000 or 1000.50)")
+    .optional(),
+
+  costPrice: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/, "Enter a valid cost price (e.g. 800 or 800.00)")
+    .optional(),
+
+  discountPrice: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/, "Enter a valid discount price")
+    .optional(),
+
+  stock: z
+    .string()
+    .regex(/^\d+$/, "Stock must be a valid whole number")
+    .optional(),
 });
 
-const productSchema = z.object({
-  images: z.array(z.instanceof(File)).max(8).optional(),
-  name: z.string().min(2, "Product name required"),
-  shortDescription: z.string().min(1).optional(),
-  description: z.string().min(1, "Description is required"),
-  collectionId: z.string().optional(),
-  hasVariations: z.boolean(),
-  // If hasVariations true: variants
-  variants: z.array(variantSchema).optional(),
-  // If no variations:
-  price: z.string().optional(),
-  costPrice: z.string().optional(),
-  discountedPrice: z.string().optional(),
-  // inventory:
-  stockQuantity: z.string().min(1, "Stock is required"),
-  location: z.string(),
-  unit: z.string().optional(),
+export const optionValueSchema = z.object({
+  id: z.string().min(1, "Value ID is required"),
+  value: z.string().min(1, "Value name is required"),
 });
+
+export const optionGroupSchema = z.object({
+  id: z.string().min(1, "Group ID is required"),
+  name: z.string().min(1, "Group name is required"),
+  values: z
+    .array(optionValueSchema)
+    .min(1, "Each option group must have at least one value"),
+});
+
+export const productSchema = z
+  .object({
+    images: z.array(z.instanceof(File)).max(8).optional(),
+    name: z.string().min(2, "Product name is required"),
+    sku: z.string().optional(),
+    description: z.string().min(1, "Description is required"),
+    collection: z.string().optional(),
+    hasVariations: z.boolean(),
+    variants: z.array(variantSchema).optional(),
+    variantsOptionGroup: z.array(optionGroupSchema).optional(),
+    // Pricing and inventory
+    price: z.string().optional(),
+    costPrice: z.string().optional(),
+    discountedPrice: z.string().optional(),
+    totalStock: z.string().optional(),
+
+    // Others
+    location: z.string().min(1, "Location is required"),
+    unit: z.string().min(1, "Unit is required"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.hasVariations) {
+      // ✅ Must have at least one variant
+      if (!data.variants || data.variants.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            "At least one variant is required when variations are enabled.",
+          path: ["variants"],
+        });
+      }
+      if (!data.variantsOptionGroup || data.variantsOptionGroup.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            "At least one variant option is required when variations are enabled.",
+          path: ["variantsOptionGroup"],
+        });
+      }
+    } else {
+      // ✅ Must have pricing and stock fields when no variations
+      if (!data.price || data.price.trim() === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Retail Price is required.",
+          path: ["price"],
+        });
+      }
+
+      if (!data.costPrice || data.costPrice.trim() === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Cost price is required.",
+          path: ["costPrice"],
+        });
+      }
+
+      if (!data.totalStock || data.totalStock.trim() === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Total stock is required.",
+          path: ["totalStock"],
+        });
+      }
+    }
+  });
 
 type ProductForm = z.infer<typeof productSchema>;
 
@@ -69,6 +169,7 @@ export default function CreateProduct() {
     { id: string; name: string; image?: string }[]
   >([]);
   const [collectionModalOpen, setCollectionModalOpen] = useState(false);
+  const [variantModalOpen, setVariantModalOpen] = useState(false);
 
   const {
     register,
@@ -82,7 +183,7 @@ export default function CreateProduct() {
     defaultValues: {
       hasVariations: false,
       location: "headquarters",
-      stockQuantity: "0",
+      totalStock: "0",
     },
   });
 
@@ -91,6 +192,8 @@ export default function CreateProduct() {
   const [files, setFiles] = useState<File[]>([]);
 
   const hasVariations = watch("hasVariations");
+  const variants = watch("variants") || [];
+  const variantsOptionGroup = watch("variantsOptionGroup") || [];
   const priceVal = watch("price") || "";
   const costPriceVal = watch("costPrice") || "";
   // const discountedVal = watch("discountedPrice") || "";
@@ -137,7 +240,21 @@ export default function CreateProduct() {
     image?: string;
   }) => {
     setCollections((prev) => [...prev, col]);
-    setValue("collectionId", col.id);
+    setValue("collection", col.name);
+  };
+  const onCreateVariant = (
+    variants: CombinationFormRow[],
+    optionGroups: OptionGroup[],
+  ) => {
+    // Filter out any variant that has an empty discountPrice
+    const cleanedVariants = variants.map((v) => {
+      const { discountPrice, ...rest } = v;
+      return discountPrice === "" ? rest : v;
+    });
+
+    setValue("variants", cleanedVariants);
+
+    setValue("variantsOptionGroup", optionGroups);
   };
 
   const parsedNumber = (val?: string) => {
@@ -152,34 +269,105 @@ export default function CreateProduct() {
     return p - c;
   }, [priceVal, costPriceVal]);
 
-  const onSubmit: SubmitHandler<ProductForm> = (data) => {
-    // Normalize currency fields to raw numbers before logging/sending to backend
+  const { mutate: createProductMutation, isPending } = useCreateProduct();
+
+  const onSubmit: SubmitHandler<ProductForm> = async (data) => {
+    // 🧩 Normalize all numeric & currency fields
+    const normalizeCurrency = (val?: string) =>
+      val && val.trim() !== "" ? Number(unformatCurrency(val)) : undefined;
+
+    const normalizeNumber = (val?: string) =>
+      val && val.trim() !== "" ? Number(val.replace(/\D/g, "")) : 0;
+
+    // 🧠 Normalize and clean variations
+    const normalizedVariations = data.variants
+      ?.map((v) => {
+        const variation = {
+          ...v,
+          price: normalizeCurrency(v.price),
+          costPrice: normalizeCurrency(v.costPrice),
+          discountPrice: v.discountPrice?.trim()
+            ? normalizeCurrency(v.discountPrice)
+            : undefined,
+          stock: normalizeNumber(v.stock),
+        };
+
+        // 🧹 Remove discountPrice key if empty or undefined
+        if (
+          v.discountPrice === "" ||
+          v.discountPrice == null ||
+          v.discountPrice.trim?.() === ""
+        ) {
+          delete variation.discountPrice;
+        }
+
+        return variation;
+      })
+      // 🧹 Remove any variations that have no name or invalid price
+      .filter((v) => v.name?.trim() && v.price !== undefined);
+
     const normalized = {
       ...data,
-      price: data.price ? Number(unformatCurrency(data.price)) : undefined,
-      costPrice: data.costPrice
-        ? Number(unformatCurrency(data.costPrice))
-        : undefined,
-      discountedPrice: data.discountedPrice
-        ? Number(unformatCurrency(data.discountedPrice))
-        : undefined,
-      stockQuantity: Number((data.stockQuantity || "0").replace(/\D/g, "")),
-      variants: data.variants
-        ? data.variants.map((v) => ({
-            ...v,
-            price: Number(unformatCurrency(v.price)),
-            costPrice: v.costPrice
-              ? Number(unformatCurrency(v.costPrice))
-              : undefined,
-            quantity: v.quantity ? Number(unformatCurrency(v.quantity)) : 0,
-          }))
-        : undefined,
-      images: files, // actual File objects
+      price: normalizeCurrency(data.price),
+      costPrice: normalizeCurrency(data.costPrice),
+      discountedPrice: normalizeCurrency(data.discountedPrice),
+      totalStock: normalizeNumber(data.totalStock),
+      variations: normalizedVariations,
+      variantsOptionGroup: data.variantsOptionGroup,
+      images: files && files.length > 0 ? files : undefined, // only include if not empty
     };
 
-    console.log("SUBMIT:", normalized);
-    alert("Product data logged to console (see SUBMIT).");
+    // 🧹 Clean up unused or invalid fields
+    const cleaned: Record<string, any> = { ...normalized };
+    delete cleaned.hasVariations;
+    delete cleaned.variants; // always remove old local state array
+
+    if (!data.hasVariations) {
+      // simple product
+      delete cleaned.variations;
+      delete cleaned.variantsOptionGroup;
+    } else {
+      // variant product
+      delete cleaned.price;
+      delete cleaned.costPrice;
+      delete cleaned.totalStock;
+    }
+
+    // Remove empty discountedPrice (for non-variant products)
+    if (
+      !data.discountedPrice ||
+      data.discountedPrice.trim() === "" ||
+      data.hasVariations
+    ) {
+      delete cleaned.discountedPrice;
+    }
+
+    // Remove empty collection
+    if (!data.collection?.trim()) delete cleaned.collection;
+
+    console.log("SUBMIT:", cleaned);
+
+    const res = await createProductMutation(cleaned as CreateProductPayload);
+    console.log(res);
   };
+
+  const name = watch("name");
+
+  useEffect(() => {
+    if (name) {
+      const prefix = name
+        .replace(/[^a-zA-Z0-9 ]/g, "") // remove special chars
+        .split(" ") // split words
+        .slice(0, 3) // take first 3 words
+        .map((word) => word.slice(0, 2).toUpperCase()) // take first 2 letters of each
+        .join(""); // join them
+
+      const random = Math.random().toString(36).substring(2, 7).toUpperCase();
+      setValue("sku", `${prefix}-${random}`);
+    } else {
+      setValue("sku", "");
+    }
+  }, [name, setValue]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-6">
@@ -270,8 +458,11 @@ export default function CreateProduct() {
                   Product name
                 </label>
                 <input
-                  {...register("name")}
+                  {...register("name", {
+                    required: "Product name is required",
+                  })}
                   className="mt-1 block w-full border rounded px-3 py-2"
+                  placeholder="Enter product name"
                 />
                 {errors.name && (
                   <p className="text-red-500 text-sm mt-1">
@@ -282,59 +473,33 @@ export default function CreateProduct() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Short description
+                  SKU
                 </label>
                 <input
-                  {...register("shortDescription")}
-                  className="mt-1 block w-full border rounded px-3 py-2"
+                  {...register("sku")}
+                  className="mt-1 block w-full border rounded px-3 py-2 bg-gray-50"
+                  readOnly
                 />
               </div>
             </div>
 
             <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700">
+              {/*  */}
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Product description
               </label>
-
-              {/* simple rich-ish editor toolbar */}
-              <div className="mt-2 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const el = document.getElementById(
-                      "desc",
-                    ) as HTMLTextAreaElement;
-                    if (!el) return;
-                    const cur = el.value;
-                    el.value = cur + "\n• ";
-                    el.focus();
-                  }}
-                  className="px-2 py-1 rounded bg-gray-100 text-sm"
-                >
-                  • Bullet
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const el = document.getElementById(
-                      "desc",
-                    ) as HTMLTextAreaElement;
-                    if (!el) return;
-                    const cur = el.value;
-                    el.value = cur + " **bold** ";
-                    el.focus();
-                  }}
-                  className="px-2 py-1 rounded bg-gray-100 text-sm"
-                >
-                  Bold
-                </button>
-              </div>
-
-              <textarea
-                id="desc"
-                {...register("description")}
-                rows={6}
-                className="mt-2 w-full border rounded px-3 py-2"
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => (
+                  <ReactQuill
+                    theme="snow"
+                    value={field.value}
+                    onChange={field.onChange}
+                    className="h-60 mb-12"
+                    placeholder="Write about your product..."
+                  />
+                )}
               />
               {errors.description && (
                 <p className="text-red-500 text-sm mt-1">
@@ -351,12 +516,12 @@ export default function CreateProduct() {
                 </label>
                 <div className="mt-1 flex gap-2">
                   <select
-                    {...register("collectionId")}
+                    {...register("collection")}
                     className="block w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none"
                   >
                     <option value="">— Select collection —</option>
                     {collections.map((c) => (
-                      <option key={c.id} value={c.id}>
+                      <option key={c.id} value={c.name}>
                         {c.name}
                       </option>
                     ))}
@@ -415,81 +580,149 @@ export default function CreateProduct() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-medium">Variants</h3>
-                    <button
-                      type="button"
-                      onClick={addVariant}
-                      className="text-sm px-3 py-1 bg-gray-100 rounded flex items-center space-x-2"
-                    >
-                      <Plus size={14} /> Add variant
-                    </button>
+                    {variants.length === 0 ? (
+                      <button
+                        type="button"
+                        onClick={() => setVariantModalOpen(true)}
+                        className="text-sm px-3 py-1 bg-gray-100 rounded flex items-center space-x-2"
+                      >
+                        <Plus size={14} /> Add variant
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setVariantModalOpen(true)}
+                        className="text-sm px-3 py-1 border border-purple-600 text-purple-600 rounded flex items-center space-x-2"
+                      >
+                        <Pencil size={14} className="mr-2" /> Edit variant
+                      </button>
+                    )}
                   </div>
 
                   {fields.length === 0 && (
-                    <p className="text-sm text-gray-500">
-                      No variants yet — add one.
-                    </p>
+                    <div className="">
+                      <p className="text-sm text-gray-500 mb-2">
+                        No variants yet — add one.
+                      </p>
+                      {errors.variants && (
+                        <p className="text-red-500 text-sm mt-2">
+                          {errors.variants.message}
+                        </p>
+                      )}
+                    </div>
                   )}
 
-                  <div className="space-y-3">
-                    {fields.map((f, idx) => (
-                      <div
-                        key={f.id}
-                        className="border rounded p-3 flex flex-col md:flex-row gap-3 items-start"
-                      >
-                        <div className="flex-1 grid gap-2 md:grid-cols-2">
-                          <input
-                            placeholder="Variant title (e.g. Red - L)"
-                            {...register(`variants.${idx}.title` as const)}
-                            className="border rounded px-2 py-2"
-                          />
-                          <Controller
-                            control={control}
-                            name={`variants.${idx}.price` as const}
-                            render={({ field }) => (
-                              <input
-                                {...field}
-                                value={field.value}
-                                onChange={(e) =>
-                                  field.onChange(formatCurrency(e.target.value))
-                                }
-                                placeholder="Price (₦)"
-                                className="border rounded px-2 py-2"
-                              />
-                            )}
-                          />
-                          <Controller
-                            control={control}
-                            name={`variants.${idx}.costPrice` as const}
-                            render={({ field }) => (
-                              <input
-                                {...field}
-                                value={field.value}
-                                onChange={(e) =>
-                                  field.onChange(formatCurrency(e.target.value))
-                                }
-                                placeholder="Cost Price (₦)"
-                                className="border rounded px-2 py-2"
-                              />
-                            )}
-                          />
-                          <input
-                            placeholder="Quantity"
-                            {...register(`variants.${idx}.quantity` as const)}
-                            className="border rounded px-2 py-2"
-                          />
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => remove(idx)}
-                            className="px-3 py-1 bg-red-50 text-red-600 rounded border"
-                          >
-                            <Trash size={14} /> Remove
-                          </button>
-                        </div>
+                  <div className="space-y-4">
+                    {/* 🟪 Option Groups Section */}
+                    <section className="rounded-xl border border-gray-200 bg-white shadow-sm">
+                      <div className="flex items-center justify-between border-b px-4 py-3">
+                        <h3 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                          <Layers className="w-4 h-4 text-gray-500" />
+                          Option Groups
+                        </h3>
+                        <span className="text-xs text-gray-500">
+                          {variantsOptionGroup.length} group
+                          {variantsOptionGroup.length !== 1 && "s"}
+                        </span>
                       </div>
-                    ))}
+
+                      <div className="p-4">
+                        {variantsOptionGroup.length === 0 ? (
+                          <div className="text-sm text-gray-500 text-center py-4 bg-gray-50 rounded-lg">
+                            No option groups added yet.
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {variantsOptionGroup.map((group: any) => (
+                              <div
+                                key={group.id}
+                                className="rounded-lg border border-gray-100 bg-gray-50 p-3"
+                              >
+                                <div className="flex items-center justify-between mb-1">
+                                  <h4 className="font-medium text-gray-800">
+                                    {group.name}
+                                  </h4>
+                                  <span className="text-xs text-gray-400">
+                                    {group.values?.length} value
+                                    {group.values?.length !== 1 && "s"}
+                                  </span>
+                                </div>
+                                <div className="flex overflow-x-auto gap-2 pb-1">
+                                  {group.values?.map((v: any) => (
+                                    <span
+                                      key={v.id}
+                                      className="whitespace-nowrap inline-flex items-center bg-white text-gray-700 border border-gray-200 rounded-full px-2.5 py-1 text-xs font-medium shadow-sm"
+                                    >
+                                      {v.value}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </section>
+
+                    {/* 🟩 Variant Combinations Section */}
+                    <section className="rounded-xl border border-gray-200 bg-white shadow-sm">
+                      <div className="flex items-center justify-between border-b px-4 py-3">
+                        <h3 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                          <BadgeCheck className="w-4 h-4 text-gray-500" />
+                          Variant Combinations
+                        </h3>
+                        <span className="text-xs text-gray-500">
+                          {variants.length} combination
+                          {variants.length !== 1 && "s"}
+                        </span>
+                      </div>
+
+                      <div className="p-4">
+                        {variants.length === 0 ? (
+                          <div className="text-sm text-gray-500 text-center py-4 bg-gray-50 rounded-lg">
+                            No variant combinations generated yet.
+                          </div>
+                        ) : (
+                          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                            {variants.map((variant: any, i: number) => (
+                              <div
+                                key={variant.name + i}
+                                className="rounded-lg border border-gray-100 bg-gray-50 p-3 hover:bg-gray-100 transition"
+                              >
+                                <div className="flex items-center justify-between">
+                                  <h4 className="font-medium text-gray-800 flex items-center gap-1">
+                                    <Tag className="w-4 h-4 text-gray-400" />
+                                    {variant.name}
+                                  </h4>
+                                  <span className="text-xs text-gray-400">
+                                    #{i + 1}
+                                  </span>
+                                </div>
+
+                                <div className="mt-2 text-xs sm:text-sm text-gray-700 space-y-1">
+                                  <p>
+                                    <span className="font-medium">Price:</span>{" "}
+                                    {variant.price || "—"}
+                                  </p>
+                                  <p>
+                                    <span className="font-medium">Stock:</span>{" "}
+                                    {variant.stock || "—"}
+                                  </p>
+                                  {variant.discountPrice && (
+                                    <p>
+                                      <span className="font-medium">
+                                        Discount:
+                                      </span>{" "}
+                                      {variant.discountPrice}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </section>
                   </div>
                 </div>
               ) : (
@@ -500,7 +733,7 @@ export default function CreateProduct() {
                     render={({ field }) => (
                       <div>
                         <label className="block text-sm text-gray-700">
-                          Price
+                          Retails Price
                         </label>
                         <input
                           {...field}
@@ -511,6 +744,11 @@ export default function CreateProduct() {
                           placeholder="0"
                           className="mt-1 block w-full border rounded px-3 py-2"
                         />
+                        {errors.price && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.price.message}
+                          </p>
+                        )}
                       </div>
                     )}
                   />
@@ -531,6 +769,11 @@ export default function CreateProduct() {
                           placeholder="0"
                           className="mt-1 block w-full border rounded px-3 py-2"
                         />
+                        {errors.costPrice && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.costPrice.message}
+                          </p>
+                        )}
                       </div>
                     )}
                   />
@@ -551,12 +794,37 @@ export default function CreateProduct() {
                           placeholder="0"
                           className="mt-1 block w-full border rounded px-3 py-2"
                         />
+                        {errors.discountedPrice && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.discountedPrice.message}
+                          </p>
+                        )}
                       </div>
                     )}
                   />
                 </div>
               )}
             </div>
+
+            {!hasVariations && (
+              <p className="text-sm text-gray-500 mt-6">
+                Profit:{" "}
+                <span className="font-semibold">
+                  ₦{formatCurrency(String(profit)) || "0"}
+                </span>
+              </p>
+            )}
+            {hasVariations && (
+              <p
+                className="text-sm text-purple-500 mt-6 cursor-pointer "
+                onClick={() => {
+                  setValue("variants", []);
+                  setValue("variantsOptionGroup", []);
+                }}
+              >
+                Reset Variations
+              </p>
+            )}
           </section>
 
           {/* Inventory */}
@@ -564,31 +832,33 @@ export default function CreateProduct() {
             <h2 className="font-semibold mb-3">Inventory</h2>
 
             <div className="grid md:grid-cols-3 gap-4">
-              <Controller
-                control={control}
-                name="stockQuantity"
-                render={({ field }) => (
-                  <div>
-                    <label className="block text-sm text-gray-700">
-                      Stock Quantity
-                    </label>
-                    <input
-                      {...field}
-                      value={field.value || ""}
-                      onChange={(e) =>
-                        field.onChange(e.target.value.replace(/\D/g, ""))
-                      }
-                      placeholder="0"
-                      className="mt-1 block w-full border rounded px-3 py-2"
-                    />
-                    {errors.stockQuantity && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.stockQuantity.message}
-                      </p>
-                    )}
-                  </div>
-                )}
-              />
+              {!hasVariations && (
+                <Controller
+                  control={control}
+                  name="totalStock"
+                  render={({ field }) => (
+                    <div>
+                      <label className="block text-sm text-gray-700">
+                        Stock Quantity
+                      </label>
+                      <input
+                        {...field}
+                        value={field.value || ""}
+                        onChange={(e) =>
+                          field.onChange(e.target.value.replace(/\D/g, ""))
+                        }
+                        placeholder="0"
+                        className="mt-1 block w-full border rounded px-3 py-2"
+                      />
+                      {errors.totalStock && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.totalStock.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                />
+              )}
 
               <div>
                 <label className="block text-sm text-gray-700">Location</label>
@@ -602,28 +872,24 @@ export default function CreateProduct() {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-700">
-                  Unit (optional)
-                </label>
+                <label className="block text-sm text-gray-700">Unit</label>
                 <input
                   {...register("unit")}
                   className="mt-1 block w-full border rounded px-3 py-2"
                   placeholder="e.g., piece, pack"
                 />
+                {errors.unit && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.unit.message}
+                  </p>
+                )}
               </div>
             </div>
           </section>
 
           {/* Submit */}
           <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div>
-              <p className="text-sm text-gray-500">
-                Profit:{" "}
-                <span className="font-semibold">
-                  ₦{formatCurrency(String(profit)) || "0"}
-                </span>
-              </p>
-            </div>
+            <div></div>
 
             <div className="flex gap-3">
               <button
@@ -635,9 +901,10 @@ export default function CreateProduct() {
               </button>
               <button
                 type="submit"
-                className="px-6 py-2 bg-purple-600 text-white rounded"
+                disabled={isPending}
+                className="py-3 px-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Save Product
+                {isPending ? "Saving Product..." : "Save Product"}
               </button>
             </div>
           </div>
@@ -648,6 +915,11 @@ export default function CreateProduct() {
         open={collectionModalOpen}
         onClose={() => setCollectionModalOpen(false)}
         onCreate={onCreateCollection}
+      />
+      <VariantBuilder
+        open={variantModalOpen}
+        onClose={() => setVariantModalOpen(false)}
+        onCreate={onCreateVariant}
       />
     </div>
   );

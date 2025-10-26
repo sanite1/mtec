@@ -1,14 +1,5 @@
 import React from "react";
-import {
-  ShoppingCart,
-  Package,
-  RotateCcw,
-  Trash2,
-  Tag,
-  DollarSign,
-  TrendingUp,
-  Layers,
-} from "lucide-react";
+import { Package, Tag, DollarSign, TrendingUp, Layers } from "lucide-react";
 import { ProductDetailsResponse } from "../../lib/types/products";
 
 interface ProductDetailsProps {
@@ -17,64 +8,84 @@ interface ProductDetailsProps {
 
 export default function ProductStats({ productDetails }: ProductDetailsProps) {
   const data = productDetails;
+  const hasVariations = data?.variations && data.variations.length > 0;
 
-  // --- derived values ---
-  const price = data?.discountPrice ?? data?.price ?? 0;
-  const costPrice = data?.costPrice ?? 0;
-  const totalStock = data?.totalStock ?? 0;
-  // const totalSold = data?.totalSold ?? 0;
+  // --- Utility for currency formatting ---
+  const formatCurrency = (n?: number) =>
+    n !== undefined ? `₦${n.toLocaleString()}` : "—";
 
-  const totalRetailValue = price * totalStock;
-  const totalProfit = (price - costPrice) * totalStock;
+  // --- Helpers for variation range calculations ---
+  const getRange = (
+    field: keyof NonNullable<ProductDetailsResponse["variations"]>[number],
+  ): string => {
+    const variations = productDetails?.variations ?? [];
 
+    if (variations.length === 0) return "—";
+
+    const values = variations
+      .map((v) => v[field])
+      .filter((v): v is number => typeof v === "number");
+
+    if (values.length === 0) return "—";
+
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+
+    return min === max
+      ? `₦${min.toLocaleString()}`
+      : `₦${min.toLocaleString()} - ₦${max.toLocaleString()}`;
+  };
+
+  const totalStock = hasVariations
+    ? (data?.variations?.reduce((sum, v) => sum + (v.stock || 0), 0) ?? 0)
+    : (data?.totalStock ?? 0);
+
+  const totalRetailValue = hasVariations
+    ? (data?.variations?.reduce(
+        (sum, v) => sum + (v.price || 0) * (v.stock || 0),
+        0,
+      ) ?? 0)
+    : (data?.price || 0) * (data?.totalStock || 0);
+
+  const totalProfit = hasVariations
+    ? (data?.variations?.reduce(
+        (sum, v) =>
+          sum + ((v.price || 0) - (v.costPrice || 0)) * (v.stock || 0),
+        0,
+      ) ?? 0)
+    : ((data?.price || 0) - (data?.costPrice || 0)) * (data?.totalStock || 0);
+
+  // --- Stats definition ---
   const stats = [
     {
       label: "Quantity in Stock",
-      value: totalStock,
+      value: totalStock.toLocaleString(),
       icon: <Package className="w-6 h-6 text-blue-500" />,
       color: "from-blue-50 to-blue-100",
     },
-    // {
-    //   label: "Total Sold",
-    //   value: totalSold,
-    //   icon: <ShoppingCart className="w-6 h-6 text-green-500" />,
-    //   color: "from-green-50 to-green-100",
-    // },
-    // {
-    //   label: "Total Returned",
-    //   value: data?.totalReturned ?? "—",
-    //   icon: <RotateCcw className="w-6 h-6 text-yellow-500" />,
-    //   color: "from-yellow-50 to-yellow-100",
-    // },
-    // {
-    //   label: "Total Removed",
-    //   value: data?.totalRemoved ?? "—",
-    //   icon: <Trash2 className="w-6 h-6 text-red-500" />,
-    //   color: "from-red-50 to-red-100",
-    // },
     {
       label: "Retail Price",
-      value: data?.price !== undefined ? `₦${price.toLocaleString()}` : "—",
+      value: hasVariations ? getRange("price") : formatCurrency(data?.price),
       icon: <Tag className="w-6 h-6 text-purple-500" />,
       color: "from-purple-50 to-purple-100",
     },
     {
       label: "Cost Price",
-      value:
-        data?.costPrice !== undefined ? `₦${costPrice.toLocaleString()}` : "—",
+      value: hasVariations
+        ? getRange("costPrice")
+        : formatCurrency(data?.costPrice),
       icon: <DollarSign className="w-6 h-6 text-indigo-500" />,
       color: "from-indigo-50 to-indigo-100",
     },
     {
       label: "Total Profit",
-      value: totalProfit > 0 ? `₦${totalProfit.toLocaleString()}` : "—",
+      value: totalProfit > 0 ? formatCurrency(totalProfit) : "—",
       icon: <TrendingUp className="w-6 h-6 text-green-600" />,
       color: "from-green-50 to-green-100",
     },
     {
       label: "Total Retail Value",
-      value:
-        totalRetailValue > 0 ? `₦${totalRetailValue.toLocaleString()}` : "—",
+      value: totalRetailValue > 0 ? formatCurrency(totalRetailValue) : "—",
       icon: <Layers className="w-6 h-6 text-pink-500" />,
       color: "from-pink-50 to-pink-100",
     },
