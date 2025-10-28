@@ -9,6 +9,8 @@ import {
   ProductHistoryResponse,
   CreateProductPayload,
   CreateProductResponse,
+  UpdateQuantityPayload,
+  UpdateQuantityResponse,
 } from "../types/products";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -208,5 +210,126 @@ export function useCreateProduct() {
         variant: "destructive",
       });
     },
+  });
+}
+
+// --- lib/api/products.ts ---
+export async function updateProduct(
+  productId: string,
+  payload: CreateProductPayload, // same structure as create
+): Promise<CreateProductResponse> {
+  const formData = new FormData();
+  const user = getDecodedJwt();
+
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+
+    if (key === "images" && Array.isArray(value)) {
+      // 🖼️ Append files correctly (can mix URLs and Files)
+      value.forEach((file) => {
+        if (file instanceof File) {
+          formData.append("images", file);
+        } else if (typeof file === "string") {
+          // Append existing URLs as strings
+          formData.append("existingImages", file);
+        }
+      });
+    }
+
+    // ✅ Handle variants/variations
+    else if (
+      (key === "variants" || key === "variations") &&
+      Array.isArray(value)
+    ) {
+      value.forEach((variant, i) => {
+        Object.entries(variant).forEach(([variantKey, variantValue]) => {
+          if (
+            variantKey === "discountPrice" &&
+            (variantValue === "" || variantValue === null)
+          ) {
+            return;
+          }
+
+          formData.append(
+            `${key}[${i}][${variantKey}]`,
+            String(variantValue ?? ""),
+          );
+        });
+      });
+    }
+
+    // ✅ Handle option groups
+    else if (key === "variantsOptionGroup" && Array.isArray(value)) {
+      value.forEach((group, i) => {
+        formData.append(`${key}[${i}][id]`, group.id);
+        formData.append(`${key}[${i}][name]`, group.name);
+        group.values.forEach((val: any, j: any) => {
+          formData.append(`${key}[${i}][values][${j}][id]`, val.id);
+          formData.append(`${key}[${i}][values][${j}][value]`, val.value);
+        });
+      });
+    }
+
+    // ✅ Handle nested objects safely
+    else if (typeof value === "object" && !(value instanceof File)) {
+      formData.append(key, JSON.stringify(value));
+    }
+
+    // ✅ Default case (simple values)
+    else {
+      formData.append(key, String(value));
+    }
+  });
+
+  formData.append("userId", user?.id);
+
+  const response = await api.patch<ApiResponse<CreateProductResponse>>(
+    `/product/${productId}`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+
+  return response.data;
+}
+
+export function useUpdateProduct() {
+  return useMutation<
+    CreateProductResponse,
+    ApiError,
+    { productId: string; payload: CreateProductPayload }
+  >({
+    mutationFn: ({ productId, payload }) => updateProduct(productId, payload),
+    onSuccess: () => {
+      console.log({ description: "✅ Product updated successfully!" });
+    },
+    onError: (error) => {
+      console.log({
+        description: `❌ Product update failed: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+}
+
+export async function updateProductQuantity(
+  id: string,
+  data: UpdateQuantityPayload,
+): Promise<ApiResponse> {
+  const response = await api.patch<ApiResponse>(
+    `/product/${id}/quantity`,
+    data,
+  );
+  return response;
+}
+
+// --- REACT QUERY HOOK ---
+export function useUpdateProductQuantity() {
+  return useMutation<
+    ApiResponse,
+    ApiError,
+    { id: string; data: UpdateQuantityPayload }
+  >({
+    mutationKey: ["update-product-quantity"],
+    mutationFn: ({ id, data }) => updateProductQuantity(id, data),
   });
 }

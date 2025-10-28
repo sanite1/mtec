@@ -70,13 +70,16 @@ export default function ProductDetails({
       value: productDetails?.unit || "—",
       icon: <Package className="w-4 h-4 text-orange-500" />,
     },
-    {
-      label: "Has Variations",
-      value: hasVariants
-        ? `${productDetails?.variations?.length} variant(s)`
-        : "No",
-      icon: <Layers className="w-4 h-4 text-indigo-500" />,
-    },
+    ...(hasVariants
+      ? [
+          {
+            label: "Has Variations",
+            value: `${productDetails?.variations?.length || 0} variant(s)`,
+            icon: <Layers className="w-4 h-4 text-indigo-500" />,
+          },
+        ]
+      : []),
+
     {
       label: "Date Added",
       value: productDetails?.createdAt

@@ -53,9 +53,15 @@ export interface ProductDetailsResponse {
   costPrice: number;
   discountPrice: number;
   priceRange?: string;
+  location?: string;
   unit: string;
   collection?: string;
   images?: string[];
+  variantsOptionGroup?: Array<{
+    id: string;
+    name: string;
+    values: Array<{ id: string; value: string }>;
+  }>;
   variations: ProductVariation[];
   totalStock: number;
   isActive: boolean;
@@ -93,7 +99,7 @@ export interface CreateProductPayload {
   description?: string;
   price?: number;
   costPrice?: number;
-  discountedPrice?: number;
+  discountPrice?: number;
   totalStock?: number;
   collection?: string;
   variants?: Array<{
@@ -118,7 +124,7 @@ export interface CreateProductResponse {
   slug: string;
   price?: number;
   costPrice?: number;
-  discountedPrice?: number;
+  discountPrice?: number;
   totalStock?: number;
   collection?: string;
   variations?: any[];
@@ -126,4 +132,17 @@ export interface CreateProductResponse {
   images: string[];
   createdAt: string;
   updatedAt: string;
+}
+
+// types/product.ts
+export interface UpdateQuantityPayload {
+  type: "added" | "removed" | "returned";
+  quantity: number;
+  note?: string;
+}
+
+export interface UpdateQuantityResponse {
+  success: boolean;
+  message: string;
+  updatedQuantity?: number;
 }

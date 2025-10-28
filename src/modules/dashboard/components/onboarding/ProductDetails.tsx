@@ -26,6 +26,7 @@ import VariantBuilder, {
 } from "./VariantBuilder";
 import { useCreateProduct } from "../../lib/api/products";
 import { CreateProductPayload } from "../../lib/types/products";
+import { useNavigate } from "react-router-dom";
 
 const variantSchema = z.object({
   name: z
@@ -85,7 +86,7 @@ export const productSchema = z
     // Pricing and inventory
     price: z.string().optional(),
     costPrice: z.string().optional(),
-    discountedPrice: z.string().optional(),
+    discountPrice: z.string().optional(),
     totalStock: z.string().optional(),
 
     // Others
@@ -196,7 +197,8 @@ export default function CreateProduct() {
   const variantsOptionGroup = watch("variantsOptionGroup") || [];
   const priceVal = watch("price") || "";
   const costPriceVal = watch("costPrice") || "";
-  // const discountedVal = watch("discountedPrice") || "";
+  // const discountedVal = watch("discountPrice") || "";
+  const navigate = useNavigate();
 
   // variants array management
   const { fields, append, remove } = useFieldArray({
@@ -223,17 +225,6 @@ export default function CreateProduct() {
     setPreviews(newFiles.map((f) => URL.createObjectURL(f)));
     setValue("images", newFiles as any);
   };
-
-  const addVariant = () =>
-    append({
-      title: "",
-      price: "",
-      costPrice: "",
-      sku: "",
-      quantity: "1",
-      attributes: {},
-    });
-
   const onCreateCollection = (col: {
     id: string;
     name: string;
@@ -269,7 +260,7 @@ export default function CreateProduct() {
     return p - c;
   }, [priceVal, costPriceVal]);
 
-  const { mutate: createProductMutation, isPending } = useCreateProduct();
+  const { mutateAsync: createProductMutation, isPending } = useCreateProduct();
 
   const onSubmit: SubmitHandler<ProductForm> = async (data) => {
     // 🧩 Normalize all numeric & currency fields
@@ -310,7 +301,7 @@ export default function CreateProduct() {
       ...data,
       price: normalizeCurrency(data.price),
       costPrice: normalizeCurrency(data.costPrice),
-      discountedPrice: normalizeCurrency(data.discountedPrice),
+      discountPrice: normalizeCurrency(data.discountPrice),
       totalStock: normalizeNumber(data.totalStock),
       variations: normalizedVariations,
       variantsOptionGroup: data.variantsOptionGroup,
@@ -333,13 +324,13 @@ export default function CreateProduct() {
       delete cleaned.totalStock;
     }
 
-    // Remove empty discountedPrice (for non-variant products)
+    // Remove empty discountPrice (for non-variant products)
     if (
-      !data.discountedPrice ||
-      data.discountedPrice.trim() === "" ||
+      !data.discountPrice ||
+      data.discountPrice.trim() === "" ||
       data.hasVariations
     ) {
-      delete cleaned.discountedPrice;
+      delete cleaned.discountPrice;
     }
 
     // Remove empty collection
@@ -347,10 +338,10 @@ export default function CreateProduct() {
 
     console.log("SUBMIT:", cleaned);
 
-    const res = await createProductMutation(cleaned as CreateProductPayload);
-    console.log(res);
-  };
+    await createProductMutation(cleaned as CreateProductPayload);
 
+    navigate("/products");
+  };
   const name = watch("name");
 
   useEffect(() => {
@@ -779,7 +770,7 @@ export default function CreateProduct() {
                   />
                   <Controller
                     control={control}
-                    name="discountedPrice"
+                    name="discountPrice"
                     render={({ field }) => (
                       <div>
                         <label className="block text-sm text-gray-700">
@@ -794,9 +785,9 @@ export default function CreateProduct() {
                           placeholder="0"
                           className="mt-1 block w-full border rounded px-3 py-2"
                         />
-                        {errors.discountedPrice && (
+                        {errors.discountPrice && (
                           <p className="text-red-500 text-sm mt-1">
-                            {errors.discountedPrice.message}
+                            {errors.discountPrice.message}
                           </p>
                         )}
                       </div>

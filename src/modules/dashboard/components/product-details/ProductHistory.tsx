@@ -29,8 +29,8 @@ const historyColumns = [
       let color = "";
       if (value === "sold") color = "bg-blue-100 text-blue-800";
       if (value === "added") color = "bg-green-100 text-green-800";
-      if (value === "removed") color = "bg-yellow-100 text-yellow-800";
-      if (value === "returned") color = "bg-red-100 text-red-800";
+      if (value === "returned") color = "bg-yellow-100 text-yellow-800";
+      if (value === "removed") color = "bg-red-100 text-red-800";
       return (
         <span
           className={`px-2 py-1 rounded-full text-xs font-semibold ${color}`}
@@ -49,9 +49,18 @@ const historyColumns = [
     header: "Change",
     cell: (info: any) => {
       const val = info.getValue();
+
+      const row = info.row.original;
+      const activity = row.activity?.toLowerCase();
       return (
-        <span className={val < 0 ? "text-red-600" : "text-green-600"}>
-          {val > 0 ? `+${val}` : val}
+        <span
+          className={
+            activity === "added" || activity === "returned"
+              ? "text-green-600"
+              : "text-red-600"
+          }
+        >
+          {activity === "added" || activity === "returned" ? `+${val}` : val}
         </span>
       );
     },

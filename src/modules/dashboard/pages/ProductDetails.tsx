@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import ProductStats from "../components/product-details/ProductStats";
-import ProductQuantityControl from "../components/product-details/ProductQuantityControl";
 import ProductImages from "../components/product-details/ProductImages";
 import ProductDetails from "../components/product-details/ ProductDetails";
 import ProductHistory from "../components/product-details/ProductHistory";
@@ -13,6 +12,9 @@ import {
   useProductHistory,
 } from "../lib/api/products";
 import { getDecodedJwt } from "../lib/auth";
+import StockDisplay from "../components/product-details/StockDisplay";
+import ProductQuantity from "../components/product-details/ProductQuantity";
+// import ProductQuantityControl from "../components/product-details/ProductQuantity";
 
 export default function ProductDetailsPage() {
   const [open, setOpen] = useState(false);
@@ -26,6 +28,7 @@ export default function ProductDetailsPage() {
     data: history,
     isLoading: loadingHistory,
     error: historyError,
+    refetch: refetchHistory,
   } = useProductHistory(id as string, {
     page: 1,
     limit: 10,
@@ -34,7 +37,7 @@ export default function ProductDetailsPage() {
   const {
     data: productDetails,
     isLoading: loadingProductDetails,
-    error: productDetailsError,
+    refetch: refetchDetails,
   } = useFetchSingleProduct(userId, id as string);
 
   const { mutateAsync: deleteProduct, isPending: loadingDelete } =
@@ -100,11 +103,18 @@ export default function ProductDetailsPage() {
 
       {/* Middle Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div className="h-fit">
+        <div className="h-fit space-y-6">
           <ProductDetails productDetails={productDetails} />
+          {productDetails?.variantsOptionGroup?.length === 0 && (
+            <ProductQuantity
+              productDetails={productDetails}
+              refetchDetails={refetchDetails}
+              refetchHistory={refetchHistory}
+            />
+          )}
         </div>
         <div className="md:col-span-2 space-y-6">
-          <ProductQuantityControl productDetails={productDetails} />
+          <StockDisplay productDetails={productDetails} />
           <ProductImages images={productDetails?.images || []} />
         </div>
       </div>

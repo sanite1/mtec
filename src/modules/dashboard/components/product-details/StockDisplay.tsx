@@ -9,9 +9,7 @@ interface ProductDetailsProps {
   productDetails?: ProductDetailsResponse;
 }
 
-export default function ProductQuantityControl({
-  productDetails,
-}: ProductDetailsProps) {
+export default function StockDisplay({ productDetails }: ProductDetailsProps) {
   const variations: ProductVariation[] = Array.isArray(
     productDetails?.variations,
   )
