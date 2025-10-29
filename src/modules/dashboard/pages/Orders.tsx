@@ -1,19 +1,26 @@
 import React from "react";
 import OrderSummary from "../components/orders/OrderSummary";
 import OrdersTable from "../components/orders/OrdersTable";
+import { useOrderStats } from "../lib/api/orders";
+import { getDecodedJwt } from "../lib/auth";
 
 export default function Orders() {
+  const user = getDecodedJwt();
+  const userId = user?.id;
+
+  const { data: stats, refetch } = useOrderStats(userId);
+
   return (
     <div>
       <OrderSummary
-        totalOrders={67}
-        completed={40}
-        pending={15}
-        cancelled={12}
-        totalRevenue={1400000}
+        totalOrders={stats?.totalOrders || 0}
+        completed={stats?.completed || 0}
+        pending={stats?.pending || 0}
+        cancelled={stats?.cancelled || 0}
+        totalRevenue={stats?.revenue || 0}
       />
 
-      <OrdersTable />
+      <OrdersTable refetchSummary={refetch} />
     </div>
   );
 }

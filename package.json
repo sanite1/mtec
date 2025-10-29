@@ -43,7 +43,7 @@
     "swiper": "^11.2.10",
     "web-vitals": "^2.1.4",
     "yup": "^1.7.0",
-    "zod": "^4.1.9"
+    "zod": "^4.1.12"
   },
   "scripts": {
     "start": "HOST=0.0.0.0 react-scripts start",

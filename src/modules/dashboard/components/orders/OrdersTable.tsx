@@ -1,64 +1,58 @@
-// components/orders/OrdersTable.tsx
 import React, { useState } from "react";
 import { DataTable } from "../../utils/data-table";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { getDecodedJwt } from "../../lib/auth";
+import { Order } from "../../lib/types/orders";
+import { useUserOrders } from "../../lib/api/orders";
+import OrderDetailsSidebar from "./OrderSidebar";
 
-// Define the Order type
-export interface Order {
-  id: string;
-  customer: string;
-  date: string;
-  amount: number;
-  status: "completed" | "pending" | "cancelled";
-}
+// ✅ Safe order type for UI display
+// export interface Order extends Partial<Order> {
+//   _id?: string;
+//   customerName?: string;
+//   date?: string;
+//   total?: number;
+//   status?: "completed" | "pending" | "cancelled";
+//   paymentStatus?: "paid" | "unpaid" | "refunded";
+// }
 
-// Mock data for orders
-const mockOrders: Order[] = [
-  {
-    id: "1",
-    customer: "John Doe",
-    date: "2025-09-10",
-    amount: 45000,
-    status: "completed",
-  },
-  {
-    id: "2",
-    customer: "Jane Smith",
-    date: "2025-09-11",
-    amount: 30000,
-    status: "pending",
-  },
-  {
-    id: "3",
-    customer: "Michael Johnson",
-    date: "2025-09-12",
-    amount: 20000,
-    status: "cancelled",
-  },
-  {
-    id: "4",
-    customer: "Emily Brown",
-    date: "2025-09-13",
-    amount: 75000,
-    status: "completed",
-  },
-  {
-    id: "5",
-    customer: "David Wilson",
-    date: "2025-09-14",
-    amount: 15000,
-    status: "pending",
-  },
-];
+// ✅ Helper for currency formatting
+const safeCurrency = (value?: number) => {
+  if (typeof value !== "number" || isNaN(value)) return "₦0.00";
+  return `₦${value.toLocaleString("en-NG", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+};
 
-// Define table columns
+// ✅ Table columns
 const orderColumns = [
-  { accessorKey: "id", header: "Order ID" },
-  { accessorKey: "customer", header: "Customer" },
-  { accessorKey: "date", header: "Date" },
   {
-    accessorKey: "amount",
-    header: "Amount",
-    cell: (info: any) => `₦${info.getValue().toLocaleString()}`,
+    accessorKey: "orderNumber",
+    header: "Order #",
+    cell: (info: any) => info.getValue() || "N/A",
+  },
+  {
+    accessorKey: "shippingAddress",
+    header: "Customer",
+    cell: (info: any) => {
+      const customerName = info.getValue().fullName;
+      return customerName || "Guest";
+    },
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Date",
+    cell: (info: any) =>
+      info.getValue()
+        ? new Date(info.getValue()).toLocaleDateString("en-GB")
+        : "—",
+  },
+  {
+    accessorKey: "total",
+    header: "Total",
+    cell: (info: any) => safeCurrency(info.getValue()),
   },
   {
     accessorKey: "status",
@@ -75,103 +69,151 @@ const orderColumns = [
         <span
           className={`px-2 py-1 rounded-full text-sm font-semibold ${statusClass}`}
         >
-          {status.charAt(0).toUpperCase() + status.slice(1)}
+          {status
+            ? status.charAt(0).toUpperCase() + status.slice(1)
+            : "Unknown"}
+        </span>
+      );
+    },
+  },
+  {
+    accessorKey: "paymentStatus",
+    header: "Payment",
+    cell: (info: any) => {
+      const paymentStatus = info.getValue();
+      let statusClass = "";
+
+      if (paymentStatus === "paid")
+        statusClass = "bg-green-50 text-green-700 border border-green-200";
+      else if (paymentStatus === "unpaid")
+        statusClass = "bg-yellow-50 text-yellow-700 border border-yellow-200";
+      else if (paymentStatus === "refunded")
+        statusClass = "bg-gray-100 text-gray-700 border border-gray-200";
+
+      return (
+        <span
+          className={`px-2 py-1 rounded-full text-sm font-semibold ${statusClass}`}
+        >
+          {paymentStatus
+            ? paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)
+            : "Unknown"}
         </span>
       );
     },
   },
 ];
 
-// Mock API function to fetch orders
-const fetchOrders = async (params: any) => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
+interface OrderTableProps {
+  refetchSummary: () => void;
+}
 
-  const { page = 1, perPage = 10, search, status } = params;
-  let filteredOrders = mockOrders;
-
-  if (search) {
-    filteredOrders = filteredOrders.filter(
-      (order) =>
-        order.customer.toLowerCase().includes(search.toLowerCase()) ||
-        order.id.includes(search),
-    );
-  }
-
-  if (status) {
-    filteredOrders = filteredOrders.filter((order) => order.status === status);
-  }
-
-  const startIndex = (page - 1) * perPage;
-  const endIndex = startIndex + perPage;
-  const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
-
-  return {
-    data: paginatedOrders,
-    meta: {
-      total: filteredOrders.length,
-      page,
-      perPage,
-    },
-  };
-};
-
-// Orders Table Component
-const OrdersTable = () => {
+const OrdersTable = ({ refetchSummary }: OrderTableProps) => {
   const [selectedOrders, setSelectedOrders] = useState<Order[]>([]);
+  const navigate = useNavigate();
+
+  // 🔹 Get userId from JWT
+  const user = getDecodedJwt();
+  const userId = user?.id;
+
+  // 🔹 Fetch orders via hook
+  const { data, isLoading, error, refetch } = useUserOrders(userId, {
+    page: 1,
+    limit: 10,
+  });
+
+  if (error) {
+    toast.error(error?.message || "Failed to load orders");
+  }
+
+  console.log(data?.orders);
+
+  const safeOrders: Order[] = data?.orders || [];
+
+  const totalItems = data?.total || 0;
+
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const handleRowClick = (order: Order) => {
-    console.log("Order clicked:", order);
-    // navigate(`/orders/${order.id}`);
+    setSelectedOrder(order); // open sidebar with order details
+  };
+
+  const handleCloseSidebar = () => {
+    setSelectedOrder(null);
+    refetchSummary();
+  };
+
+  const handleEditPaymentStatus = () => {
+    console.log("Edit Payment Status clicked", selectedOrder);
+    // Open modal or form to update payment status
+  };
+
+  const handleEditOrderStatus = () => {
+    console.log("Edit Order Status clicked", selectedOrder);
+    // Open modal or form to update order status
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-4">
-      <DataTable<Order, unknown>
-        columns={orderColumns}
-        fetchData={fetchOrders}
-        totalItems={mockOrders.length}
-        tableKey="orders"
-        onRowClick={handleRowClick}
-        setSelected={setSelectedOrders}
-        hasTab={true}
-        hasAllTab={true}
-        tabInfo={[
-          {
-            name: "Completed",
-            columns: orderColumns,
-            fetchData: (params) =>
-              fetchOrders({ ...params, status: "completed" }),
-            tableKey: "completed-orders",
-            onRowClick: handleRowClick,
-            emptyState: "No completed orders.",
-          },
-          {
-            name: "Pending",
-            columns: orderColumns,
-            fetchData: (params) =>
-              fetchOrders({ ...params, status: "pending" }),
-            tableKey: "pending-orders",
-            onRowClick: handleRowClick,
-            emptyState: "No pending orders.",
-          },
-          {
-            name: "Cancelled",
-            columns: orderColumns,
-            fetchData: (params) =>
-              fetchOrders({ ...params, status: "cancelled" }),
-            tableKey: "cancelled-orders",
-            onRowClick: handleRowClick,
-            emptyState: "No cancelled orders.",
-          },
-        ]}
-      />
+    <div className="bg-gray-50 min-h-screen">
+      <div className="mb-3">
+        <p className="text-gray-600">Manage your customer orders</p>
+      </div>
 
-      {selectedOrders.length > 0 && (
-        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-          <p className="text-blue-800">
-            {selectedOrders.length} order(s) selected
-          </p>
-        </div>
+      <div className="bg-white rounded-lg shadow p-4">
+        <DataTable<Order, unknown>
+          columns={orderColumns}
+          data={safeOrders}
+          isLoading={isLoading}
+          totalItems={totalItems}
+          tableKey="orders"
+          onRowClick={handleRowClick}
+          setSelected={setSelectedOrders}
+          hasTab={true}
+          hasAllTab={true}
+          tabInfo={[
+            {
+              name: "Pending",
+              columns: orderColumns,
+              data: safeOrders.filter((o) => o.status === "pending"),
+              tableKey: "pending-orders",
+              onRowClick: handleRowClick,
+              emptyState: "No pending orders found.",
+            },
+            {
+              name: "Completed",
+              columns: orderColumns,
+              data: safeOrders.filter((o) => o.status === "completed"),
+              tableKey: "completed-orders",
+              onRowClick: handleRowClick,
+              emptyState: "No completed orders found.",
+            },
+            {
+              name: "Cancelled",
+              columns: orderColumns,
+              data: safeOrders.filter((o) => o.status === "cancelled"),
+              tableKey: "cancelled-orders",
+              onRowClick: handleRowClick,
+              emptyState: "No cancelled orders found.",
+            },
+          ]}
+        />
+
+        {selectedOrders.length > 0 && (
+          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+            <p className="text-blue-800">
+              {selectedOrders.length} order
+              {selectedOrders.length > 1 ? "s" : ""} selected
+            </p>
+          </div>
+        )}
+      </div>
+      {selectedOrder && (
+        <OrderDetailsSidebar
+          order={selectedOrder}
+          onClose={handleCloseSidebar}
+          onEditPaymentStatus={handleEditPaymentStatus}
+          onEditOrderStatus={handleEditOrderStatus}
+          refetch={refetch}
+        />
       )}
     </div>
   );

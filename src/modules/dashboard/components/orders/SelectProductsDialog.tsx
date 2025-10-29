@@ -1,16 +1,22 @@
+"use client";
 import React, { useState } from "react";
-import { Check } from "lucide-react";
-
-const products = [
-  { id: "1", name: "Product A", price: "₦20,000" },
-  { id: "2", name: "Product B", price: "₦45,000" },
-  { id: "3", name: "Product C", price: "₦75,000" },
-];
+import { Check, Loader2 } from "lucide-react";
+import { getDecodedJwt } from "../../lib/auth";
+import { useUserProducts } from "../../lib/api/products";
 
 interface SelectProductsDialogProps {
   open: boolean;
   onClose: () => void;
-  onSave: (selected: { id: string; name: string; price: string }[]) => void;
+  onSave: (
+    selected: {
+      productId: string;
+      variationId?: string;
+      price?: number;
+      name?: string;
+      sku?: string;
+      quantity: number;
+    }[],
+  ) => void;
 }
 
 export default function SelectProductsDialog({
@@ -18,6 +24,10 @@ export default function SelectProductsDialog({
   onClose,
   onSave,
 }: SelectProductsDialogProps) {
+  const user = getDecodedJwt();
+  const userId = user?.id;
+
+  const { data, isLoading, error } = useUserProducts(userId);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const toggleSelection = (id: string) => {
@@ -27,7 +37,17 @@ export default function SelectProductsDialog({
   };
 
   const handleSave = () => {
-    const selectedProducts = products.filter((p) => selectedIds.includes(p.id));
+    const selectedProducts =
+      data?.products
+        ?.filter((p) => selectedIds.includes(p._id))
+        ?.map((p) => ({
+          productId: p._id,
+          name: p.name,
+          price: p.price ?? 0,
+          sku: p.sku ?? "",
+          quantity: 1,
+        })) || [];
+
     onSave(selectedProducts);
     onClose();
   };
@@ -36,43 +56,68 @@ export default function SelectProductsDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Background Blur */}
+      {/* Overlay */}
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
-      ></div>
+      />
 
-      {/* Modal Content */}
+      {/* Modal */}
       <div className="relative bg-white w-full max-w-lg rounded-xl shadow-lg p-6 z-10 mx-4">
         <h3 className="text-lg font-semibold text-gray-800">Select Products</h3>
         <p className="text-sm text-gray-500 mt-1">
-          Choose one or more products from the list below.
+          Choose one or more products from your catalog.
         </p>
 
-        {/* Product List */}
-        <div className="mt-4 space-y-3 max-h-64 overflow-y-auto">
-          {products.map((p) => (
-            <div
-              key={p.id}
-              onClick={() => toggleSelection(p.id)}
-              className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition ${
-                selectedIds.includes(p.id)
-                  ? "border-purple-600 bg-purple-50"
-                  : "border-gray-200 hover:border-gray-300"
-              }`}
-            >
-              <div>
-                <p className="font-medium text-gray-800">{p.name}</p>
-                <p className="text-sm text-gray-500">{p.price}</p>
-              </div>
-              {selectedIds.includes(p.id) && (
-                <Check className="text-purple-600" size={20} />
-              )}
-            </div>
-          ))}
-        </div>
+        {/* Loading */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-10">
+            <Loader2 className="w-6 h-6 text-purple-600 animate-spin" />
+            <span className="ml-2 text-gray-600">Loading products...</span>
+          </div>
+        )}
 
-        {/* Buttons */}
+        {/* Error */}
+        {error && (
+          <p className="text-red-600 text-center py-6">
+            Failed to load products.
+          </p>
+        )}
+
+        {/* Product List */}
+        {!isLoading && !error && (
+          <div className="mt-4 space-y-3 max-h-64 overflow-y-auto">
+            {data?.products?.length ? (
+              data.products.map((p) => (
+                <div
+                  key={p._id}
+                  onClick={() => toggleSelection(p._id)}
+                  className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition ${
+                    selectedIds.includes(p._id)
+                      ? "border-purple-600 bg-purple-50"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <div>
+                    <p className="font-medium text-gray-800">{p.name}</p>
+                    <p className="text-sm text-gray-500">
+                      ₦{p.price?.toLocaleString() || "0"}
+                    </p>
+                  </div>
+                  {selectedIds.includes(p._id) && (
+                    <Check className="text-purple-600" size={20} />
+                  )}
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-gray-500 text-center py-4">
+                No products found.
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Footer Buttons */}
         <div className="mt-6 flex justify-end gap-3">
           <button
             type="button"
