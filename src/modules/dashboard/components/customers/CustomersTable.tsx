@@ -37,21 +37,23 @@ const CustomersTable = ({ refetch }: { refetch: () => void }) => {
     console.log("Customer clicked:", customer);
   };
 
-  const { mutate: deleteCustomer, isPending } = useDeleteCustomer();
+  const { mutateAsync: deleteCustomer, isPending } = useDeleteCustomer();
 
-  const handleDelete = (customerId: string) => {
-    deleteCustomer(
-      { customerId, userId },
-      {
-        onSuccess: () => {
-          setDeleteTarget(null);
-          refetch();
+  const handleDelete = async (customerId: string) => {
+    try {
+      await deleteCustomer(
+        { customerId, userId },
+        {
+          onSuccess: () => {
+            setDeleteTarget(null);
+            refetch();
+          },
         },
-      },
-    );
+      );
+    } catch (error) {
+      console.error(error);
+    }
   };
-
-  console.log(customers);
 
   const customerColumns = [
     // { accessorKey: "id", header: "ID" },

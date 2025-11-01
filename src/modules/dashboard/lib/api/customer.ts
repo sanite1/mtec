@@ -11,6 +11,7 @@ import { CustomerForm } from "../../components/customers/EditSidebar";
 import { removeEmptyFields } from "../utils/utils";
 import { getDecodedJwt } from "../auth";
 import { Order } from "../types/orders";
+import { toast } from "sonner";
 
 // API call
 export const fetchStoreCustomers = async (
@@ -89,9 +90,18 @@ export const useDeleteCustomer = () => {
       customerId: string;
       userId: string;
     }) => deleteCustomer({ customerId, userId }),
-
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["storeCustomers"] }); // ✅ refresh customers list
+      queryClient.invalidateQueries({ queryKey: ["storeCustomers"] });
+      toast.success("Customer Deleted Successfully");
+    },
+    onError: (error: ApiError) => {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+      toast.error("Request Failed", {
+        description: errorMessage,
+      });
     },
   });
 };
@@ -128,10 +138,19 @@ export const useUpdateCustomer = () => {
       customerId: string;
       data: CustomerForm;
     }) => updateCustomer({ customerId, data }),
-
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["storeCustomers"] });
       queryClient.invalidateQueries({ queryKey: ["storeCustomerDetails"] });
+      toast.success("Customer Updated Successfully");
+    },
+    onError: (error: ApiError) => {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+      toast.error("Request Failed", {
+        description: errorMessage,
+      });
     },
   });
 };
@@ -150,9 +169,19 @@ export const useCreateCustomer = () => {
 
   return useMutation({
     mutationFn: (data: any) => createCustomer(data),
-
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["storeCustomers"] });
+      toast.success("Customer Created Successfully");
+    },
+    onError: (error: ApiError) => {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+      toast.error("Request Failed", {
+        description: errorMessage,
+        className: "bg-neutral-900 text-white border border-red-400",
+      });
     },
   });
 };

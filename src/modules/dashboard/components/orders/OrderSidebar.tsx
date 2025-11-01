@@ -36,11 +36,15 @@ export default function OrderDetailsSidebar({
   const { mutateAsync: cancelOrder, isPending } = useCancelOrder();
 
   const handleCancel = async () => {
-    await cancelOrder(order._id, {
-      onSuccess: () => setShowCancelModal(false),
-    });
-    refetch();
-    onClose();
+    try {
+      await cancelOrder(order._id, {
+        onSuccess: () => setShowCancelModal(false),
+      });
+      refetch();
+      onClose();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const [showStatusModal, setShowStatusModal] = useState(false);
@@ -50,16 +54,20 @@ export default function OrderDetailsSidebar({
   const handleStatusUpdate = async (
     newStatus: "pending" | "completed" | "cancelled",
   ) => {
-    await updateStatus(
-      { id: order._id, status: newStatus },
-      {
-        onSuccess: () => setShowStatusModal(false),
-      },
-    );
+    try {
+      await updateStatus(
+        { id: order._id, status: newStatus },
+        {
+          onSuccess: () => setShowStatusModal(false),
+        },
+      );
 
-    refetch();
-    setShowStatusModal(false);
-    onClose();
+      refetch();
+      setShowStatusModal(false);
+      onClose();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
@@ -79,7 +87,7 @@ export default function OrderDetailsSidebar({
         },
       );
     } catch (error) {
-      alert("Failed to update payment status.");
+      console.error(error);
     }
 
     refetch();

@@ -90,15 +90,8 @@ export default function EditSidebar({
 
       onSave(data);
       onClose();
-      toast.success("Customer edited successfully");
     } catch (error: any) {
       console.log(error);
-
-      toast.error(
-        error?.response?.data?.fields?.message ||
-          error?.response?.data?.message ||
-          "Failed to update customer",
-      );
     }
   };
 

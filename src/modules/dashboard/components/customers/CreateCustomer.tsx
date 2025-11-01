@@ -71,11 +71,8 @@ export default function CreateCustomer() {
     try {
       await createCustomer(data);
       navigate("/customers");
-      toast.success("Customer created successfully");
     } catch (error: any) {
-      toast.error(
-        error?.response?.data?.message || "Failed to create customer",
-      );
+      console.error(error);
     }
   };
 

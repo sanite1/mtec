@@ -87,7 +87,9 @@ export default function OnboardingPage() {
 
   const { data, isLoading } = useOnboardingProgress(user?.id);
 
-  const { mutate: updateStep, isPending } = useUpdateOnboardingStep(user?.id);
+  const { mutateAsync: updateStep, isPending } = useUpdateOnboardingStep(
+    user?.id,
+  );
 
   if (isLoading) return <OnboardingSkeleton />;
 
@@ -145,12 +147,15 @@ export default function OnboardingPage() {
         {steps.map((step) => {
           const isCompleted = step.completed;
           const isPreview = step.key === "preview";
+          const isTrial = step.key === "trial";
           const isDisabledPreview = isPreview && !storeDetailsCompleted;
 
-          const handleClick = () => {
+          const handleClick = async () => {
             if (isDisabledPreview) return;
             if (isPreview) {
               window.open(step.link, "_blank");
+            } else if (isTrial) {
+              updateStep({ key: step.key, completed: true });
             } else if (!isCompleted) {
               updateStep({ key: step.key, completed: true });
               navigate(step.link);

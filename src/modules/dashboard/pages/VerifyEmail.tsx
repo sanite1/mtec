@@ -28,7 +28,6 @@ export default function VerifyEmailSuccess() {
           navigate("/login");
         }, 5000);
       } catch (error) {
-        console.error("Verification failed:", error);
         setHasError(true);
         setIsLoading(false);
       }

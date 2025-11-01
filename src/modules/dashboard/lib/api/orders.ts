@@ -1,5 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { ApiResponse, ApiError } from "../../../../lib/network/axios";
+import api from "../../../../lib/network/api";
+import { getDecodedJwt } from "../auth";
 import {
   CreateOrderPayload,
   Order,
@@ -7,9 +10,6 @@ import {
   OrderResponseData,
   OrderStatsResponseData,
 } from "../types/orders";
-import { ApiResponse, ApiError } from "../../../../lib/network/axios";
-import api from "../../../../lib/network/api";
-import { getDecodedJwt } from "../auth";
 
 // ✅ FUNCTION
 export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
@@ -28,13 +28,16 @@ export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
 export function useCreateOrder() {
   return useMutation<Order, ApiError, CreateOrderPayload>({
     mutationFn: createOrder,
-    onSuccess: (data) => {
-      console.log({ description: "✅ Order created successfully!", data });
+    onSuccess: () => {
+      toast.success("Order created successfully!");
     },
-    onError: (error) => {
-      console.log({
-        description: `❌ Order creation failed: ${error.message}`,
-        variant: "destructive",
+    onError: (error: ApiError) => {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+      toast.error("Request Failed", {
+        description: errorMessage,
       });
     },
   });
@@ -132,12 +135,18 @@ export const useCancelOrder = () => {
 
   return useMutation({
     mutationFn: (orderId: string) => cancelOrder(orderId),
-    onSuccess: () => {
-      toast.success("Order deleted successfully");
+    onSuccess: (data) => {
+      toast.success(`Order ${data.orderNumber} cancelled successfully`);
       queryClient.invalidateQueries({ queryKey: ["userOrders"] });
     },
     onError: (error: ApiError) => {
-      toast.error(error?.message || "Failed to delete order");
+      const errorMessage =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+      toast.error("Request Failed", {
+        description: errorMessage,
+      });
     },
   });
 };
@@ -157,12 +166,20 @@ export const useUpdateOrderStatus = () => {
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
       updateOrderStatus(id, status),
-    onSuccess: () => {
-      toast.success("Order status updated successfully");
+    onSuccess: (data) => {
+      toast.success(`${data.orderNumber} Status Updated`, {
+        description: `Successfully updated the status to ${data.status}`,
+      });
       queryClient.invalidateQueries({ queryKey: ["userOrders"] });
     },
     onError: (error: ApiError) => {
-      toast.error(error?.message || "Failed to update order status");
+      const errorMessage =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+      toast.error("Request Failed", {
+        description: errorMessage,
+      });
     },
   });
 };
@@ -190,12 +207,20 @@ export const useUpdatePaymentStatus = () => {
       id: string;
       paymentStatus: string;
     }) => updatePaymentStatus(id, paymentStatus),
-    onSuccess: () => {
-      toast.success("Payment status updated successfully");
+    onSuccess: (data) => {
+      toast.success(`${data.orderNumber} Payment Status Updated`, {
+        description: `Successfully updated the payment status to ${data.paymentStatus}`,
+      });
       queryClient.invalidateQueries({ queryKey: ["userPaymentsStatus"] });
     },
     onError: (error: ApiError) => {
-      toast.error(error?.message || "Failed to update payment status");
+      const errorMessage =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+      toast.error("Request Failed", {
+        description: errorMessage,
+      });
     },
   });
 };

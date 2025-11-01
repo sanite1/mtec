@@ -11,6 +11,7 @@ import {
   CreateProductResponse,
   UpdateQuantityPayload,
   UpdateQuantityResponse,
+  Product,
 } from "../types/products";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -119,6 +120,18 @@ export function useDeleteProduct() {
   return useMutation<ApiResponse, ApiError, string>({
     mutationKey: ["delete-product"],
     mutationFn: (id) => deleteProduct(id),
+    onSuccess: (response) => {
+      toast.success(response.message);
+    },
+    onError: (error: ApiError) => {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+      toast("Request Failed", {
+        description: errorMessage,
+      });
+    },
   });
 }
 
@@ -195,19 +208,21 @@ export async function createProduct(
 }
 
 // --- hooks/useCreateProduct.ts ---
-
 export function useCreateProduct() {
   // const { toast } = Toaster();
 
-  return useMutation<CreateProductResponse, ApiError, CreateProductPayload>({
+  return useMutation({
     mutationFn: createProduct,
     onSuccess: () => {
-      console.log({ description: "✅ Product created successfully!" });
+      toast.success("Product Created Successfully");
     },
-    onError: (error) => {
-      console.log({
-        description: `❌ Product creation failed: ${error.message}`,
-        variant: "destructive",
+    onError: (error: ApiError) => {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+      toast.error("Request Failed", {
+        description: errorMessage,
       });
     },
   });
@@ -300,12 +315,15 @@ export function useUpdateProduct() {
   >({
     mutationFn: ({ productId, payload }) => updateProduct(productId, payload),
     onSuccess: () => {
-      console.log({ description: "✅ Product updated successfully!" });
+      toast.success("Product Updated Successfully");
     },
-    onError: (error) => {
-      console.log({
-        description: `❌ Product update failed: ${error.message}`,
-        variant: "destructive",
+    onError: (error: ApiError) => {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+      toast.error("Request Failed", {
+        description: errorMessage,
       });
     },
   });
@@ -315,7 +333,7 @@ export async function updateProductQuantity(
   id: string,
   data: UpdateQuantityPayload,
 ): Promise<ApiResponse> {
-  const response = await api.patch<ApiResponse>(
+  const response = await api.patch<ApiResponse<Product>>(
     `/product/${id}/quantity`,
     data,
   );
@@ -331,5 +349,18 @@ export function useUpdateProductQuantity() {
   >({
     mutationKey: ["update-product-quantity"],
     mutationFn: ({ id, data }) => updateProductQuantity(id, data),
+    onSuccess: () => {
+      toast.success("Product Quantity Updated Successfully");
+    },
+    onError: (error: ApiError) => {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+      toast.error("Request Failed", {
+        description: errorMessage,
+        className: "bg-red-600 text-white", // custom background + text
+      });
+    },
   });
 }

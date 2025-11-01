@@ -39,7 +39,6 @@ export default function Login() {
         navigate("/");
       }, 1500);
     } catch (error: any) {
-      // ✅ Extract error message properly
       const message =
         error?.response?.data?.message ||
         error?.message ||

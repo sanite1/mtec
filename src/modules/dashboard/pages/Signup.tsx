@@ -58,8 +58,7 @@ export default function Signup() {
       const errorMessage =
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
-      toast(errorMessage);
-      console.log(errorMessage);
+      toast.error(errorMessage);
     }
   };
 

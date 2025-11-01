@@ -439,11 +439,15 @@ export default function CreateProduct() {
 
     console.log("SUBMIT:", cleaned);
 
-    await updateProduct({
-      productId: id as string,
-      payload: cleaned as CreateProductPayload,
-    });
-    navigate(`/products/${id}`);
+    try {
+      await updateProduct({
+        productId: id as string,
+        payload: cleaned as CreateProductPayload,
+      });
+      navigate(`/products/${id}`);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const name = watch("name");

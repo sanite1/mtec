@@ -33,12 +33,12 @@ export default function ResetPassword() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<ResetPasswordForm>({
     resolver: zodResolver(resetPasswordSchema),
   });
 
-  const { mutateAsync: resetPassword } = useResetPassword();
+  const { mutateAsync: resetPassword, isPending } = useResetPassword();
 
   const onSubmit = async (data: ResetPasswordForm) => {
     setErrorMsg("");
@@ -216,10 +216,10 @@ export default function ResetPassword() {
             <div className="pt-2">
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isPending}
                 className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg shadow-lg transition disabled:opacity-50"
               >
-                {isSubmitting ? "Resetting..." : "Reset Password"}
+                {isPending ? "Resetting..." : "Reset Password"}
               </button>
             </div>
           </form>

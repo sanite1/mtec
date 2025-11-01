@@ -72,7 +72,7 @@ export default function ConfirmEmail() {
         </button>
 
         {/* Extra Info */}
-        <p className="text-center text-sm text-gray-700 lg:text-gray-300 mt-4">
+        {/* <p className="text-center text-sm text-gray-700 lg:text-gray-300 mt-4">
           Didn’t receive the email?{" "}
           <a
             href="/resend-verification"
@@ -80,7 +80,7 @@ export default function ConfirmEmail() {
           >
             Resend Verification
           </a>
-        </p>
+        </p> */}
       </div>
     </section>
   );

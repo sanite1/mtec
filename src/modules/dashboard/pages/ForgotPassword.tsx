@@ -34,17 +34,8 @@ export default function ForgotPassword() {
       console.log("Reset link response:", res);
 
       setMailSuccess(true);
-      toast.success("A reset link has been sent to your email.");
     } catch (error: any) {
       console.warn(error);
-
-      // Extract message safely
-      const msg =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Something went wrong. Please try again.";
-      setErrorMessage(msg);
-      toast.error(msg);
     }
   };
 

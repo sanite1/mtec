@@ -48,6 +48,14 @@ export const useUpdateOnboardingStep = (userId: string) => {
       queryClient.invalidateQueries({
         queryKey: ["onboardingProgress", userId],
       });
+      toast.success("Onboarding Step Completed");
+    },
+    onError: (error: ApiError) => {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+      toast.error(errorMessage);
     },
   });
 };

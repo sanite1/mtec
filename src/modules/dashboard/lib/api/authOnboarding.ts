@@ -40,7 +40,7 @@ export const useLogin = () => {
   return useMutation<ApiResponse<LoginResponse>, ApiError, LoginPayload>({
     mutationFn: login,
     onSuccess: (response) => {
-      toast("Login Successful", {
+      toast.success("Login Successful", {
         description: " Redirecting you to dashboard...",
       });
     },
@@ -49,7 +49,7 @@ export const useLogin = () => {
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
 
-      toast("Login Failed", {
+      toast.error("Login Failed", {
         description: errorMessage,
       });
     },
@@ -68,16 +68,14 @@ export const useForgotPassword = () => {
   return useMutation<ApiResponse, ApiError, forgotPasswordPayload>({
     mutationFn: forgotPassword,
     onSuccess: (response) => {
-      toast("Operation Successful", {
-        description: response.message,
-      });
+      toast.success("A reset link has been sent to your email.");
     },
     onError: (error: ApiError) => {
       const errorMessage =
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
 
-      toast("Request Faild", {
+      toast.error("Request Faild", {
         description: errorMessage,
       });
     },
@@ -107,7 +105,7 @@ export const useResetPassword = () => {
     mutationFn: ({ id, token, password }) =>
       resetPassword(id, token, { password }),
     onSuccess: (response) => {
-      toast("Password Reset Successful", {
+      toast.success("Password Reset Successful", {
         description: response.message,
       });
     },
@@ -116,7 +114,7 @@ export const useResetPassword = () => {
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
 
-      toast("Request Failed", {
+      toast.error("Request Failed", {
         description: errorMessage,
       });
     },
@@ -151,7 +149,7 @@ export const useSignup = () => {
   return useMutation<ApiResponse, ApiError, SignupPayload>({
     mutationFn: signup,
     onSuccess: (response) => {
-      toast("Signup Successful", {
+      toast.success("Signup Successful", {
         description: response.message,
       });
     },
@@ -160,7 +158,7 @@ export const useSignup = () => {
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
 
-      toast("Signup Failed", {
+      toast.error("Signup Failed", {
         description: errorMessage,
       });
     },
@@ -181,7 +179,7 @@ export const useVerifyAccount = () => {
   return useMutation<ApiResponse, ApiError, { id: string; token: string }>({
     mutationFn: ({ id, token }) => verifyAccount(id, token),
     onSuccess: (response) => {
-      toast("Verification Successful", {
+      toast.success("Verification Successful", {
         description: response.message,
       });
     },
@@ -189,7 +187,7 @@ export const useVerifyAccount = () => {
       const errorMessage =
         error.response?.data?.message ||
         "Verification failed. Please try again.";
-      toast("Verification Failed", {
+      toast.error("Verification Failed", {
         description: errorMessage,
       });
     },
@@ -261,14 +259,14 @@ export const useUpdateUser = () => {
   >({
     mutationFn: ({ id, payload }) => updateUser(id, payload),
     onSuccess: (response) => {
-      toast("Profile Updated", {
+      toast.success("Profile Updated", {
         description: response.message,
       });
     },
     onError: (error) => {
       const errorMessage =
         error.response?.data?.message || "Failed to update profile. Try again.";
-      toast("Update Failed", {
+      toast.error("Update Failed", {
         description: errorMessage,
       });
     },
@@ -299,12 +297,12 @@ export const useUpdatePassword = () => {
   >({
     mutationFn: ({ id, ...payload }) => updatePassword(id, payload),
     onSuccess: () => {
-      toast("Password Updated Successfully", {
+      toast.success("Password Updated Successfully", {
         description: "Your password has been changed.",
       });
     },
     onError: (error: ApiError) => {
-      toast("Password Update Failed", {
+      toast.error("Password Update Failed", {
         description: error.response?.data?.message || "Something went wrong!",
       });
     },
@@ -327,7 +325,7 @@ export const useUnsubscribe = () => {
   return useMutation<ApiResponse, ApiError, { name: string; email: string }>({
     mutationFn: (payload) => unsubscribeUser(payload),
     onSuccess: (response) => {
-      toast("Unsubscribed Successfully", {
+      toast.success("Unsubscribed Successfully", {
         description: response.message,
       });
     },
@@ -336,7 +334,7 @@ export const useUnsubscribe = () => {
         error.response?.data?.message ||
         "Failed to unsubscribe. Please try again.";
 
-      toast("Unsubscribe Failed", {
+      toast.error("Unsubscribe Failed", {
         description: message,
       });
     },
