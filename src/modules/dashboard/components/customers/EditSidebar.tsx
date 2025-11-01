@@ -4,6 +4,9 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X, FolderPlus } from "lucide-react";
+import { Customer } from "../../lib/types/customer";
+import { useUpdateCustomer } from "../../lib/api/customer";
+import { toast } from "sonner";
 
 // ----------------- Schema -----------------
 const customerSchema = z.object({
@@ -11,30 +14,31 @@ const customerSchema = z.object({
   lastName: z.string().min(1, "Last name is required"),
   phone: z.string().optional(),
   email: z.string().email("Invalid email").optional(),
-  instagram: z.string().optional(),
+  // instagram: z.string().optional(),
   additionalInfo: z.string().optional(),
-  groupId: z.string().optional(),
+  // groupId: z.string().optional(),
   shipping: z.object({
-    address: z.string().optional(),
+    address: z.string().min(1, "Address is required"),
     country: z.string().min(1, "Country is required"),
-    state: z.string().optional(),
-    city: z.string().optional(),
-    zip: z.string().optional(),
+    state: z.string().min(1, "State is required"),
+    city: z.string().min(1, "City is required"),
+    zip: z.string().min(1, "Zip is required"),
   }),
+  newsletterSubscribed: z.boolean().optional(),
   billing: z.object({
     sameAsShipping: z.boolean().default(false),
     address: z.string().optional(),
-    country: z.string().min(1, "Country is required"),
+    country: z.string().optional(),
     state: z.string().optional(),
     city: z.string().optional(),
     zip: z.string().optional(),
   }),
 });
 
-type CustomerForm = z.infer<typeof customerSchema>;
+export type CustomerForm = z.infer<typeof customerSchema>;
 
 interface EditSidebarProps {
-  customer: CustomerForm;
+  customer: Customer;
   onClose: () => void;
   onSave: (updatedCustomer: CustomerForm) => void;
 }
@@ -63,10 +67,42 @@ export default function EditSidebar({
 
   const sameAsShipping = watch("billing.sameAsShipping");
 
-  const onSubmit = (data: CustomerForm) => {
-    onSave(data);
-    onClose();
+  const { mutateAsync: updateCustomer, isPending } = useUpdateCustomer();
+
+  const onSubmit = async (data: CustomerForm) => {
+    try {
+      // ✅ If billing same as shipping, clear billing fields
+      if (data.billing?.sameAsShipping) {
+        data.billing = {
+          sameAsShipping: true,
+          address: "",
+          city: "",
+          state: "",
+          zip: "",
+          country: "",
+        };
+      }
+
+      await updateCustomer({
+        customerId: customer._id,
+        data,
+      });
+
+      onSave(data);
+      onClose();
+      toast.success("Customer edited successfully");
+    } catch (error: any) {
+      console.log(error);
+
+      toast.error(
+        error?.response?.data?.fields?.message ||
+          error?.response?.data?.message ||
+          "Failed to update customer",
+      );
+    }
   };
+
+  console.log(errors);
 
   return (
     <div className="fixed inset-0 z-50 flex">
@@ -88,6 +124,7 @@ export default function EditSidebar({
 
         {/* Content */}
         <form
+          id="edit-form"
           onSubmit={handleSubmit(onSubmit)}
           className="flex-1 overflow-y-auto p-6 space-y-6"
         >
@@ -156,7 +193,7 @@ export default function EditSidebar({
                 <p className="text-red-500 text-sm">{errors.email.message}</p>
               )}
 
-              <Controller
+              {/* <Controller
                 name="instagram"
                 control={control}
                 render={({ field }) => (
@@ -166,7 +203,7 @@ export default function EditSidebar({
                     className="w-full border rounded px-3 py-2"
                   />
                 )}
-              />
+              /> */}
 
               <Controller
                 name="additionalInfo"
@@ -184,7 +221,7 @@ export default function EditSidebar({
           </section>
 
           {/* Customer Group */}
-          <section>
+          {/* <section>
             <h3 className="font-semibold mb-3">Customer Group</h3>
             <div className="flex gap-2">
               <Controller
@@ -212,7 +249,7 @@ export default function EditSidebar({
                 <FolderPlus size={16} /> New
               </button>
             </div>
-          </section>
+          </section> */}
 
           {/* Shipping */}
           <section>
@@ -354,6 +391,24 @@ export default function EditSidebar({
               </div>
             )}
           </section>
+
+          <div className="">
+            <h3 className="font-semibold mb-3">Newsletter</h3>
+            <label className="flex items-center gap-2 mb-3">
+              <Controller
+                name="newsletterSubscribed"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    type="checkbox"
+                    checked={!!field.value}
+                    onChange={(e) => field.onChange(e.target.checked)}
+                  />
+                )}
+              />
+              <span className="text-sm">Subscribe to our newletters.</span>
+            </label>
+          </div>
         </form>
 
         {/* Footer */}
@@ -368,9 +423,35 @@ export default function EditSidebar({
           <button
             type="submit"
             form="edit-form"
-            className="px-6 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+            className={`px-4 py-2 rounded bg-purple-600 text-white flex items-center justify-center gap-2 transition ${
+              isPending
+                ? "opacity-75 cursor-not-allowed"
+                : "hover:bg-purple-700"
+            }`}
           >
-            Save Changes
+            {isPending && (
+              <svg
+                className="animate-spin h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
+            )}
+            {isPending ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>

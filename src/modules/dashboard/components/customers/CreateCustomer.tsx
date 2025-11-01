@@ -5,6 +5,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, FolderPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useCreateCustomer } from "../../lib/api/customer";
+import { toast } from "sonner";
 
 /**
  * Zod Schema
@@ -13,21 +15,22 @@ const customerSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   phone: z.string().optional(),
-  email: z.string().email("Invalid email").optional(),
-  instagram: z.string().optional(),
+  email: z.string().email("Invalid email").min(1, "Email is required"),
+  // instagram: z.string().optional(),
   additionalInfo: z.string().optional(),
-  groupId: z.string().optional(),
+  // groupId: z.string().optional(),
   shipping: z.object({
-    address: z.string().optional(),
+    address: z.string().min(1, "Address is required"),
     country: z.string().min(1, "Country is required"),
-    state: z.string().optional(),
-    city: z.string().optional(),
-    zip: z.string().optional(),
+    state: z.string().min(1, "State is required"),
+    city: z.string().min(1, "City is required"),
+    zip: z.string().min(1, "Zip is required"),
   }),
+  newsletterSubscribed: z.boolean().default(false),
   billing: z.object({
     sameAsShipping: z.boolean().default(false),
     address: z.string().optional(),
-    country: z.string().min(1, "Country is required"),
+    country: z.string().optional(),
     state: z.string().optional(),
     city: z.string().optional(),
     zip: z.string().optional(),
@@ -62,10 +65,18 @@ export default function CreateCustomer() {
   });
 
   const sameAsShipping = watch("billing.sameAsShipping");
+  const { mutateAsync: createCustomer, isPending } = useCreateCustomer();
 
-  const onSubmit: SubmitHandler<CustomerForm> = (data) => {
-    console.log("NEW CUSTOMER:", data);
-    alert("Customer created. Check console for logged data.");
+  const onSubmit: SubmitHandler<CustomerForm> = async (data: CustomerForm) => {
+    try {
+      await createCustomer(data);
+      navigate("/customers");
+      toast.success("Customer created successfully");
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message || "Failed to create customer",
+      );
+    }
   };
 
   const handleClear = () => reset();
@@ -84,7 +95,11 @@ export default function CreateCustomer() {
           <h1 className="text-2xl font-bold">Add New Customer</h1>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          id="create-form"
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-6"
+        >
           {/* Customer Details */}
           <section className="border rounded-lg p-4">
             <h2 className="font-semibold mb-3">Customer Details</h2>
@@ -169,7 +184,7 @@ export default function CreateCustomer() {
               </div>
 
               {/* Instagram */}
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium">Instagram</label>
                 <div className="flex items-center">
                   <span className="px-2 bg-gray-100 border border-r-0 rounded-l">
@@ -186,7 +201,7 @@ export default function CreateCustomer() {
                     )}
                   />
                 </div>
-              </div>
+              </div> */}
 
               {/* Additional Info */}
               <div className="md:col-span-2">
@@ -209,7 +224,7 @@ export default function CreateCustomer() {
           </section>
 
           {/* Customer Group */}
-          <section className="border rounded-lg p-4">
+          {/* <section className="border rounded-lg p-4">
             <h2 className="font-semibold mb-3">Select Customer Group</h2>
             <div className="flex gap-2">
               <Controller
@@ -237,7 +252,7 @@ export default function CreateCustomer() {
                 <FolderPlus size={16} /> New
               </button>
             </div>
-          </section>
+          </section> */}
 
           {/* Shipping */}
           <section className="border rounded-lg p-4">
@@ -412,6 +427,24 @@ export default function CreateCustomer() {
             )}
           </section>
 
+          <div className="border rounded-lg p-4">
+            <h3 className="font-semibold mb-3">Newsletter</h3>
+            <label className="flex items-center gap-2 mb-3">
+              <Controller
+                name="newsletterSubscribed"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    type="checkbox"
+                    checked={!!field.value}
+                    onChange={(e) => field.onChange(e.target.checked)}
+                  />
+                )}
+              />
+              <span className="text-sm">Subscribe to our newletters.</span>
+            </label>
+          </div>
+
           {/* Actions */}
           <div className="flex justify-between mt-6">
             <div className="flex gap-3">
@@ -432,9 +465,36 @@ export default function CreateCustomer() {
             </div>
             <button
               type="submit"
-              className="px-6 py-2 bg-purple-600 text-white rounded"
+              form="create-form"
+              className={`px-4 py-2 rounded bg-purple-600 text-white flex items-center justify-center gap-2 transition ${
+                isPending
+                  ? "opacity-75 cursor-not-allowed"
+                  : "hover:bg-purple-700"
+              }`}
             >
-              Add Customer
+              {isPending && (
+                <svg
+                  className="animate-spin h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  ></path>
+                </svg>
+              )}
+              {isPending ? "Saving..." : "Create Customer"}
             </button>
           </div>
         </form>

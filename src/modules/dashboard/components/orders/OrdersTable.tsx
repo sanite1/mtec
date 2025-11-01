@@ -125,8 +125,6 @@ const OrdersTable = ({ refetchSummary }: OrderTableProps) => {
     toast.error(error?.message || "Failed to load orders");
   }
 
-  console.log(data?.orders);
-
   const safeOrders: Order[] = data?.orders || [];
 
   const totalItems = data?.total || 0;

@@ -16,9 +16,9 @@ const api = {
       return response.data;
     });
   },
-  delete: async <T>(url: string): Promise<T> => {
+  delete: async <T>(url: string, data?: any): Promise<T> => {
     return requestQueue.addTask(async () => {
-      const response: AxiosResponse<T> = await axios.delete(url);
+      const response: AxiosResponse<T> = await axios.delete(url, data);
       return response.data;
     });
   },

@@ -6,92 +6,76 @@ import EmptyState from "../../utils/EmptyState";
 import { Edit, Trash } from "lucide-react";
 import DeleteModal from "./DeleteCustomerModal";
 import EditSidebar from "./EditSidebar";
+import { useAuth } from "../../context/AuthContext";
+import { useDeleteCustomer, useStoreCustomers } from "../../lib/api/customer";
+import { getDecodedJwt } from "../../lib/auth";
+import { Customer } from "../../lib/types/customer";
+import { formatDate } from "../../lib/utils/formatDate";
 
-export interface Customer {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  joinedDate: string;
-  newsletter: boolean;
-}
+const CustomersTable = ({ refetch }: { refetch: () => void }) => {
+  const user = getDecodedJwt();
+  const userId = user?.id;
 
-// Mock data
-const mockCustomers: Customer[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "john@example.com",
-    phone: "+2348012345678",
-    joinedDate: "2025-09-01",
-    newsletter: true,
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    email: "jane@example.com",
-    phone: "+2348098765432",
-    joinedDate: "2025-09-05",
-    newsletter: false,
-  },
-  {
-    id: "3",
-    name: "Michael Johnson",
-    email: "michael@example.com",
-    phone: "+2347011122233",
-    joinedDate: "2025-09-07",
-    newsletter: true,
-  },
-];
+  // ⭐ Table filters
+  const [filters, setFilters] = useState({
+    page: 1,
+    limit: 10,
+    search: "",
+    newsletter: undefined as boolean | undefined,
+  });
 
-const fetchCustomers = async (params: any) => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const { page = 1, perPage = 10, search, newsletter } = params;
-  let filtered = mockCustomers;
+  const { data, isLoading } = useStoreCustomers(userId, filters);
 
-  if (search) {
-    filtered = filtered.filter(
-      (c) =>
-        c.name.toLowerCase().includes(search.toLowerCase()) ||
-        c.email.toLowerCase().includes(search.toLowerCase()),
-    );
-  }
+  // ✅ Transform API response → Table format
+  const customers: Customer[] = data?.customers ?? [];
 
-  if (newsletter !== undefined) {
-    filtered = filtered.filter((c) => c.newsletter === newsletter);
-  }
-
-  const start = (page - 1) * perPage;
-  const paginated = filtered.slice(start, start + perPage);
-
-  return {
-    data: paginated,
-    meta: {
-      total: filtered.length,
-      page,
-      perPage,
-    },
-  };
-};
-
-const CustomersTable = () => {
   const [selected, setSelected] = useState<Customer[]>([]);
+  const [deleteTarget, setDeleteTarget] = useState<Customer | null>(null);
+  const [editTarget, setEditTarget] = useState<Customer | null>(null);
 
   const handleRowClick = (customer: Customer) => {
     console.log("Customer clicked:", customer);
-    // navigate(`/customers/${customer.id}`);
   };
-  const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
-  const [editTarget, setEditTarget] = useState<any | null>(null);
+
+  const { mutate: deleteCustomer, isPending } = useDeleteCustomer();
+
+  const handleDelete = (customerId: string) => {
+    deleteCustomer(
+      { customerId, userId },
+      {
+        onSuccess: () => {
+          setDeleteTarget(null);
+          refetch();
+        },
+      },
+    );
+  };
+
+  console.log(customers);
 
   const customerColumns = [
-    { accessorKey: "id", header: "ID" },
-    { accessorKey: "name", header: "Name" },
+    // { accessorKey: "id", header: "ID" },
+    {
+      accessorKey: "createdAt",
+      header: "Joined Date",
+      cell: (info: any) => {
+        const date = info.getValue();
+
+        return formatDate(date);
+      },
+    },
+    {
+      accessorKey: "name",
+      header: "Name",
+      cell: ({ row }: any) => {
+        const cus = row.original;
+        return `${cus.firstName} ${cus.lastName}`;
+      },
+    },
     { accessorKey: "email", header: "Email" },
     { accessorKey: "phone", header: "Phone" },
-    { accessorKey: "joinedDate", header: "Joined Date" },
     {
-      accessorKey: "newsletter",
+      accessorKey: "newsletterSubscribed",
       header: "Newsletter",
       cell: (info: any) => {
         const subscribed = info.getValue();
@@ -110,9 +94,8 @@ const CustomersTable = () => {
     },
     {
       id: "actions",
-      // header: "Actions",
       cell: ({ row }: any) => {
-        const customer = row.original; // get full row data
+        const customer = row.original;
         return (
           <div className="flex gap-2">
             <button
@@ -145,8 +128,9 @@ const CustomersTable = () => {
     <div className="bg-white rounded-lg shadow p-4">
       <DataTable<Customer, unknown>
         columns={customerColumns}
-        fetchData={fetchCustomers}
-        totalItems={mockCustomers.length}
+        data={customers}
+        isLoading={isLoading}
+        totalItems={data?.total ?? 0}
         tableKey="customers"
         onRowClick={handleRowClick}
         setSelected={setSelected}
@@ -155,18 +139,9 @@ const CustomersTable = () => {
         emptyState={emptyState}
         tabInfo={[
           {
-            name: "All Customers",
-            columns: customerColumns,
-            fetchData: (params) => fetchCustomers(params),
-            tableKey: "all-customers",
-            onRowClick: handleRowClick,
-            emptyState: emptyState,
-          },
-          {
             name: "Newsletter Subscribers",
             columns: customerColumns,
-            fetchData: (params) =>
-              fetchCustomers({ ...params, newsletter: true }),
+            data: customers.filter((c) => c.newsletterSubscribed === true),
             tableKey: "newsletter-subscribers",
             onRowClick: handleRowClick,
             emptyState: (
@@ -178,11 +153,11 @@ const CustomersTable = () => {
 
       {deleteTarget && (
         <DeleteModal
-          customerName={deleteTarget.name}
+          customerName={deleteTarget.firstName}
           onClose={() => setDeleteTarget(null)}
+          loading={isPending}
           onConfirm={() => {
-            console.log("Deleting:", deleteTarget);
-            setDeleteTarget(null);
+            handleDelete(deleteTarget._id);
           }}
         />
       )}
@@ -193,6 +168,7 @@ const CustomersTable = () => {
           onClose={() => setEditTarget(null)}
           onSave={(updated) => {
             console.log("Updated:", updated);
+            refetch();
             setEditTarget(null);
           }}
         />
