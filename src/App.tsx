@@ -5,7 +5,7 @@ import { Toaster } from "sonner";
 const App: React.FC = () => {
   return (
     <div>
-      <Toaster richColors position="bottom-center" />
+      <Toaster richColors position="bottom-right" />
       <RoutesWrapper />
     </div>
   );

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, Upload } from "lucide-react";
+import { X, Upload, Trash, ImageIcon } from "lucide-react";
 
 // ----------------- Schema -----------------
 const newsletterSchema = z.object({
@@ -59,6 +59,37 @@ export default function NewsletterSidebar({
     const file = e.target.files?.[0] || null;
     setValue("img", file, { shouldValidate: true });
     setPreview(file ? URL.createObjectURL(file) : null);
+  };
+  const [file, setFile] = useState<File | null>(null);
+
+  const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+
+  const handleFile = (file: File) => {
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Only image files allowed.");
+      return;
+    }
+
+    if (file.size > MAX_SIZE) {
+      alert("Image must be under 2MB");
+      return;
+    }
+
+    setFile(file);
+    setPreview(URL.createObjectURL(file));
+    setValue("img", file, { shouldValidate: true });
+  };
+
+  const onDropFile = (files: FileList | null) => {
+    if (files && files[0]) handleFile(files[0]);
+  };
+
+  const handleRemove = () => {
+    setFile(null);
+    setPreview(null);
+    setValue("img", file, { shouldValidate: true });
   };
 
   return (
@@ -137,38 +168,72 @@ export default function NewsletterSidebar({
           </div>
 
           {/* Image Upload */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Upload Image
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="hidden"
-              id="newsletter-img-upload"
-            />
-            <label
-              htmlFor="newsletter-img-upload"
-              className="flex items-center gap-2 px-3 py-2 border rounded cursor-pointer hover:bg-gray-50"
+          <section className="border rounded-lg p-4">
+            <h2 className="font-semibold mb-2">Newsletter Image</h2>
+            <p className="text-sm text-gray-500 mb-3">
+              Drag & drop or click to upload
+            </p>
+
+            <div
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                onDropFile(e.dataTransfer.files);
+              }}
             >
-              <Upload className="w-4 h-4" /> Choose File
-            </label>
-            {preview && (
-              <div className="mt-3">
-                <img
-                  src={preview}
-                  alt="Preview"
-                  className="w-auto h-32 object-cover rounded"
+              <div
+                className="border-dashed cursor-pointer border-2 text-gray-400 border-gray-200 hover:border-black hover:text-black rounded-md p-6 flex items-center justify-between gap-4"
+                onClick={() =>
+                  document.getElementById("newsletter-file")?.click()
+                }
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
+                    <ImageIcon />
+                  </div>
+                  <div>
+                    <div className="font-medium text-black">Upload image</div>
+                    <div className="text-sm">PNG, JPG. Max 2MB</div>
+                  </div>
+                </div>
+
+                <input
+                  id="newsletter-file"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => onDropFile(e.target.files)}
                 />
+                <div className="text-sm">Click to select</div>
               </div>
-            )}
-            {errors.img && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.img.message as string}
-              </p>
-            )}
-          </div>
+
+              {errors.img && (
+                <div className="my-4 p-3 bg-red-100 border border-red-300 text-red-700 text-sm rounded-lg">
+                  {errors.img.message as string}
+                </div>
+              )}
+
+              {/* Preview */}
+              {preview && (
+                <div className="mt-4 relative w-40 h-40 border rounded overflow-hidden">
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={handleRemove}
+                    className="absolute top-1 right-1 bg-white rounded-full p-1 shadow"
+                    title="Remove"
+                  >
+                    <Trash size={14} />
+                  </button>
+                </div>
+              )}
+            </div>
+          </section>
         </form>
 
         {/* Footer */}

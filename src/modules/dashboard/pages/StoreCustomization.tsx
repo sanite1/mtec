@@ -12,6 +12,9 @@ import ReturnPolicySidebar from "../components/storefront/ReturnPolicySidebar";
 //   SocialMediaForm,
 // } from "../components/storefront/SocialMediaSidebar";
 import WhatsAppSidebar from "../components/storefront/WhatsAppSidebar";
+import { useStorefront } from "../lib/api/storefront";
+import { getDecodedJwt } from "../lib/auth";
+import { StorefrontSettingsSkeleton } from "../components/storefront/StorefrontSettingsSkeleton";
 
 // ----------------- TYPES -----------------
 type SidebarType =
@@ -138,60 +141,69 @@ const CustomizeStorefront: React.FC = () => {
     });
   };
 
+  const user = getDecodedJwt();
+
+  const { data: storefrontDetails, isFetching } = useStorefront(user?.id);
+
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="space-y-4">
-        <div className="flex items-center">
-          <button
-            onClick={() => navigate("/storefront")}
-            className="p-2 rounded bg-gray-100 hover:bg-gray-200 relative mr-3"
-          >
-            <ArrowLeft className="w-6 h-6 text-gray-600" />
-          </button>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Customise Storefront
-          </h1>
-        </div>
-        {/* Banner Example */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">Banner</h2>
-          <ToggleRow
-            label="Display Custom Banner"
-            description="Enable a custom hero banner on your homepage."
-            value={toggles.banner}
-            onToggle={() => handleToggle("banner", true)}
-            onEdit={() => openSidebar("banner")}
-            requiresEdit
-          />
-        </div>
-        {/* ABOUT US */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">About Us</h2>
-          <ToggleRow
-            label="Display About Us"
-            description="Show an About Us section on your website to share your story."
-            value={toggles.about}
-            onToggle={() => handleToggle("about", true)}
-            onEdit={() => openSidebar("about")}
-            requiresEdit
-          />
-        </div>
-        {/* CONTACT INFO */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">
-            Contact Info
-          </h2>
-          <ToggleRow
-            label="Show Contact Info"
-            description="Display your business contact information on the site."
-            value={toggles.contact}
-            onToggle={() => handleToggle("contact", true)}
-            onEdit={() => openSidebar("contact")}
-            requiresEdit
-          />
-        </div>
-        {/* LOCATION PAGE */}
-        {/* <div className="bg-white rounded-lg shadow p-6">
+      {isFetching ? (
+        <StorefrontSettingsSkeleton />
+      ) : (
+        <div className="space-y-4">
+          <div className="flex items-center">
+            <button
+              onClick={() => navigate("/storefront")}
+              className="p-2 rounded bg-gray-100 hover:bg-gray-200 relative mr-3"
+            >
+              <ArrowLeft className="w-6 h-6 text-gray-600" />
+            </button>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Customise Storefront
+            </h1>
+          </div>
+          {/* Banner Example */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-3">Banner</h2>
+            <ToggleRow
+              label="Display Custom Banner"
+              description="Enable a custom hero banner on your homepage."
+              value={toggles.banner}
+              onToggle={() => handleToggle("banner", true)}
+              onEdit={() => openSidebar("banner")}
+              requiresEdit
+            />
+          </div>
+          {/* ABOUT US */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-3">
+              About Us
+            </h2>
+            <ToggleRow
+              label="Display About Us"
+              description="Show an About Us section on your website to share your story."
+              value={toggles.about}
+              onToggle={() => handleToggle("about", true)}
+              onEdit={() => openSidebar("about")}
+              requiresEdit
+            />
+          </div>
+          {/* CONTACT INFO */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-3">
+              Contact Info
+            </h2>
+            <ToggleRow
+              label="Show Contact Info"
+              description="Display your business contact information on the site."
+              value={toggles.contact}
+              onToggle={() => handleToggle("contact", true)}
+              onEdit={() => openSidebar("contact")}
+              requiresEdit
+            />
+          </div>
+          {/* LOCATION PAGE */}
+          {/* <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-3">
             Location Page
           </h2>
@@ -204,22 +216,22 @@ const CustomizeStorefront: React.FC = () => {
             requiresEdit
           />
         </div> */}
-        {/* NEWSLETTER */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">
-            Newsletter
-          </h2>
-          <ToggleRow
-            label="Display Newsletter Form"
-            description="Show a pop-up form to collect emails from visitors."
-            value={toggles.newsletter}
-            onToggle={() => handleToggle("newsletter", true)}
-            onEdit={() => openSidebar("newsletter")}
-            requiresEdit
-          />
-        </div>
-        {/* PRODUCT LISTING */}
-        {/* <div className="bg-white rounded-lg shadow p-6">
+          {/* NEWSLETTER */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-3">
+              Newsletter
+            </h2>
+            <ToggleRow
+              label="Display Newsletter Form"
+              description="Show a pop-up form to collect emails from visitors."
+              value={toggles.newsletter}
+              onToggle={() => handleToggle("newsletter", true)}
+              onEdit={() => openSidebar("newsletter")}
+              requiresEdit
+            />
+          </div>
+          {/* PRODUCT LISTING */}
+          {/* <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-3">
             Product Listing
           </h2>
@@ -233,36 +245,36 @@ const CustomizeStorefront: React.FC = () => {
             <Pencil className="w-4 h-4" /> Edit Product Listing
           </button>
         </div> */}
-        {/* RETURN POLICY */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">
-            Return Policy
-          </h2>
-          <ToggleRow
-            label="Display Return Policy"
-            description="Show your store’s return policy details to customers."
-            value={toggles.returnPolicy}
-            onToggle={() => handleToggle("returnPolicy", true)}
-            onEdit={() => openSidebar("returnPolicy")}
-            requiresEdit
-          />
-        </div>
-        {/* SOCIAL MEDIA */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">
-            Social Media
-          </h2>
-          <ToggleRow
-            label="Display Social Media Handles"
-            description="Show links to your social media accounts on your site."
-            value={toggles.socialMedia}
-            onToggle={() => handleToggle("socialMedia", true)}
-            onEdit={() => openSidebar("socialMedia")}
-            requiresEdit
-          />
-        </div>
-        {/* CUSTOM MESSAGE */}
-        {/* <div className="bg-white rounded-lg shadow p-6">
+          {/* RETURN POLICY */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-3">
+              Return Policy
+            </h2>
+            <ToggleRow
+              label="Display Return Policy"
+              description="Show your store’s return policy details to customers."
+              value={toggles.returnPolicy}
+              onToggle={() => handleToggle("returnPolicy", true)}
+              onEdit={() => openSidebar("returnPolicy")}
+              requiresEdit
+            />
+          </div>
+          {/* SOCIAL MEDIA */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-3">
+              Social Media
+            </h2>
+            <ToggleRow
+              label="Display Social Media Handles"
+              description="Show links to your social media accounts on your site."
+              value={toggles.socialMedia}
+              onToggle={() => handleToggle("socialMedia", true)}
+              onEdit={() => openSidebar("socialMedia")}
+              requiresEdit
+            />
+          </div>
+          {/* CUSTOM MESSAGE */}
+          {/* <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-3">
             Top Banner Custom Message
           </h2>
@@ -275,8 +287,8 @@ const CustomizeStorefront: React.FC = () => {
             requiresEdit
           />
         </div> */}
-        {/* PRODUCT VARIATION */}
-        {/* <div className="bg-white rounded-lg shadow p-6">
+          {/* PRODUCT VARIATION */}
+          {/* <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-3">
             Product Variation
           </h2>
@@ -289,21 +301,22 @@ const CustomizeStorefront: React.FC = () => {
             requiresEdit
           />
         </div> */}
-        {/* WHATSAPP */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">
-            WhatsApp Chat
-          </h2>
-          <ToggleRow
-            label="Enable WhatsApp Chat Button"
-            description="Add a floating WhatsApp button so customers can chat with you."
-            value={toggles.whatsapp}
-            onToggle={() => handleToggle("whatsapp", true)}
-            onEdit={() => openSidebar("whatsapp")}
-            requiresEdit
-          />
+          {/* WHATSAPP */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-3">
+              WhatsApp Chat
+            </h2>
+            <ToggleRow
+              label="Enable WhatsApp Chat Button"
+              description="Add a floating WhatsApp button so customers can chat with you."
+              value={toggles.whatsapp}
+              onToggle={() => handleToggle("whatsapp", true)}
+              onEdit={() => openSidebar("whatsapp")}
+              requiresEdit
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Sidebar Switch */}
       {sidebar === "banner" && (
