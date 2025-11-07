@@ -23,6 +23,7 @@ import {
   Coins,
   // Locate,
   LocationEdit,
+  X,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -51,6 +52,7 @@ const menuItems = [
 const MainLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -66,7 +68,13 @@ const MainLayout: React.FC = () => {
           {/* Sidebar toggle (Menu) */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 rounded hover:bg-gray-100 order-1 sm:order-2"
+            className="hidden lg:block p-2 rounded hover:bg-gray-100 order-1 sm:order-2"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+          <button
+            onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+            className="block lg:hidden p-2 rounded hover:bg-gray-100 order-1 sm:order-2"
           >
             <Menu className="w-6 h-6" />
           </button>
@@ -139,7 +147,7 @@ const MainLayout: React.FC = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-14 h-[calc(100%-56px)] bg-white border-r transition-all duration-300 flex flex-col ${
+        className={`fixed left-0 hidden lg:flex top-14 h-[calc(100%-56px)] bg-white border-r transition-all duration-300  flex-col ${
           sidebarOpen ? "w-64" : "w-20"
         }`}
       >
@@ -162,14 +170,75 @@ const MainLayout: React.FC = () => {
           ))}
         </nav>
       </aside>
+      {mobileSidebarOpen && (
+        <div className="fixed inset-0 z-50 flex">
+          {/* Overlay */}
+          <div
+            className="flex-1 bg-black/40 backdrop-blur-sm"
+            onClick={() => setMobileSidebarOpen(false)}
+          />
+
+          <div className="w-full sm:w-2/3 lg:w-1/3 bg-white h-full shadow-2xl flex flex-col animate-slideIn">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b">
+              <h2 className="text-2xl font-semibold text-purple-600">MTEC</h2>
+              <button
+                onClick={() => setMobileSidebarOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              <nav className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-2">
+                {menuItems.map((item) => (
+                  <NavLink
+                    key={item.name}
+                    onClick={() => setMobileSidebarOpen(false)}
+                    to={item.path}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2 rounded-lg transition ${
+                        isActive
+                          ? "bg-purple-300 text-purple-700"
+                          : "text-gray-700 hover:bg-gray-100"
+                      }`
+                    }
+                  >
+                    <item.icon className="w-5 h-5" />
+                    {sidebarOpen && <span>{item.name}</span>}
+                  </NavLink>
+                ))}
+              </nav>
+            </div>
+
+            {/* Footer */}
+            {/* <div className="p-4 border-t flex justify-end bg-white sticky bottom-0">
+          <button
+            onClick={() => setShowStatusModal(true)}
+            className="flex items-center gap-2 px-4 py-2 border border-purple-600 text-purple-600 rounded text-sm hover:bg-purple-50"
+          >
+            <Edit3 className="w-4 h-4" /> Edit Order Status
+          </button>
+          <button
+            onClick={() => setShowPaymentStatusModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 ml-3"
+          >
+            <Edit3 className="w-4 h-4" /> Edit Payment Status
+          </button>
+        </div> */}
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div
         className={`flex-1 flex flex-col transition-all duration-300 pt-14 ${
-          sidebarOpen ? "ml-64" : "ml-20"
+          sidebarOpen ? "lg:ml-64" : "lg:ml-20"
         }`}
       >
-        <main className="flex-1 overflow-y-auto p-6 no-scrollbar">
+        <main className="flex-1 overflow-y-auto p-6 no-scrollbar w-full">
           <Outlet />
         </main>
       </div>

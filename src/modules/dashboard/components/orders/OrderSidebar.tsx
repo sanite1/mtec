@@ -125,7 +125,7 @@ export default function OrderDetailsSidebar({
         />
       )}
       {/* Sidebar */}
-      <div className="w-full sm:w-1/3 bg-white h-full shadow-2xl flex flex-col animate-slideIn">
+      <div className="w-full sm:w-2/3 lg:w-1/3 bg-white h-full shadow-2xl flex flex-col animate-slideIn">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-2xl font-semibold text-gray-800">
