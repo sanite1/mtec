@@ -1,21 +1,10 @@
 import React, { useState } from "react";
 import { DataTable } from "../../utils/data-table";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { getDecodedJwt } from "../../lib/auth";
 import { Order } from "../../lib/types/orders";
 import { useUserOrders } from "../../lib/api/orders";
 import OrderDetailsSidebar from "./OrderSidebar";
-
-// ✅ Safe order type for UI display
-// export interface Order extends Partial<Order> {
-//   _id?: string;
-//   customerName?: string;
-//   date?: string;
-//   total?: number;
-//   status?: "completed" | "pending" | "cancelled";
-//   paymentStatus?: "paid" | "unpaid" | "refunded";
-// }
 
 // ✅ Helper for currency formatting
 const safeCurrency = (value?: number) => {
@@ -109,7 +98,7 @@ interface OrderTableProps {
 
 const OrdersTable = ({ refetchSummary }: OrderTableProps) => {
   const [selectedOrders, setSelectedOrders] = useState<Order[]>([]);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // 🔹 Get userId from JWT
   const user = getDecodedJwt();
@@ -138,16 +127,6 @@ const OrdersTable = ({ refetchSummary }: OrderTableProps) => {
   const handleCloseSidebar = () => {
     setSelectedOrder(null);
     refetchSummary();
-  };
-
-  const handleEditPaymentStatus = () => {
-    console.log("Edit Payment Status clicked", selectedOrder);
-    // Open modal or form to update payment status
-  };
-
-  const handleEditOrderStatus = () => {
-    console.log("Edit Order Status clicked", selectedOrder);
-    // Open modal or form to update order status
   };
 
   return (
@@ -208,8 +187,8 @@ const OrdersTable = ({ refetchSummary }: OrderTableProps) => {
         <OrderDetailsSidebar
           order={selectedOrder}
           onClose={handleCloseSidebar}
-          onEditPaymentStatus={handleEditPaymentStatus}
-          onEditOrderStatus={handleEditOrderStatus}
+          // onEditPaymentStatus={handleEditPaymentStatus}
+          // onEditOrderStatus={handleEditOrderStatus}
           refetch={refetch}
         />
       )}

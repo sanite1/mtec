@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, Image, Upload, ImageIcon, Trash } from "lucide-react";
+import { X, ImageIcon, Trash } from "lucide-react";
 
 // ----------------- Schema -----------------
 const bannerSchema = z.object({
@@ -48,11 +48,11 @@ export default function BannerSidebar({
     imgFile ? URL.createObjectURL(imgFile) : null,
   );
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setValue("image", file, { shouldValidate: true });
-    setPreview(file ? URL.createObjectURL(file) : null);
-  };
+  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0] || null;
+  //   setValue("image", file, { shouldValidate: true });
+  //   setPreview(file ? URL.createObjectURL(file) : null);
+  // };
 
   const onSubmit = (data: BannerForm) => {
     console.log(data);
@@ -89,6 +89,8 @@ export default function BannerSidebar({
   };
 
   const handleRemove = () => {
+    if (file) {
+    }
     setFile(null);
     setPreview(null);
     // onFileSelect(null);

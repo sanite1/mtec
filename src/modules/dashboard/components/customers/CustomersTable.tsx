@@ -1,28 +1,49 @@
 // components/customers/CustomersTable.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DataTable } from "../../utils/data-table";
 import person from "../../assets/personEmpty.png";
 import EmptyState from "../../utils/EmptyState";
 import { Edit, Trash } from "lucide-react";
 import DeleteModal from "./DeleteCustomerModal";
 import EditSidebar from "./EditSidebar";
-import { useAuth } from "../../context/AuthContext";
 import { useDeleteCustomer, useStoreCustomers } from "../../lib/api/customer";
 import { getDecodedJwt } from "../../lib/auth";
 import { Customer } from "../../lib/types/customer";
 import { formatDate } from "../../lib/utils/formatDate";
+import { useSearchParams } from "react-router-dom";
 
 const CustomersTable = ({ refetch }: { refetch: () => void }) => {
   const user = getDecodedJwt();
   const userId = user?.id;
+  const [searchParams] = useSearchParams();
 
-  // ⭐ Table filters
   const [filters, setFilters] = useState({
     page: 1,
-    limit: 10,
+    limit: 5,
     search: "",
     newsletter: undefined as boolean | undefined,
   });
+
+  // 🧠 Sync filters with URL search params
+  useEffect(() => {
+    const pageParam = Number(searchParams.get("page")) || 1;
+    const limitParam = Number(searchParams.get("perpage")) || 5;
+    const searchParam = searchParams.get("search") || "";
+    const newsletterParam = searchParams.get("newsletter");
+
+    setFilters((prev) => ({
+      ...prev,
+      page: pageParam,
+      limit: limitParam,
+      search: searchParam,
+      newsletter:
+        newsletterParam === "true"
+          ? true
+          : newsletterParam === "false"
+            ? false
+            : undefined,
+    }));
+  }, [searchParams]);
 
   const { data, isLoading } = useStoreCustomers(userId, filters);
 

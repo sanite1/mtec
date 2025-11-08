@@ -1,5 +1,5 @@
 // CreateProduct.tsx
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   useForm,
   Controller,
@@ -29,7 +29,6 @@ import { useFetchSingleProduct, useUpdateProduct } from "../lib/api/products";
 import { useNavigate, useParams } from "react-router-dom";
 import { getDecodedJwt } from "../lib/auth";
 import { CreateProductPayload } from "../lib/types/products";
-import { toast } from "sonner"; // or your preferred toast lib
 
 const variantSchema = z.object({
   name: z
@@ -188,11 +187,7 @@ export default function CreateProduct() {
 
   const user = getDecodedJwt();
   const userId = user?.id;
-  const {
-    data: productDetails,
-    isLoading,
-    // error: productDetailsError,
-  } = useFetchSingleProduct(userId, id as string);
+  const { data: productDetails } = useFetchSingleProduct(userId, id as string);
 
   const { mutateAsync: updateProduct, isPending } = useUpdateProduct();
 
@@ -266,7 +261,7 @@ export default function CreateProduct() {
   // const discountedVal = watch("discountPrice") || "";
 
   // variants array management
-  const { fields, append, remove } = useFieldArray({
+  const { fields } = useFieldArray({
     control,
     name: "variants" as any,
   });

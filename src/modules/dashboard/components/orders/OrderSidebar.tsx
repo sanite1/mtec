@@ -14,16 +14,12 @@ import EditPaymentStatusModal from "./EditPaymentStatusModal";
 interface OrderDetailsSidebarProps {
   order: Order;
   onClose: () => void;
-  onEditPaymentStatus: () => void;
-  onEditOrderStatus: () => void;
   refetch: () => void;
 }
 
 export default function OrderDetailsSidebar({
   order,
   onClose,
-  onEditPaymentStatus,
-  onEditOrderStatus,
   refetch,
 }: OrderDetailsSidebarProps) {
   const safeCurrency = (n: number) =>

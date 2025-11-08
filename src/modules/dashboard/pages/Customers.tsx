@@ -2,7 +2,6 @@ import React from "react";
 import CustomersSummary from "../components/customers/CustomersSummary";
 import CustomersTable from "../components/customers/CustomersTable";
 import { getDecodedJwt } from "../lib/auth";
-import { useOrderStats } from "../lib/api/orders";
 import { useCustomerStats } from "../lib/api/customer";
 
 export default function Customers() {

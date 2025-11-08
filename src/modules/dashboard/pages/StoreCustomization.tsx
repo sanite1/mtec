@@ -143,7 +143,7 @@ const CustomizeStorefront: React.FC = () => {
 
   const user = getDecodedJwt();
 
-  const { data: storefrontDetails, isFetching } = useStorefront(user?.id);
+  const { isFetching } = useStorefront(user?.id);
 
   return (
     <div className="max-w-4xl mx-auto">

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
@@ -59,11 +59,10 @@ export default function CreateOrderPage() {
   >([]);
 
   const {
-    control,
     handleSubmit,
     register,
     setValue,
-    formState: { errors },
+    // formState: {  },
   } = useForm<CreateOrderFormData>({
     resolver: zodResolver(createOrderSchema) as any,
     defaultValues: {

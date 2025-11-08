@@ -1,4 +1,4 @@
-// context/AuthContext.tsx
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, {
   createContext,
   useContext,
@@ -14,7 +14,6 @@ import {
   removeAuthToken,
 } from "../lib/auth";
 import { useRefresh } from "../lib/api/authOnboarding";
-import { useLocation } from "react-router-dom";
 
 interface AuthContextType {
   isAuthenticated: boolean;

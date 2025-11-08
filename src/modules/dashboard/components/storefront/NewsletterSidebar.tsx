@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, Upload, Trash, ImageIcon } from "lucide-react";
+import { X, Trash, ImageIcon } from "lucide-react";
 
 // ----------------- Schema -----------------
 const newsletterSchema = z.object({
@@ -55,11 +55,11 @@ export default function NewsletterSidebar({
     onClose();
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setValue("img", file, { shouldValidate: true });
-    setPreview(file ? URL.createObjectURL(file) : null);
-  };
+  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0] || null;
+  //   setValue("img", file, { shouldValidate: true });
+  //   setPreview(file ? URL.createObjectURL(file) : null);
+  // };
   const [file, setFile] = useState<File | null>(null);
 
   const MAX_SIZE = 2 * 1024 * 1024; // 2MB

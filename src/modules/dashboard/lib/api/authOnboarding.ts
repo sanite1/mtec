@@ -16,7 +16,6 @@ import {
   forgotPasswordPayload,
   refreshResponse,
 } from "../types/authOnboarding";
-// import { DecodedUser } from "@/components/layouts/Header";
 import { jwtDecode } from "jwt-decode";
 import {
   getRefreshToken,

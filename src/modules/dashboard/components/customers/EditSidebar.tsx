@@ -1,12 +1,11 @@
 // EditSidebar.tsx
-import React, { useState } from "react";
+import React from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, FolderPlus } from "lucide-react";
+import { X } from "lucide-react";
 import { Customer } from "../../lib/types/customer";
 import { useUpdateCustomer } from "../../lib/api/customer";
-import { toast } from "sonner";
 
 // ----------------- Schema -----------------
 const customerSchema = z.object({
@@ -49,12 +48,6 @@ export default function EditSidebar({
   onClose,
   onSave,
 }: EditSidebarProps) {
-  const [groups, setGroups] = useState<{ id: string; name: string }[]>([
-    { id: "g1", name: "VIP Customers" },
-    { id: "g2", name: "Regular Customers" },
-  ]);
-  const [newGroupModalOpen, setNewGroupModalOpen] = useState(false);
-
   const {
     control,
     handleSubmit,
@@ -94,8 +87,6 @@ export default function EditSidebar({
       console.log(error);
     }
   };
-
-  console.log(errors);
 
   return (
     <div className="fixed inset-0 z-50 flex">
@@ -448,46 +439,6 @@ export default function EditSidebar({
           </button>
         </div>
       </div>
-
-      {/* New Group Modal */}
-      {newGroupModalOpen && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-6 w-96">
-            <h3 className="font-semibold mb-3">Create New Group</h3>
-            <input
-              type="text"
-              placeholder="Group name"
-              className="w-full border rounded px-3 py-2 mb-4"
-              id="newGroupName"
-            />
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setNewGroupModalOpen(false)}
-                className="px-4 py-2 border rounded"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  const input = document.getElementById(
-                    "newGroupName",
-                  ) as HTMLInputElement;
-                  if (input.value.trim()) {
-                    setGroups((prev) => [
-                      ...prev,
-                      { id: `g${prev.length + 1}`, name: input.value },
-                    ]);
-                  }
-                  setNewGroupModalOpen(false);
-                }}
-                className="px-4 py-2 bg-purple-600 text-white rounded"
-              >
-                Create
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

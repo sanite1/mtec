@@ -10,7 +10,6 @@ import {
   CreateProductPayload,
   CreateProductResponse,
   UpdateQuantityPayload,
-  UpdateQuantityResponse,
   Product,
 } from "../types/products";
 import { useMutation, useQuery } from "@tanstack/react-query";

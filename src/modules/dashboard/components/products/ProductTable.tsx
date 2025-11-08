@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { DataTable } from "../../utils/data-table";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { getDecodedJwt } from "../../lib/auth";
+// import { getDecodedJwt } from "../../lib/auth";
 import { Product } from "../../lib/types/products";
 
 // ✅ Safe product type with optional fallbacks
@@ -17,10 +17,10 @@ export interface SafeProduct extends Partial<Product> {
 }
 
 // ✅ Safe cell value helper
-const safeCurrency = (value?: number) => {
-  if (typeof value !== "number" || isNaN(value)) return "₦0.00";
-  return `₦${value.toFixed(2)}`;
-};
+// const safeCurrency = (value?: number) => {
+//   if (typeof value !== "number" || isNaN(value)) return "₦0.00";
+//   return `₦${value.toFixed(2)}`;
+// };
 
 // ✅ Product table columns with fallbacks
 const productColumns = [
@@ -119,8 +119,8 @@ const ProductTable = ({
   const navigate = useNavigate();
 
   // 🔹 Get logged-in user ID
-  const user = getDecodedJwt();
-  const userId = user?.id;
+  // const user = getDecodedJwt();
+  // const userId = user?.id;
 
   if (error) {
     toast.error(error?.message || "Failed to load products");
