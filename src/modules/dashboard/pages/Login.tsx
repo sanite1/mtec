@@ -26,7 +26,7 @@ export default function Login() {
 
   const navigate = useNavigate();
   const { mutateAsync: login, isPending } = useLogin();
-  const { login: auth } = useAuth();
+  const { refreshAuthState } = useAuth();
 
   const onSubmit = async (data: LoginFormData) => {
     setErrorMessage(null);
@@ -35,7 +35,7 @@ export default function Login() {
 
       // ✅ Successful login
       setTimeout(() => {
-        auth();
+        refreshAuthState();
         navigate("/");
       }, 1500);
     } catch (error: any) {
@@ -174,7 +174,7 @@ export default function Login() {
         {/* Social Sign-in */}
         <button
           onClick={async () => {
-            await auth();
+            // await auth();
             navigate("/");
           }}
           className="w-full py-3 border border-gray-300 lg:border-white/20 bg-gray-100 lg:bg-white/10 rounded-lg hover:bg-gray-200 lg:hover:bg-white/20 transition text-gray-800 lg:text-white"

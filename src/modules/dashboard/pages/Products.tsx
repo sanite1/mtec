@@ -36,11 +36,13 @@ export default function ProductsPage() {
         // totalProfit={70000} // ₦70,000
         onAddProduct={() => navigate("/products/create")}
       />
-      <ProductTable
-        products={products?.products || []}
-        isLoading={isLoading}
-        error={error}
-      />
+      <div className="">
+        <ProductTable
+          products={products?.products || []}
+          isLoading={isLoading}
+          error={error}
+        />
+      </div>
     </div>
   );
 }

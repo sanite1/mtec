@@ -4,12 +4,13 @@ import { jwtDecode } from "jwt-decode";
 // Define shape of decoded JWT if you know it
 export interface DecodedJwt {
   exp: number; // Expiration timestamp
-  role?: string; // User role (PATIENT, DOCTOR, etc.)
+  role?: string; // User role (admin, etc.)
   [key: string]: any; // Allow extra claims
 }
 
 export const setAuthToken = (token: string): void => {
   localStorage.setItem("token", token);
+  // localStorage.setItem("refreshToken", refreshToken);
 };
 
 export const getToken = (): string | null => {

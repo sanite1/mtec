@@ -10,9 +10,13 @@ export interface LoginPayload {
 
 export interface LoginResponse {
   accessToken: string;
-  refreshToken?: string;
+  refreshToken: string;
   message?: string;
   user?: UserData;
+}
+
+export interface refreshResponse {
+  accessToken: string;
 }
 
 // ✅ Signup

@@ -14,10 +14,16 @@ import {
   UpdateUserPayload,
   UserData,
   forgotPasswordPayload,
+  refreshResponse,
 } from "../types/authOnboarding";
 // import { DecodedUser } from "@/components/layouts/Header";
 import { jwtDecode } from "jwt-decode";
-import { removeAuthToken, setAuthToken } from "../auth";
+import {
+  getRefreshToken,
+  removeAuthToken,
+  setAuthToken,
+  setRefreshToken,
+} from "../auth";
 
 export const login = async (
   payload: LoginPayload,
@@ -27,6 +33,7 @@ export const login = async (
     payload,
   );
   setAuthToken(res.data.accessToken);
+  setRefreshToken(res.data.refreshToken);
   Cookies.set("authToken", res.data.accessToken, { expires: 7, path: "/" });
 
   // Decode new token and update localStorage
@@ -43,6 +50,38 @@ export const useLogin = () => {
       toast.success("Login Successful", {
         description: " Redirecting you to dashboard...",
       });
+    },
+    onError: (error: ApiError) => {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+      toast.error("Login Failed", {
+        description: errorMessage,
+      });
+    },
+  });
+};
+
+export const refresh = async (): Promise<ApiResponse<refreshResponse>> => {
+  const res = await api.post<ApiResponse<refreshResponse>>("/users/refresh", {
+    token: getRefreshToken(),
+  });
+  setAuthToken(res.data.accessToken);
+  Cookies.set("authToken", res.data.accessToken, { expires: 7, path: "/" });
+
+  // Decode new token and update localStorage
+  const decodedUser: DecodedUser = jwtDecode(res.data.accessToken);
+  localStorage.setItem("user", JSON.stringify(decodedUser));
+  return res;
+};
+
+// Hooks
+export const useRefresh = () => {
+  return useMutation<ApiResponse<refreshResponse>, ApiError>({
+    mutationFn: refresh,
+    onSuccess: (response) => {
+      toast.success("Refresh Successful");
     },
     onError: (error: ApiError) => {
       const errorMessage =

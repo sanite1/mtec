@@ -38,5 +38,5 @@ code {
 
 html,
 body {
-  overflow-x: hidden; /* prevents horizontal scrollbar pushing layout */
+  overflow-x: auto; /* prevents horizontal scrollbar pushing layout */
 }

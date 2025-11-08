@@ -118,27 +118,41 @@ const MainLayout: React.FC = () => {
 
             {/* Dropdown */}
             {profileOpen && (
-              <div className="absolute right-0 mt-2 bg-white border rounded-lg shadow-md w-44 py-2">
-                {/* Profile */}
-                <button
-                  onClick={() => {
-                    setProfileOpen(false);
-                    navigate("/profile");
-                  }}
-                  className="flex items-center gap-2 w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                >
-                  <User className="w-4 h-4 text-gray-500" />
-                  <span>Profile</span>
-                </button>
-
-                {/* Logout */}
-                <button
-                  onClick={() => logout()}
-                  className="flex items-center gap-2 w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                >
-                  <LogOut className="w-4 h-4 text-gray-500" />
-                  <span>Logout</span>
-                </button>
+              <div className="inset-0 z-50">
+                <div className="">
+                  {/* Background */}
+                  <div
+                    className="fixed inset-0 bg-black/50 "
+                    onClick={() => {
+                      setProfileOpen(false);
+                    }}
+                  ></div>
+                  {/* Content */}
+                  <div className="absolute right-0 mt-2 bg-white border rounded-lg shadow-md w-44 py-2">
+                    {/* Profile */}
+                    <button
+                      onClick={() => {
+                        setProfileOpen(false);
+                        navigate("/profile");
+                      }}
+                      className="flex items-center gap-2 w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                    >
+                      <User className="w-4 h-4 text-gray-500" />
+                      <span>Profile</span>
+                    </button>
+                    {/* Logout */}
+                    <button
+                      onClick={() => {
+                        logout();
+                        navigate("/");
+                      }}
+                      className="flex items-center gap-2 w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                    >
+                      <LogOut className="w-4 h-4 text-gray-500" />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>
