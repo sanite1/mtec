@@ -87,9 +87,7 @@ export default function OnboardingPage() {
 
   const { data, isLoading } = useOnboardingProgress(user?.id);
 
-  const { mutateAsync: updateStep, isPending } = useUpdateOnboardingStep(
-    user?.id,
-  );
+  const { mutateAsync: updateStep } = useUpdateOnboardingStep(user?.id);
 
   if (isLoading) return <OnboardingSkeleton />;
 
@@ -111,8 +109,8 @@ export default function OnboardingPage() {
     };
   });
 
-  const totalSteps = data.totalSteps || 0;
-  const completedSteps = data.completedSteps || 0;
+  // const totalSteps = data.totalSteps || 0;
+  // const completedSteps = data.completedSteps || 0;
   const progress = data.overallProgress || 0;
 
   const storeDetailsCompleted = steps.find(

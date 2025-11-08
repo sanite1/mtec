@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { DataTable } from "../../utils/data-table";
 import { IProductHistory } from "../../lib/types/products";
-import { formatDate, formatDateTime } from "../../lib/utils/formatDate";
+import { formatDate } from "../../lib/utils/formatDate";
 
 // ---------------- Columns ----------------
 const historyColumns = [

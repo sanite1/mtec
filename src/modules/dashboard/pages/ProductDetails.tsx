@@ -36,7 +36,7 @@ export default function ProductDetailsPage() {
 
   const {
     data: productDetails,
-    isLoading: loadingProductDetails,
+    // isLoading: loadingProductDetails,
     refetch: refetchDetails,
   } = useFetchSingleProduct(userId, id as string);
 

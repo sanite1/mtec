@@ -201,7 +201,7 @@ export default function CreateProduct() {
   const navigate = useNavigate();
 
   // variants array management
-  const { fields, append, remove } = useFieldArray({
+  const { fields } = useFieldArray({
     control,
     name: "variants" as any,
   });

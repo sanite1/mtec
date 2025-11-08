@@ -1,9 +1,9 @@
 // components/products/VariantBuilder.tsx
 import React, { useMemo, useState } from "react";
-import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Trash, ChevronRight, Check, X } from "lucide-react";
+import { Plus, Trash, X } from "lucide-react";
 
 /**
  * Types
@@ -114,7 +114,7 @@ export default function VariantBuilder({ open, onClose, onCreate }: Props) {
     defaultValues: { combos: [] },
   });
 
-  const { fields, append, remove, replace } = useFieldArray({
+  const { fields, replace } = useFieldArray({
     control,
     name: "combos",
   });
@@ -197,32 +197,17 @@ export default function VariantBuilder({ open, onClose, onCreate }: Props) {
       ),
     );
 
-  /** Save option groups (we already use them live to build combos) */
-  const handleSaveOptions = () => {
-    // perform a quick sanity check: groups must have values
-    const bad = optionGroups.find((g) => g.values.length === 0);
-    if (bad) {
-      alert(`Please add option values for "${bad.name}" or remove the group.`);
-      return;
-    }
-    if (optionGroups.length === 0) {
-      alert("Add at least one option group.");
-      return;
-    }
-    // combos will auto-generate via useEffect
-  };
-
   /** Final submit: validate combos form and call onCreate with sanitized payload */
   const onSubmit = (payload: { combos: CombinationFormRow[] }) => {
     // convert numeric strings to numbers in final payload
-    const cleaned = payload.combos.map((c) => ({
-      name: c.name,
-      sku: c.sku,
-      price: Number(c.price),
-      costPrice: c.costPrice ? Number(c.costPrice) : undefined,
-      discountPrice: c.discountPrice ? Number(c.discountPrice) : undefined,
-      stock: Number(c.stock),
-    }));
+    // const cleaned = payload.combos.map((c) => ({
+    //   name: c.name,
+    //   sku: c.sku,
+    //   price: Number(c.price),
+    //   costPrice: c.costPrice ? Number(c.costPrice) : undefined,
+    //   discountPrice: c.discountPrice ? Number(c.discountPrice) : undefined,
+    //   stock: Number(c.stock),
+    // }));
 
     onCreate(payload.combos, optionGroups);
     setStep(1);
@@ -514,7 +499,6 @@ export default function VariantBuilder({ open, onClose, onCreate }: Props) {
                   <div className="space-y-3">
                     {fields.map((f, idx) => {
                       const namePath = `combos.${idx}.name` as const;
-                      const skuPath = `combos.${idx}.sku` as const;
                       const pricePath = `combos.${idx}.price` as const;
                       const costPath = `combos.${idx}.costPrice` as const;
                       const discountPath =

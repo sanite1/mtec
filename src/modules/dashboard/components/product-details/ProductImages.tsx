@@ -13,14 +13,14 @@ export default function ProductImages({ images }: ProductImagesProps) {
 
       {images && images.length > 0 ? (
         <div className="flex flex-wrap gap-3">
-          {images.map((img, index) => (
+          {images.map((item, index) => (
             <div
               key={index}
               className="w-28 h-28 bg-gray-100 border rounded-lg overflow-hidden flex items-center justify-center"
             >
               <img
-                src={img}
-                alt={`Product image ${index + 1}`}
+                src={item}
+                alt={`Product ${index + 1}`}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src =
