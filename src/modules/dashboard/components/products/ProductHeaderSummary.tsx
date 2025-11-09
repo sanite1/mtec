@@ -5,9 +5,7 @@ import {
   CheckCircle,
   XCircle,
   BarChart2,
-  Info,
 } from "lucide-react";
-import { Tooltip, IconButton } from "@mui/material";
 
 // ✅ Type safety with optional fields
 interface ProductSummaryProps {
