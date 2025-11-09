@@ -39,13 +39,13 @@ export default function OrderSummary({
           onClick={() => {
             navigate("/orders/create");
           }}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-lg shadow-lg bg-purple-600 text-white font-medium hover:bg-purple-700"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-lg shadow-lg bg-purple-600 text-white font-medium hover:bg-purple-700 w-fit"
         >
           <PlusCircle size={20} />
           Create Order
         </button>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
         {/* Total Orders */}
         <div className="rounded-xl bg-gradient-to-r from-indigo-50 to-indigo-100 p-5 shadow hover:shadow-md transition">
           <div className="flex items-center justify-between">
@@ -53,7 +53,7 @@ export default function OrderSummary({
               <p className="text-sm text-indigo-600 font-medium">
                 Total Orders
               </p>
-              <p className="mt-1 text-2xl font-bold text-indigo-900">
+              <p className="mt-1 text-lg lg:text-2xl font-bold text-indigo-900">
                 {totalOrders}
               </p>
             </div>
@@ -65,7 +65,7 @@ export default function OrderSummary({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-green-600 font-medium">Completed</p>
-              <p className="mt-1 text-2xl font-bold text-green-900">
+              <p className="mt-1 text-lg lg:text-2xl font-bold text-green-900">
                 {completed}
               </p>
             </div>
@@ -77,7 +77,7 @@ export default function OrderSummary({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-yellow-600 font-medium">Pending</p>
-              <p className="mt-1 text-2xl font-bold text-yellow-900">
+              <p className="mt-1 text-lg lg:text-2xl font-bold text-yellow-900">
                 {pending}
               </p>
             </div>
@@ -89,7 +89,7 @@ export default function OrderSummary({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-red-600 font-medium">Cancelled</p>
-              <p className="mt-1 text-2xl font-bold text-red-900">
+              <p className="mt-1 text-lg lg:text-2xl font-bold text-red-900">
                 {cancelled}
               </p>
             </div>
@@ -101,7 +101,7 @@ export default function OrderSummary({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-teal-600 font-medium">Revenue</p>
-              <p className="mt-1 text-2xl font-bold text-teal-900">
+              <p className="mt-1 text-lg lg:text-2xl font-bold text-teal-900">
                 ₦{totalRevenue.toLocaleString()}
               </p>
             </div>

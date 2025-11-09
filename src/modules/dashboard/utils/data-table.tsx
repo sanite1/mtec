@@ -254,7 +254,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="mb-5 flex flex-col gap-2">
-      <div className="mb-2 flex items-center justify-between">
+      <div className="mb-2 sm:flex items-center justify-between space-y-5 sm:space-y-0">
         <div className="relative w-full max-w-sm rounded-md border border-transparent">
           <div className="absolute left-2 top-1/2 -translate-y-1/2 transform text-gray-400">
             <Search className="h-5 w-5 text-gray-400" />
@@ -279,50 +279,58 @@ export function DataTable<TData, TValue>({
 
       {/* Tab navigation */}
       {hasTab && tabInfo && (
-        <div className="my-4 flex gap-4 border-b pl-2">
-          {hasAllTab && (
-            <button
-              className={`px-2 pb-4 text-sm font-medium ${
-                activeTab === "all"
-                  ? "border-b-4 border-b-purple-400 text-gray-800"
-                  : "text-gray-500"
-              }`}
-              onClick={() => {
-                setActiveTab("all");
-                const newParams = new URLSearchParams(searchParams);
-                newParams.set("activeTab", "all");
-                newParams.set("page", "1");
-                newParams.set("perPage", String(perPage));
-                setSearchParams(newParams);
-              }}
-            >
-              All
-            </button>
-          )}
-          {tabInfo?.map((tab) => (
-            <button
-              key={tab.name}
-              className={`px-2 pb-4 text-sm font-medium ${
-                activeTab === tab.name
-                  ? "border-b-4 border-b-purple-400 text-gray-800"
-                  : "text-gray-500"
-              }`}
-              onClick={() => {
-                setActiveTab(tab.name);
-                const newParams = new URLSearchParams(searchParams);
-                newParams.set("activeTab", tab.name);
-                newParams.set("page", "1");
-                newParams.set("perPage", String(perPage));
-                setSearchParams(newParams);
-              }}
-            >
-              {tab.name}
-            </button>
-          ))}
+        <div className="my-4 overflow-x-scroll sm:overflow-auto w-[80vw] sm:w-full">
+          <div className="flex gap-4 border-b pl-2">
+            {hasAllTab && (
+              <button
+                className={`px-2 pb-4 text-sm font-medium whitespace-nowrap ${
+                  activeTab === "all"
+                    ? "border-b-4 border-b-purple-400 text-gray-800"
+                    : "text-gray-500"
+                }`}
+                onClick={() => {
+                  setActiveTab("all");
+                  const newParams = new URLSearchParams(searchParams);
+                  newParams.set("activeTab", "all");
+                  newParams.set("page", "1");
+                  newParams.set("perPage", String(perPage));
+                  setSearchParams(newParams);
+                }}
+              >
+                All
+              </button>
+            )}
+            {tabInfo?.map((tab) => (
+              <button
+                key={tab.name}
+                className={`px-2 pb-4 text-sm font-medium whitespace-nowrap ${
+                  activeTab === tab.name
+                    ? "border-b-4 border-b-purple-400 text-gray-800"
+                    : "text-gray-500"
+                }`}
+                onClick={() => {
+                  setActiveTab(tab.name);
+                  const newParams = new URLSearchParams(searchParams);
+                  newParams.set("activeTab", tab.name);
+                  newParams.set("page", "1");
+                  newParams.set("perPage", String(perPage));
+                  setSearchParams(newParams);
+                }}
+              >
+                {tab.name}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
-      <div className={tableData.length > 0 ? "rounded-md border" : ""}>
+      <div
+        className={
+          tableData.length > 0
+            ? "rounded-md max-w-[80vw] sm:min-w-full border"
+            : ""
+        }
+      >
         {isLoading || queryIsLoading ? (
           <TableSkeleton columns={columns.length} row={perPage} />
         ) : (
@@ -332,8 +340,8 @@ export function DataTable<TData, TValue>({
                 {emptyStateComponent}
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
+              <div className="overflow-x-auto max-w-full lg:min-w-full">
+                <table className="max-w-full lg:min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     {table.getHeaderGroups().map((headerGroup) => (
                       <tr key={headerGroup.id}>

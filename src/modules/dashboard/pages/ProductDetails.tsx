@@ -57,7 +57,7 @@ export default function ProductDetailsPage() {
   return (
     <div className=" bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 space-y-3 md:space-y-0">
         <div className="flex items-center">
           <button
             onClick={() => navigate("/products")}
@@ -68,26 +68,24 @@ export default function ProductDetailsPage() {
           <h1 className="text-2xl font-bold">{productDetails?.name}</h1>
         </div>
 
-        {
-          <div className="flex items-center">
-            <button
-              onClick={() => {
-                navigate(`/products/${id}/edit`);
-              }}
-              className="flex text-sm mr-3 items-center gap-2 px-5 py-2.5 rounded-lg shadow-lg bg-purple-600 text-white font-medium hover:bg-purple-700 cursor-pointer"
-            >
-              <Edit size={20} />
-              Edit Product
-            </button>
+        <div className="flex items-center">
+          <button
+            onClick={() => {
+              navigate(`/products/${id}/edit`);
+            }}
+            className="flex text-sm mr-3 items-center gap-2 px-5 py-2.5 rounded-lg shadow-lg bg-purple-600 text-white font-medium hover:bg-purple-700 cursor-pointer"
+          >
+            <Edit size={20} />
+            Edit Product
+          </button>
 
-            <button
-              onClick={() => setOpen(true)}
-              className="p-2 bg-gray-200 rounded hover:bg-gray-300 relative"
-            >
-              <Trash className="w-6 h-6 text-gray-600" />
-            </button>
-          </div>
-        }
+          <button
+            onClick={() => setOpen(true)}
+            className="p-2 bg-gray-200 rounded hover:bg-gray-300 relative"
+          >
+            <Trash className="w-6 h-6 text-gray-600" />
+          </button>
+        </div>
       </div>
 
       {open && (

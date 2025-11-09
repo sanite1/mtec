@@ -28,7 +28,7 @@ export default function CustomersSummary({
           onClick={() => {
             navigate("/customers/create");
           }}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-lg shadow-lg bg-purple-600 text-white font-medium hover:bg-purple-700"
+          className="w-fit flex items-center gap-2 px-5 py-2.5 rounded-lg shadow-lg bg-purple-600 text-white font-medium hover:bg-purple-700"
         >
           <PlusCircle size={20} />
           Create Customer
@@ -36,7 +36,7 @@ export default function CustomersSummary({
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         {/* Total Customers */}
         <div className="rounded-xl bg-gradient-to-r from-indigo-50 to-indigo-100 p-5 shadow hover:shadow-md transition">
           <div className="flex items-center justify-between">

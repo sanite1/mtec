@@ -41,13 +41,31 @@ const Pagination: React.FC<PaginationProps> = ({
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between mt-4 space-y-4 sm:space-y-0">
-      <div className="text-sm text-gray-700">
-        Showing {startItem} to {endItem} of {totalItems} results
+      <div className="flex justify-between w-full items-center">
+        <div className="text-sm text-gray-700">
+          Showing {startItem} to {endItem} of {totalItems}
+        </div>
+        <div className="flex items-center space-x-2 sm:hidden">
+          <span className="text-sm text-gray-700">Rows per page:</span>
+          <select
+            value={rowsPerPage}
+            onChange={(e) => onRowsPerPageChange(Number(e.target.value))}
+            className="border border-gray-300 rounded-md px-2 py-1 text-sm"
+          >
+            {[5, 10, 20, 50].map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      <div className="flex items-center space-x-4">
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-700">Rows per page:</span>
+      <div className="flex items-center space-x-4 justify-center">
+        <div className="hidden sm:flex items-center space-x-2">
+          <span className="text-sm text-gray-700 whitespace-nowrap">
+            Rows per page:
+          </span>
           <select
             value={rowsPerPage}
             onChange={(e) => onRowsPerPageChange(Number(e.target.value))}
