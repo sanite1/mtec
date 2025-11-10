@@ -4,6 +4,8 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
+import { Shipping } from "../../lib/types/shipping";
+import { formatDate } from "../../lib/utils/formatDate";
 
 // ----------------- Schema -----------------
 const shippingSchema = z.object({
@@ -22,9 +24,10 @@ const shippingSchema = z.object({
 export type ShippingForm = z.infer<typeof shippingSchema>;
 
 interface EditShippingSidebarProps {
-  shipping: ShippingForm;
+  shipping: Shipping;
   onClose: () => void;
-  onSave: (updatedShipping: ShippingForm) => void;
+  onSave: (updatedShipping: any) => void;
+  loading?: boolean;
 }
 
 // ----------------- Component -----------------
@@ -32,6 +35,7 @@ export default function EditShippingSidebar({
   shipping,
   onClose,
   onSave,
+  loading = false,
 }: EditShippingSidebarProps) {
   const {
     control,
@@ -39,12 +43,22 @@ export default function EditShippingSidebar({
     formState: { errors },
   } = useForm<ShippingForm>({
     resolver: zodResolver(shippingSchema) as any,
-    defaultValues: shipping,
+    defaultValues: {
+      id: shipping._id,
+      dateCreated: shipping.createdAt,
+      locationName: shipping.name,
+      description: shipping.description,
+      fee: shipping.price.toString(),
+    },
   });
 
   const onSubmit = (data: ShippingForm) => {
-    onSave(data);
-    onClose();
+    const payload = {
+      name: data.locationName,
+      description: data.description,
+      price: data.fee,
+    };
+    onSave(payload);
   };
 
   return (
@@ -59,7 +73,7 @@ export default function EditShippingSidebar({
       <div className="w-full sm:w-1/3 bg-white h-full shadow-2xl flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold">Edit Shipping</h2>
+          <h2 className="text-2xl font-semibold">Edit Shipping</h2>
           <button onClick={onClose}>
             <X className="w-5 h-5 text-gray-500" />
           </button>
@@ -72,14 +86,14 @@ export default function EditShippingSidebar({
           id="edit-shipping-form"
         >
           {/* Date Created (read-only) */}
-          {shipping.dateCreated && (
+          {shipping.createdAt && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Date Created
               </label>
               <input
                 type="text"
-                value={shipping.dateCreated}
+                value={formatDate(shipping.createdAt)}
                 readOnly
                 className="w-full px-3 py-2 border rounded-md bg-gray-100 text-gray-500"
               />
@@ -168,9 +182,34 @@ export default function EditShippingSidebar({
           <button
             type="submit"
             form="edit-shipping-form"
-            className="px-6 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+            disabled={loading}
+            className={`px-4 py-2 rounded-lg bg-purple-600 text-white flex items-center justify-center gap-2 transition ${
+              loading ? "opacity-75 cursor-not-allowed" : "hover:bg-purple-700"
+            }`}
           >
-            Save Changes
+            {loading && (
+              <svg
+                className="animate-spin h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
+            )}
+            {loading ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>

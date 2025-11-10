@@ -1,5 +1,5 @@
-import { PlusCircle } from "lucide-react";
 import React, { useState } from "react";
+import { PlusCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CreateShippingSidebar from "./CreateShippingSidebar";
 
@@ -31,17 +31,12 @@ export default function ShippingHeader() {
             className="flex items-center gap-2 px-3 py-2 rounded-lg bg-purple-600 text-white font-medium hover:bg-purple-700"
           >
             <PlusCircle size={20} />
-            Create Shipping Option
+            Create Shipping
           </button>
         </div>
       </div>
       {openCreate && (
-        <CreateShippingSidebar
-          onClose={() => setOpenCreate(false)}
-          onSave={(updated) => {
-            console.log("Updated:", updated);
-          }}
-        />
+        <CreateShippingSidebar onClose={() => setOpenCreate(false)} />
       )}
     </div>
   );

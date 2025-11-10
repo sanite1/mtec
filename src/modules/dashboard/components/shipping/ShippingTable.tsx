@@ -1,4 +1,3 @@
-// components/shipping/ShippingTable.tsx
 import React, { useState } from "react";
 import { DataTable } from "../../utils/data-table";
 import { Edit, Trash } from "lucide-react";
@@ -6,81 +5,60 @@ import EmptyState from "../../utils/EmptyState";
 import box from "../../assets/boxEmpty.png";
 import DeleteShippingModal from "./DeleteShippingModal";
 import EditShippingSidebar from "./EditShippingSidebar";
-
-export interface Shipping {
-  id: string;
-  dateCreated: string;
-  locationName: string;
-  description: string;
-  fee: string;
-}
-
-// Mock data
-const mockShipping: Shipping[] = [
-  {
-    id: "1",
-    dateCreated: "2025-09-01",
-    locationName: "Lagos",
-    description: "Standard shipping within Lagos",
-    fee: "2000",
-  },
-  {
-    id: "2",
-    dateCreated: "2025-09-03",
-    locationName: "Abuja",
-    description: "Express shipping to Abuja",
-    fee: "5000",
-  },
-  {
-    id: "3",
-    dateCreated: "2025-09-07",
-    locationName: "Port Harcourt",
-    description: "Regional delivery service",
-    fee: "3500",
-  },
-];
-
-const fetchShipping = async (params: any) => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const { page = 1, perPage = 10, search } = params;
-  let filtered = mockShipping;
-
-  if (search) {
-    filtered = filtered.filter(
-      (s) =>
-        s.locationName.toLowerCase().includes(search.toLowerCase()) ||
-        s.description.toLowerCase().includes(search.toLowerCase()),
-    );
-  }
-
-  const start = (page - 1) * perPage;
-  const paginated = filtered.slice(start, start + perPage);
-
-  return {
-    data: paginated,
-    meta: {
-      total: filtered.length,
-      page,
-      perPage,
-    },
-  };
-};
+import { Shipping } from "../../lib/types/shipping";
+import { getDecodedJwt } from "../../lib/auth";
+import {
+  useDeleteShipping,
+  useStoreShipping,
+  useUpdateShipping,
+} from "../../lib/api/shipping";
+import { formatDate } from "../../lib/utils/formatDate";
 
 const ShippingTable = () => {
   const [selected, setSelected] = useState<Shipping[]>([]);
   const [deleteTarget, setDeleteTarget] = useState<Shipping | null>(null);
   const [editTarget, setEditTarget] = useState<Shipping | null>(null);
 
+  // 🧩 Get logged-in user's store ID
+  const user = getDecodedJwt();
+  const userId = user?._id || user?.id;
+
+  // 📦 Fetch shipping data
+  const { data, isLoading, refetch } = useStoreShipping(userId, {
+    page: 1,
+    limit: 20,
+  });
+
+  // 🗑️ Delete mutation
+  const { mutate: deleteShipping, isPending: isDeleting } = useDeleteShipping();
+
+  // ✏️ Update mutation
+  const { mutate: updateShipping, isPending: isUpdating } = useUpdateShipping();
+
+  // 🧮 Columns
   const shippingColumns = [
-    { accessorKey: "dateCreated", header: "Date Created" },
-    { accessorKey: "locationName", header: "Location Name" },
-    { accessorKey: "description", header: "Shipping Description" },
     {
-      accessorKey: "fee",
+      accessorKey: "createdAt",
+      header: "Date Created",
+      cell: (info: any) => {
+        const date = info.getValue();
+        return <span>{formatDate(date)}</span>;
+      },
+    },
+    { accessorKey: "name", header: "Location Name" },
+    { accessorKey: "location", header: "Location" },
+    {
+      accessorKey: "description",
+      header: "Shipping Description",
+
+      cell: (info: any) => info.getValue() || "N/A",
+    },
+    {
+      accessorKey: "price",
       header: "Shipping Fee",
       cell: (info: any) => {
         const fee = info.getValue();
-        return <span>₦{fee.toLocaleString()}</span>;
+        return <span>₦{Number(fee).toLocaleString()}</span>;
       },
     },
     {
@@ -115,12 +93,41 @@ const ShippingTable = () => {
     />
   );
 
+  // 🧾 Handle Delete
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    await deleteShipping(deleteTarget._id, {
+      onSuccess: () => {
+        setDeleteTarget(null);
+        refetch();
+      },
+    });
+  };
+
+  // 🧾 Handle Edit Save
+  const handleEditSave = async (updatedData: Partial<Shipping>) => {
+    if (!editTarget) return;
+
+    await updateShipping(
+      { id: editTarget._id, data: updatedData },
+      {
+        onSuccess: () => {
+          setEditTarget(null);
+          refetch();
+        },
+      },
+    );
+  };
+
+  const shippingData = data?.shipping || [];
+
   return (
     <div className="bg-white rounded-lg shadow p-4">
       <DataTable<Shipping, unknown>
         columns={shippingColumns}
-        fetchData={fetchShipping}
-        totalItems={mockShipping.length}
+        data={shippingData}
+        totalItems={data?.total || 0}
+        isLoading={isLoading}
         tableKey="shipping"
         onRowClick={(shipping) => console.log("Clicked shipping:", shipping)}
         setSelected={setSelected}
@@ -128,29 +135,27 @@ const ShippingTable = () => {
         emptyState={emptyState}
       />
 
-      {/* Modals (to implement later) */}
+      {/* 🗑️ Delete Modal */}
       {deleteTarget && (
         <DeleteShippingModal
-          locationName={deleteTarget.locationName}
+          locationName={deleteTarget.name}
           onClose={() => setDeleteTarget(null)}
-          onConfirm={() => {
-            console.log("Deleting:", deleteTarget);
-            setDeleteTarget(null);
-          }}
+          onConfirm={handleDelete}
+          loading={isDeleting}
         />
       )}
 
+      {/* ✏️ Edit Sidebar */}
       {editTarget && (
         <EditShippingSidebar
           shipping={editTarget}
           onClose={() => setEditTarget(null)}
-          onSave={(updated) => {
-            console.log("Updated:", updated);
-            setEditTarget(null);
-          }}
+          onSave={handleEditSave}
+          loading={isUpdating}
         />
       )}
 
+      {/* ✅ Selected state footer */}
       {selected.length > 0 && (
         <div className="mt-4 p-3 bg-blue-50 rounded-lg">
           <p className="text-blue-800">
