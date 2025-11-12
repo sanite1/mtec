@@ -1,12 +1,28 @@
 import { PlusCircle } from "lucide-react";
 import React, { useState } from "react";
-import CreateTaxSidebar, { TaxForm } from "./CreateTaxSidebar";
+import CreateTaxSidebar from "./CreateTaxSidebar";
+import { TaxPayload } from "../../lib/types/taxes";
+import { useCreateTax } from "../../lib/api/taxes";
+import { getDecodedJwt } from "../../lib/auth";
 
-export default function TaxHeader() {
+export default function TaxHeader({ refetch }: { refetch: () => void }) {
   const [openCreate, setOpenCreate] = useState<boolean>(false);
-  const handleSave = (data: TaxForm) => {
-    console.log("Saved Tax:", data);
+  const user = getDecodedJwt();
+
+  const { mutateAsync: createTax, isPending: creatingTax } = useCreateTax();
+
+  const handleSave = async (data: TaxPayload) => {
+    await createTax(
+      { userId: user?.id, ...data },
+      {
+        onSuccess: () => {
+          setOpenCreate(false);
+          refetch();
+        },
+      },
+    );
   };
+
   return (
     <div>
       {/* Header */}
@@ -32,6 +48,7 @@ export default function TaxHeader() {
         <CreateTaxSidebar
           onClose={() => setOpenCreate(false)}
           onSave={handleSave}
+          loading={creatingTax}
         />
       )}
     </div>

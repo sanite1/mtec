@@ -1,4 +1,3 @@
-// components/tax/TaxTable.tsx
 import React, { useState } from "react";
 import { DataTable } from "../../utils/data-table";
 import { Edit, Trash } from "lucide-react";
@@ -6,75 +5,88 @@ import EmptyState from "../../utils/EmptyState";
 import receipt from "../../assets/boxEmpty.png";
 import DeleteTaxModal from "./DeleteTaxModal";
 import EditTaxSidebar from "./EditTaxSidebar";
+import { Tax, TaxPayload, TaxResponseData } from "../../lib/types/taxes";
+import { useDeleteTax, useUpdateTax } from "../../lib/api/taxes";
+import { formatDate } from "../../lib/utils/formatDate";
 
-export interface Tax {
-  id: string;
-  dateCreated: string;
-  name: string;
-  description: string;
-  rate: string; // percentage (e.g. "7.5")
-}
+const TaxTable = ({
+  data,
+  isLoading,
+  refetchTable,
+}: {
+  data: TaxResponseData | undefined;
+  isLoading: boolean;
+  refetchTable: () => void;
+}) => {
+  const { mutateAsync: deleteTax, isPending: deletingTax } = useDeleteTax();
+  const { mutateAsync: updateTax, isPending: updatingTax } = useUpdateTax();
 
-// Mock data
-const mockTaxes: Tax[] = [
-  {
-    id: "1",
-    dateCreated: "2025-09-01",
-    name: "VAT",
-    description: "Value Added Tax (standard)",
-    rate: "7.5",
-  },
-  {
-    id: "2",
-    dateCreated: "2025-09-04",
-    name: "Service Tax",
-    description: "Applicable on service-related products",
-    rate: "5",
-  },
-  {
-    id: "3",
-    dateCreated: "2025-09-08",
-    name: "Luxury Goods Tax",
-    description: "Extra charge for luxury items",
-    rate: "10",
-  },
-];
-
-const fetchTaxes = async (params: any) => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const { page = 1, perPage = 10, search } = params;
-  let filtered = mockTaxes;
-
-  if (search) {
-    filtered = filtered.filter(
-      (t) =>
-        t.name.toLowerCase().includes(search.toLowerCase()) ||
-        t.description.toLowerCase().includes(search.toLowerCase()),
-    );
-  }
-
-  const start = (page - 1) * perPage;
-  const paginated = filtered.slice(start, start + perPage);
-
-  return {
-    data: paginated,
-    meta: {
-      total: filtered.length,
-      page,
-      perPage,
-    },
-  };
-};
-
-const TaxTable = () => {
   const [selected, setSelected] = useState<Tax[]>([]);
   const [deleteTarget, setDeleteTarget] = useState<Tax | null>(null);
   const [editTarget, setEditTarget] = useState<Tax | null>(null);
 
+  const taxes = data?.taxes || [];
+  const totalItems = data?.total || 0;
+
+  const handleDelete = async (tax: Tax) => {
+    await deleteTax(
+      { id: tax._id },
+      {
+        onSuccess: () => {
+          setDeleteTarget(null);
+          refetchTable();
+        },
+      },
+    );
+  };
+
+  const handleUpdate = async (id: string, updated: TaxPayload) => {
+    await updateTax(
+      { id, data: updated },
+      {
+        onSuccess: () => {
+          setEditTarget(null);
+          refetchTable();
+        },
+      },
+    );
+  };
+
   const taxColumns = [
-    { accessorKey: "dateCreated", header: "Date Created" },
+    {
+      accessorKey: "createdAt",
+      header: "Date Created",
+      cell: (info: any) => {
+        const date = info.getValue();
+        return <span>{formatDate(date)}</span>;
+      },
+    },
     { accessorKey: "name", header: "Tax Name" },
-    { accessorKey: "description", header: "Description" },
+    {
+      accessorKey: "description",
+      header: "Description",
+      cell: (info: any) => info.getValue() || "N/A",
+    },
+    {
+      accessorKey: "applyToCheckout",
+      header: "Applied To Checkout",
+      cell: (info: any) => {
+        const applyToCheckout = info.getValue() ?? true; // default to active
+        const status = applyToCheckout ? "Applied" : "Not Applied";
+
+        const statusClass = applyToCheckout
+          ? "bg-green-100 text-green-800"
+          : "bg-gray-100 text-gray-800";
+
+        return (
+          <span
+            className={`px-2 py-1 rounded-full text-sm font-semibold ${statusClass}`}
+          >
+            {status}
+          </span>
+        );
+      },
+    },
     {
       accessorKey: "rate",
       header: "Tax Rate",
@@ -119,8 +131,9 @@ const TaxTable = () => {
     <div className="bg-white rounded-lg shadow p-4">
       <DataTable<Tax, unknown>
         columns={taxColumns}
-        fetchData={fetchTaxes}
-        totalItems={mockTaxes.length}
+        data={taxes}
+        isLoading={isLoading}
+        totalItems={totalItems}
         tableKey="taxes"
         onRowClick={(tax) => console.log("Clicked tax:", tax)}
         setSelected={setSelected}
@@ -133,10 +146,8 @@ const TaxTable = () => {
         <DeleteTaxModal
           taxName={deleteTarget.name}
           onClose={() => setDeleteTarget(null)}
-          onConfirm={() => {
-            console.log("Deleting:", deleteTarget);
-            setDeleteTarget(null);
-          }}
+          onConfirm={() => handleDelete(deleteTarget)}
+          loading={deletingTax}
         />
       )}
 
@@ -145,10 +156,8 @@ const TaxTable = () => {
         <EditTaxSidebar
           tax={editTarget}
           onClose={() => setEditTarget(null)}
-          onSave={(updated) => {
-            console.log("Updated:", updated);
-            setEditTarget(null);
-          }}
+          onSave={(updated) => handleUpdate(editTarget._id, updated)}
+          loading={updatingTax}
         />
       )}
 

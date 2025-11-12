@@ -3,12 +3,13 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
-import { Switch } from "@headlessui/react";
+import { getDecodedJwt } from "../../lib/auth";
+import { TaxPayload } from "../../lib/types/taxes";
 
 // ✅ Schema
 const taxSchema = z.object({
-  id: z.string().optional(),
-  taxName: z.string().min(1, "Tax name is required"),
+  name: z.string().min(1, "Tax name is required"),
+  applyToCheckout: z.boolean(),
   rate: z
     .string()
     .min(1, "Tax rate is required")
@@ -16,19 +17,20 @@ const taxSchema = z.object({
       message: "Tax rate must be a number",
     }),
   description: z.string().optional(),
-  isActive: z.boolean().default(true),
 });
 
 export type TaxForm = z.infer<typeof taxSchema>;
 
 interface CreateTaxSidebarProps {
   onClose: () => void;
-  onSave: (taxData: TaxForm) => void;
+  onSave: (taxData: TaxPayload) => void;
+  loading?: boolean;
 }
 
 export default function CreateTaxSidebar({
   onClose,
   onSave,
+  loading = false,
 }: CreateTaxSidebarProps) {
   const {
     control,
@@ -37,41 +39,48 @@ export default function CreateTaxSidebar({
   } = useForm<TaxForm>({
     resolver: zodResolver(taxSchema) as any,
     defaultValues: {
-      taxName: "",
+      name: "",
       rate: "",
       description: "",
-      isActive: true,
     },
   });
 
+  const user = getDecodedJwt();
+  const userId = user?.id;
+
   const onSubmit = (data: TaxForm) => {
-    onSave(data);
-    onClose();
+    const payload = {
+      userId,
+      name: data.name,
+      description: data.description || undefined,
+      rate: Number(data.rate),
+      location: "HQ",
+      applyToCheckout: data.applyToCheckout,
+    };
+    onSave(payload);
+    // onClose();
   };
 
   return (
     <div className="fixed inset-0 z-50 flex">
       {/* Overlay */}
-      <div
-        className="flex-1 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      ></div>
+      <div className="flex-1 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
       {/* Sidebar */}
       <div className="w-full sm:w-1/3 bg-white h-full shadow-2xl flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold">Create Tax</h2>
+          <h2 className="text-lg font-semibold">{"Create Tax"}</h2>
           <button onClick={onClose}>
             <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
 
-        {/* Form */}
+        {/* Content */}
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex-1 overflow-y-auto p-6 space-y-6"
-          id="create-tax-form"
+          id="edit-tax-form"
         >
           {/* Tax Name */}
           <div>
@@ -79,23 +88,21 @@ export default function CreateTaxSidebar({
               Tax Name
             </label>
             <Controller
-              name="taxName"
+              name="name"
               control={control}
               render={({ field }) => (
                 <input
                   {...field}
                   type="text"
                   className={`w-full px-3 py-2 border rounded-md ${
-                    errors.taxName ? "border-red-500" : "border-gray-300"
+                    errors.name ? "border-red-500" : "border-gray-300"
                   }`}
-                  placeholder="Enter tax name (e.g. VAT, Service Tax)"
+                  placeholder="Enter tax name"
                 />
               )}
             />
-            {errors.taxName && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.taxName.message}
-              </p>
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
             )}
           </div>
 
@@ -111,10 +118,11 @@ export default function CreateTaxSidebar({
                 <input
                   {...field}
                   type="number"
+                  step="0.01"
                   className={`w-full px-3 py-2 border rounded-md ${
                     errors.rate ? "border-red-500" : "border-gray-300"
                   }`}
-                  placeholder="Enter tax rate"
+                  placeholder="Enter tax rate (e.g. 7.5)"
                 />
               )}
             />
@@ -142,28 +150,22 @@ export default function CreateTaxSidebar({
             />
           </div>
 
-          {/* Active Toggle */}
-          <div className="flex items-center gap-2">
-            <Controller
-              name="isActive"
-              control={control}
-              render={({ field }) => (
-                <Switch
-                  checked={field.value}
-                  onChange={field.onChange}
-                  className={`${
-                    field.value ? "bg-purple-600" : "bg-gray-300"
-                  } relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition`}
-                >
-                  <span
-                    className={`${
-                      field.value ? "translate-x-6" : "translate-x-1"
-                    } inline-block h-4 w-4 transform rounded-full bg-white transition`}
+          <div className="">
+            {/* <h3 className="font-semibold mb-3">Newsletter</h3> */}
+            <label className="flex items-center gap-2 mb-3">
+              <Controller
+                name="applyToCheckout"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    type="checkbox"
+                    checked={!!field.value}
+                    onChange={(e) => field.onChange(e.target.checked)}
                   />
-                </Switch>
-              )}
-            />
-            <span className="text-sm text-gray-700">Active</span>
+                )}
+              />
+              <span className="text-sm">Apply this tax to checkout</span>
+            </label>
           </div>
         </form>
 
@@ -178,10 +180,35 @@ export default function CreateTaxSidebar({
           </button>
           <button
             type="submit"
-            form="create-tax-form"
-            className="px-6 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+            form="edit-tax-form"
+            disabled={loading}
+            className={`px-4 py-2 rounded-lg bg-purple-600 text-white flex items-center justify-center gap-2 transition ${
+              loading ? "opacity-75 cursor-not-allowed" : "hover:bg-purple-700"
+            }`}
           >
-            Save Tax
+            {loading && (
+              <svg
+                className="animate-spin h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
+            )}
+            {loading ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>

@@ -50,7 +50,6 @@ const ShippingTable = () => {
     {
       accessorKey: "description",
       header: "Shipping Description",
-
       cell: (info: any) => info.getValue() || "N/A",
     },
     {

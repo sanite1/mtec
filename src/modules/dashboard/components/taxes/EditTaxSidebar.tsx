@@ -4,11 +4,12 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
+import { Tax, TaxPayload } from "../../lib/types/taxes";
 
 // ----------------- Schema -----------------
 const taxSchema = z.object({
-  id: z.string().optional(),
   name: z.string().min(1, "Tax name is required"),
+  applyToCheckout: z.boolean(),
   rate: z
     .string()
     .min(1, "Tax rate is required")
@@ -21,9 +22,10 @@ const taxSchema = z.object({
 export type TaxForm = z.infer<typeof taxSchema>;
 
 interface EditTaxSidebarProps {
-  tax?: TaxForm; // existing tax (optional)
+  tax?: Tax; // existing tax (optional)
   onClose: () => void;
-  onSave: (updatedTax: TaxForm) => void;
+  onSave: (updatedTax: TaxPayload) => void;
+  loading?: boolean;
 }
 
 // ----------------- Component -----------------
@@ -31,6 +33,7 @@ export default function EditTaxSidebar({
   tax,
   onClose,
   onSave,
+  loading = false,
 }: EditTaxSidebarProps) {
   const {
     control,
@@ -38,16 +41,24 @@ export default function EditTaxSidebar({
     formState: { errors },
   } = useForm<TaxForm>({
     resolver: zodResolver(taxSchema) as any,
-    defaultValues: tax || {
-      name: "",
-      rate: "",
-      description: "",
+    defaultValues: {
+      name: tax?.name,
+      rate: String(tax?.rate),
+      description: tax?.description,
+      applyToCheckout: tax?.applyToCheckout,
     },
   });
 
   const onSubmit = (data: TaxForm) => {
-    onSave(data);
-    onClose();
+    const payload = {
+      name: data.name,
+      description: data.description || undefined,
+      rate: Number(data.rate),
+      location: "HQ",
+      applyToCheckout: data.applyToCheckout,
+    };
+    onSave(payload);
+    // onClose();
   };
 
   return (
@@ -140,6 +151,24 @@ export default function EditTaxSidebar({
               )}
             />
           </div>
+
+          <div className="">
+            {/* <h3 className="font-semibold mb-3">Newsletter</h3> */}
+            <label className="flex items-center gap-2 mb-3">
+              <Controller
+                name="applyToCheckout"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    type="checkbox"
+                    checked={!!field.value}
+                    onChange={(e) => field.onChange(e.target.checked)}
+                  />
+                )}
+              />
+              <span className="text-sm">Apply this tax to checkout</span>
+            </label>
+          </div>
         </form>
 
         {/* Footer */}
@@ -154,9 +183,34 @@ export default function EditTaxSidebar({
           <button
             type="submit"
             form="edit-tax-form"
-            className="px-6 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+            disabled={loading}
+            className={`px-4 py-2 rounded-lg bg-purple-600 text-white flex items-center justify-center gap-2 transition ${
+              loading ? "opacity-75 cursor-not-allowed" : "hover:bg-purple-700"
+            }`}
           >
-            Save Tax
+            {loading && (
+              <svg
+                className="animate-spin h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
+            )}
+            {loading ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>
