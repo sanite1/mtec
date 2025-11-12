@@ -97,7 +97,7 @@ export function DataTable<TData, TValue>({
   }, [searchParams]);
 
   const page = Number(searchParams.get("page") || "1") || 1;
-  const perPage = Number(searchParams.get("perPage") || "5") || 1;
+  const perPage = Number(searchParams.get("perPage") || "10") || 1;
   const search = searchParams.get("search") || "";
 
   const [searchValue, setSearchValue] = useState<string>(search);

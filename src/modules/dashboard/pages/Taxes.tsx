@@ -9,13 +9,7 @@ export default function Taxes() {
   const user = getDecodedJwt();
   const userId = user?.id || "";
 
-  const [filters, setFilters] = useState<TaxFilters>({
-    page: 1,
-    limit: 10,
-    search: "",
-  });
-
-  const { data, isLoading, refetch } = useStoreTaxes(userId, filters);
+  const { data, isLoading, refetch } = useStoreTaxes(userId);
 
   return (
     <div>
