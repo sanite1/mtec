@@ -1,7 +1,6 @@
 // components/location/LocationHeader.tsx
 import React, { useState } from "react";
 import { MapPin, Plus, AlertCircle } from "lucide-react";
-import EditLocationSidebar from "./LocationFormSidebar";
 import { getDecodedJwt } from "../../lib/auth";
 import { useCreateLocation } from "../../lib/api/locations";
 import { LocationPayload } from "../../lib/types/locations";
