@@ -20,7 +20,7 @@ export default function ShippingHeader() {
             onClick={() => {
               navigate("/shipping/automated");
             }}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white text-purple-600 border border-purple-600 font-medium hover:bg-purple-100"
+            className="flex text-sm items-center gap-2 px-3 py-2 rounded-lg bg-transparent text-purple-600 border border-purple-600 font-medium hover:bg-purple-100"
           >
             Automated Shipping
           </button>
@@ -28,7 +28,7 @@ export default function ShippingHeader() {
             onClick={() => {
               setOpenCreate(true);
             }}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-purple-600 text-white font-medium hover:bg-purple-700"
+            className="flex text-sm items-center gap-2 px-3 py-2 rounded-lg bg-purple-600 text-white font-medium hover:bg-purple-700"
           >
             <PlusCircle size={20} />
             Create Shipping

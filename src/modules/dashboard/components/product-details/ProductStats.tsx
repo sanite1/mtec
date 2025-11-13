@@ -96,13 +96,23 @@ export default function ProductStats({ productDetails }: ProductDetailsProps) {
       {stats.map((stat, idx) => (
         <div
           key={idx}
-          className={`bg-gradient-to-r ${stat.color} rounded-xl shadow p-5 flex items-center justify-between hover:shadow-md transition`}
+          className={`relative bg-gradient-to-r ${stat.color} rounded-xl bg-gradient-to-r from-blue-50 to-blue-100 p-5 shadow hover:shadow-md transition`}
         >
-          <div>
-            <p className="text-sm text-gray-600 font-medium">{stat.label}</p>
-            <p className="mt-1 text-xl font-bold text-gray-900">{stat.value}</p>
+          <div className="relative flex items-center justify-between">
+            <div className="z-10">
+              <div className="flex items-center space-x-2">
+                <p className="text-xs md:text-sm text-gray-600 font-medium">
+                  {stat.label}
+                </p>
+              </div>
+              <p className="mt-1 text-md md:text-xl font-bold text-gray-900">
+                {stat.value}
+              </p>
+            </div>
+            <div className="absolute md:relative flex-shrink-0 right-0 text-blue-500 opacity-80">
+              {stat.icon}
+            </div>
           </div>
-          <div className="flex-shrink-0">{stat.icon}</div>
         </div>
       ))}
     </div>

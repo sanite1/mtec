@@ -1,14 +1,14 @@
-// components/locations/EditLocationSidebar.tsx
+// components/locations/LocationSidebar.tsx
 import React from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
+import { Location } from "../../lib/types/locations";
+import { formatDate } from "../../lib/utils/formatDate";
 
 // ✅ Schema
 const locationSchema = z.object({
-  id: z.string().optional(),
-  dateCreated: z.string().optional(),
   name: z.string().min(1, "Location name is required"),
   description: z.string().optional(),
   address: z.string().min(1, "Address is required"),
@@ -19,17 +19,19 @@ const locationSchema = z.object({
 
 export type LocationForm = z.infer<typeof locationSchema>;
 
-interface EditLocationSidebarProps {
-  location?: LocationForm;
+interface LocationSidebarProps {
+  location?: Location;
+  loading?: boolean;
   onClose: () => void;
   onSave: (updatedLocation: LocationForm) => void;
 }
 
-export default function EditLocationSidebar({
+export default function LocationSidebar({
   location,
+  loading = false,
   onClose,
   onSave,
-}: EditLocationSidebarProps) {
+}: LocationSidebarProps) {
   const {
     control,
     handleSubmit,
@@ -48,7 +50,6 @@ export default function EditLocationSidebar({
 
   const onSubmit = (data: LocationForm) => {
     onSave(data);
-    onClose();
   };
 
   return (
@@ -78,14 +79,14 @@ export default function EditLocationSidebar({
           id="edit-location-form"
         >
           {/* Date Created (read-only if available) */}
-          {location?.dateCreated && (
+          {location?.createdAt && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Date Created
               </label>
               <input
                 type="text"
-                value={location.dateCreated}
+                value={formatDate(location.createdAt)}
                 readOnly
                 className="w-full px-3 py-2 border rounded-md bg-gray-100 text-gray-500"
               />
@@ -250,9 +251,34 @@ export default function EditLocationSidebar({
           <button
             type="submit"
             form="edit-location-form"
-            className="px-6 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+            disabled={loading}
+            className={`px-4 py-2 rounded-lg bg-purple-600 text-white flex items-center justify-center gap-2 transition ${
+              loading ? "opacity-75 cursor-not-allowed" : "hover:bg-purple-700"
+            }`}
           >
-            Save Changes
+            {loading && (
+              <svg
+                className="animate-spin h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
+            )}
+            {loading ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>
