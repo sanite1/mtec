@@ -95,27 +95,34 @@ const ShippingTable = () => {
   // 🧾 Handle Delete
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    await deleteShipping(deleteTarget._id, {
-      onSuccess: () => {
-        setDeleteTarget(null);
-        refetch();
-      },
-    });
+    try {
+      await deleteShipping(deleteTarget._id, {
+        onSuccess: () => {
+          setDeleteTarget(null);
+          refetch();
+        },
+      });
+    } catch (error) {
+      console.error();
+    }
   };
 
   // 🧾 Handle Edit Save
   const handleEditSave = async (updatedData: Partial<Shipping>) => {
     if (!editTarget) return;
-
-    await updateShipping(
-      { id: editTarget._id, data: updatedData },
-      {
-        onSuccess: () => {
-          setEditTarget(null);
-          refetch();
+    try {
+      await updateShipping(
+        { id: editTarget._id, data: updatedData },
+        {
+          onSuccess: () => {
+            setEditTarget(null);
+            refetch();
+          },
         },
-      },
-    );
+      );
+    } catch (error) {
+      console.error();
+    }
   };
 
   const shippingData = data?.shipping || [];

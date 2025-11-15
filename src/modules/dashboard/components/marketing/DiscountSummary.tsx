@@ -8,6 +8,9 @@ import {
   PlusCircle,
 } from "lucide-react";
 import DiscountFormSidebar from "./DiscountFormSidebar";
+import { getDecodedJwt } from "../../lib/auth";
+import { useCreateDiscount } from "../../lib/api/discount";
+import { DiscountPayload } from "../../lib/types/discount";
 // import CreateCouponSidebar from "./CreateCouponSidebar";
 
 interface DiscountSummaryProps {
@@ -15,6 +18,8 @@ interface DiscountSummaryProps {
   activeCoupons: number;
   scheduledCoupons: number;
   expiredCoupons: number;
+  refetch: () => void;
+  refetchSummary: () => void;
 }
 
 export default function DiscountSummary({
@@ -22,8 +27,32 @@ export default function DiscountSummary({
   activeCoupons,
   scheduledCoupons,
   expiredCoupons,
+  refetchSummary,
+  refetch,
 }: DiscountSummaryProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const user = getDecodedJwt();
+
+  const { mutateAsync: createDiscount, isPending: creatingLocation } =
+    useCreateDiscount();
+
+  const handleSave = async (data: DiscountPayload) => {
+    try {
+      await createDiscount(
+        { userId: user?.id, ...data },
+        {
+          onSuccess: () => {
+            setIsSidebarOpen(false);
+            refetch();
+            refetchSummary();
+          },
+        },
+      );
+    } catch (error) {
+      console.error();
+    }
+  };
 
   return (
     <div className="z-10">
@@ -111,10 +140,8 @@ export default function DiscountSummary({
       {isSidebarOpen && (
         <DiscountFormSidebar
           onClose={() => setIsSidebarOpen(false)}
-          onSave={(updated) => {
-            console.log("Updated:", updated);
-            setIsSidebarOpen(false);
-          }}
+          onSave={(updated) => handleSave(updated)}
+          loading={creatingLocation}
         />
       )}
     </div>

@@ -38,28 +38,36 @@ const LocationTable = ({
 
   // 🔹 Delete Handler
   const handleDelete = async (location: Location) => {
-    await deleteLocation(
-      { id: location._id },
-      {
-        onSuccess: () => {
-          setDeleteTarget(null);
-          refetchTable();
+    try {
+      await deleteLocation(
+        { id: location._id },
+        {
+          onSuccess: () => {
+            setDeleteTarget(null);
+            refetchTable();
+          },
         },
-      },
-    );
+      );
+    } catch (error) {
+      console.error();
+    }
   };
 
   // 🔹 Update Handler
   const handleUpdate = async (id: string, updated: LocationPayload) => {
-    await updateLocation(
-      { id, data: updated },
-      {
-        onSuccess: () => {
-          setEditTarget(null);
-          refetchTable();
+    try {
+      await updateLocation(
+        { id, data: updated },
+        {
+          onSuccess: () => {
+            setEditTarget(null);
+            refetchTable();
+          },
         },
-      },
-    );
+      );
+    } catch (error) {
+      console.error();
+    }
   };
 
   // 🔹 Table Columns

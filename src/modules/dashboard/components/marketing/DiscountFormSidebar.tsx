@@ -4,34 +4,26 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
+import { Discount, DiscountPayload } from "../../lib/types/discount";
 
 // ----------------- Schema -----------------
 const discountSchema = z.object({
   id: z.string().optional(),
-  name: z.string().min(1, "Discount name is required"),
+  discountName: z.string().min(1, "Discount name is required"),
   description: z.string().optional(),
-  value: z
+  discountValue: z
     .string()
     .min(1, "Discount value is required")
     .refine((val) => !isNaN(Number(val)), {
       message: "Value must be numeric",
     }),
-  type: z.string(),
+  discountType: z.string(),
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
   products: z.array(z.string()).optional(),
 });
 
 export type DiscountForm = z.infer<typeof discountSchema>;
-
-export interface Discount {
-  id: string;
-  dateCreated: string;
-  name: string;
-  description: string;
-  value: string; // percentage or fixed (e.g. "20")
-  type: "percentage" | "fixed";
-}
 
 // Dummy product list
 const mockProducts = [
@@ -41,9 +33,10 @@ const mockProducts = [
 ];
 
 interface DiscountFormSidebarProps {
-  discount?: DiscountForm;
+  discount?: Discount;
+  loading?: boolean;
   onClose: () => void;
-  onSave: (updatedDiscount: DiscountForm) => void;
+  onSave: (updatedDiscount: DiscountPayload) => void;
 }
 
 // ----------------- Component -----------------
@@ -51,22 +44,38 @@ export default function DiscountFormSidebar({
   discount,
   onClose,
   onSave,
+  loading,
 }: DiscountFormSidebarProps) {
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<DiscountForm>({
     resolver: zodResolver(discountSchema) as any,
-    defaultValues: discount || {
-      type: "percentage",
+    defaultValues: (discount && {
+      discountName: discount?.discountName,
+      description: discount?.description,
+      discountValue: String(discount?.discountValue),
+      discountType: discount?.discountType,
+      startDate: discount?.startDate,
+      endDate: discount?.endDate,
+      products: discount?.products,
+    }) || {
+      discountType: "percentage",
       products: [],
     },
   });
 
   const onSubmit = (data: DiscountForm) => {
-    onSave(data);
-    onClose();
+    const payload = {
+      ...data,
+      discountValue: Number(data.discountValue),
+      location: "HQ",
+    };
+
+    onSave(payload);
+    // onClose();
   };
 
   return (
@@ -101,21 +110,23 @@ export default function DiscountFormSidebar({
               Discount Name
             </label>
             <Controller
-              name="name"
+              name="discountName"
               control={control}
               render={({ field }) => (
                 <input
                   {...field}
                   type="text"
                   className={`w-full px-3 py-2 border rounded-md ${
-                    errors.name ? "border-red-500" : "border-gray-300"
+                    errors.discountName ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="Enter discount name"
                 />
               )}
             />
-            {errors.name && (
-              <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+            {errors.discountName && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.discountName.message}
+              </p>
             )}
           </div>
 
@@ -144,22 +155,22 @@ export default function DiscountFormSidebar({
               Discount Value
             </label>
             <Controller
-              name="value"
+              name="discountValue"
               control={control}
               render={({ field }) => (
                 <input
                   {...field}
                   type="number"
                   className={`w-full px-3 py-2 border rounded-md ${
-                    errors.value ? "border-red-500" : "border-gray-300"
+                    errors.discountValue ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="Enter discount value"
                 />
               )}
             />
-            {errors.value && (
+            {errors.discountValue && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.value.message}
+                {errors.discountValue.message}
               </p>
             )}
           </div>
@@ -170,7 +181,7 @@ export default function DiscountFormSidebar({
               Discount Type
             </label>
             <Controller
-              name="type"
+              name="discountType"
               control={control}
               render={({ field }) => (
                 <select
@@ -271,9 +282,34 @@ export default function DiscountFormSidebar({
           <button
             type="submit"
             form="edit-discount-form"
-            className="px-6 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+            disabled={loading}
+            className={`px-4 py-2 rounded-lg bg-purple-600 text-white flex items-center justify-center gap-2 transition ${
+              loading ? "opacity-75 cursor-not-allowed" : "hover:bg-purple-700"
+            }`}
           >
-            Save Changes
+            {loading && (
+              <svg
+                className="animate-spin h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
+            )}
+            {loading ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>

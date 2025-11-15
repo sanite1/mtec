@@ -29,27 +29,35 @@ const TaxTable = ({
   const totalItems = data?.total || 0;
 
   const handleDelete = async (tax: Tax) => {
-    await deleteTax(
-      { id: tax._id },
-      {
-        onSuccess: () => {
-          setDeleteTarget(null);
-          refetchTable();
+    try {
+      await deleteTax(
+        { id: tax._id },
+        {
+          onSuccess: () => {
+            setDeleteTarget(null);
+            refetchTable();
+          },
         },
-      },
-    );
+      );
+    } catch (error) {
+      console.error();
+    }
   };
 
   const handleUpdate = async (id: string, updated: TaxPayload) => {
-    await updateTax(
-      { id, data: updated },
-      {
-        onSuccess: () => {
-          setEditTarget(null);
-          refetchTable();
+    try {
+      await updateTax(
+        { id, data: updated },
+        {
+          onSuccess: () => {
+            setEditTarget(null);
+            refetchTable();
+          },
         },
-      },
-    );
+      );
+    } catch (error) {
+      console.error();
+    }
   };
 
   const taxColumns = [

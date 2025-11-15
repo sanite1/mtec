@@ -27,17 +27,21 @@ export default function ProductQuantity({
   }) => {
     console.log("Quantity update:", { type, quantity, note });
 
-    await updateQuantity({
-      id: productDetails?._id || "",
-      data: {
-        type: type,
-        quantity: quantity,
-        ...(note ? { note: note } : {}),
-      },
-    });
-    refetchDetails();
-    refetchHistory();
-    setShowModal(false);
+    try {
+      await updateQuantity({
+        id: productDetails?._id || "",
+        data: {
+          type: type,
+          quantity: quantity,
+          ...(note ? { note: note } : {}),
+        },
+      });
+      refetchDetails();
+      refetchHistory();
+      setShowModal(false);
+    } catch (error) {
+      console.error();
+    }
   };
 
   return (
