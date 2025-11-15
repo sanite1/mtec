@@ -49,7 +49,6 @@ export default function DiscountFormSidebar({
   const {
     control,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<DiscountForm>({
     resolver: zodResolver(discountSchema) as any,

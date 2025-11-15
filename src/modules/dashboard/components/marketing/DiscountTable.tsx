@@ -163,7 +163,7 @@ const DiscountTable = ({
     />
   );
 
-  const user = getDecodedJwt();
+  // const user = getDecodedJwt();
   return (
     <div className="bg-white rounded-lg shadow p-4">
       <DataTable<Discount, unknown>
