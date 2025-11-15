@@ -12,7 +12,6 @@ import {
   DiscountResponseData,
 } from "../../lib/types/discount";
 import { useDeleteDiscount, useUpdateDiscount } from "../../lib/api/discount";
-import { getDecodedJwt } from "../../lib/auth";
 import { formatDate } from "../../lib/utils/formatDate";
 
 // ----------------- Component -----------------
