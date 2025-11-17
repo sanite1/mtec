@@ -1,10 +1,12 @@
 // components/discounts/DiscountFormSidebar.tsx
-import React from "react";
+import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X } from "lucide-react";
+import { PlusCircle, X } from "lucide-react";
 import { Discount, DiscountPayload } from "../../lib/types/discount";
+import { useNavigate } from "react-router-dom";
+import SelectProductsDialog from "./SelectProductsDialog";
 
 // ----------------- Schema -----------------
 const discountSchema = z.object({
@@ -46,10 +48,24 @@ export default function DiscountFormSidebar({
   onSave,
   loading,
 }: DiscountFormSidebarProps) {
+  const navigate = useNavigate();
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState<
+    {
+      productId: string;
+      variationId?: string;
+      name?: string;
+      price?: number;
+      sku?: string;
+      quantity: number;
+    }[]
+  >([]);
+
   const {
     control,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<DiscountForm>({
     resolver: zodResolver(discountSchema) as any,
     defaultValues: (discount && {
@@ -245,7 +261,7 @@ export default function DiscountFormSidebar({
           </div>
 
           {/* Apply to Products */}
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Apply To Products
             </label>
@@ -266,7 +282,40 @@ export default function DiscountFormSidebar({
                 </select>
               )}
             />
-          </div>
+          </div> */}
+          <section>
+            <h2 className="text-lg font-semibold text-gray-700 mb-4">
+              Products
+            </h2>
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => setOpenDialog(true)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-purple-600 text-purple-600 hover:bg-purple-50"
+              >
+                <PlusCircle size={18} />
+                Select Products
+              </button>
+            </div>
+
+            {selectedProducts.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {selectedProducts.map((p) => (
+                  <div
+                    key={p.productId}
+                    className="flex justify-between items-center bg-gray-50 border border-gray-200 p-3 rounded-lg"
+                  >
+                    <div>
+                      <p className="font-medium text-gray-800">{p.name}</p>
+                      <p className="text-sm text-gray-600">
+                        Qty: {p.quantity} | ₦{p.price ?? 0}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
         </form>
 
         {/* Footer */}
@@ -311,6 +360,20 @@ export default function DiscountFormSidebar({
             {loading ? "Saving..." : "Save Changes"}
           </button>
         </div>
+
+        <SelectProductsDialog
+          open={openDialog}
+          onClose={() => setOpenDialog(false)}
+          onSave={(selected) => {
+            setSelectedProducts(selected);
+            console.log(selected);
+
+            setValue(
+              "products",
+              selected.map((item) => item.productId),
+            );
+          }}
+        />
       </div>
     </div>
   );
