@@ -12,7 +12,7 @@ import SelectProductsDialog from "./SelectProductsDialog";
 const discountSchema = z.object({
   id: z.string().optional(),
   discountName: z.string().min(1, "Discount name is required"),
-  description: z.string().optional(),
+  description: z.string().min(1, "Discount description is required"),
   discountValue: z
     .string()
     .min(1, "Discount value is required")
@@ -22,17 +22,18 @@ const discountSchema = z.object({
   discountType: z.string(),
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
-  products: z.array(z.string()).optional(),
+  products: z
+    .array(
+      z.object({
+        productId: z.string().optional(),
+        name: z.string().optional(),
+        price: z.number().optional(),
+      }),
+    )
+    .optional(),
 });
 
 export type DiscountForm = z.infer<typeof discountSchema>;
-
-// Dummy product list
-const mockProducts = [
-  { id: "p1", name: "Product One" },
-  { id: "p2", name: "Product Two" },
-  { id: "p3", name: "Product Three" },
-];
 
 interface DiscountFormSidebarProps {
   discount?: Discount;
@@ -51,15 +52,14 @@ export default function DiscountFormSidebar({
   const navigate = useNavigate();
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState<
-    {
-      productId: string;
-      variationId?: string;
-      name?: string;
-      price?: number;
-      sku?: string;
-      quantity: number;
-    }[]
-  >([]);
+    | {
+        productId?: string;
+        variationId?: string;
+        name?: string;
+        price?: number;
+      }[]
+    | undefined
+  >(discount?.products);
 
   const {
     control,
@@ -162,6 +162,11 @@ export default function DiscountFormSidebar({
                 />
               )}
             />
+            {errors.description && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.description.message}
+              </p>
+            )}
           </div>
 
           {/* Discount Value */}
@@ -298,18 +303,16 @@ export default function DiscountFormSidebar({
               </button>
             </div>
 
-            {selectedProducts.length > 0 && (
+            {selectedProducts && selectedProducts?.length > 0 && (
               <div className="mt-4 space-y-2">
-                {selectedProducts.map((p) => (
+                {selectedProducts?.map((p) => (
                   <div
                     key={p.productId}
                     className="flex justify-between items-center bg-gray-50 border border-gray-200 p-3 rounded-lg"
                   >
                     <div>
                       <p className="font-medium text-gray-800">{p.name}</p>
-                      <p className="text-sm text-gray-600">
-                        Qty: {p.quantity} | ₦{p.price ?? 0}
-                      </p>
+                      <p className="text-sm text-gray-600">₦{p.price ?? 0}</p>
                     </div>
                   </div>
                 ))}
@@ -370,7 +373,13 @@ export default function DiscountFormSidebar({
 
             setValue(
               "products",
-              selected.map((item) => item.productId),
+              selected.map((item) => {
+                return {
+                  productId: item.productId,
+                  name: item.name,
+                  price: item.price,
+                };
+              }),
             );
           }}
         />
