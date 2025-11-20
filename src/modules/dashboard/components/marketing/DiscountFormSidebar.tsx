@@ -376,6 +376,7 @@ export default function DiscountFormSidebar({
               selected.map((item) => {
                 return {
                   productId: item.productId,
+                  variationId: item.variationId,
                   name: item.name,
                   price: item.price,
                 };
