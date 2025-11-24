@@ -3,9 +3,13 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Upload } from "lucide-react";
+import { useCreateStore } from "../../lib/api/store";
+import { IStoreUpdate } from "../../lib/types/store";
+import { getDecodedJwt } from "../../lib/auth";
+import { useNavigate } from "react-router-dom";
 
 const storeSchema = z.object({
-  storeLogo: z.any().optional(),
+  storeLogo: z.file().optional(),
   storeName: z.string().min(2, "Store name is required"),
   businessName: z.string().min(2, "Business name is required"),
   businessSector: z.string().min(1, "Please select a sector"),
@@ -19,7 +23,7 @@ const storeSchema = z.object({
   zipCode: z.string().min(3, "Zip code is required"),
   businessEmail: z.string().email("Invalid email address"),
   businessPhone: z.string().min(7, "Phone number is required"),
-  website: z.string().url("Invalid website URL").optional(),
+  website: z.string().optional(),
 });
 
 type StoreFormData = z.infer<typeof storeSchema>;
@@ -44,12 +48,49 @@ export default function StoreDetailsForm() {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<StoreFormData>({
     resolver: zodResolver(storeSchema),
   });
 
-  const onSubmit = (data: StoreFormData) => {
-    console.log("Store Details:", data);
+  console.log(errors);
+
+  const user = getDecodedJwt();
+  const navigate = useNavigate();
+  const { mutateAsync: createStore, isPending } = useCreateStore(); // or whatever your hook is named
+
+  const onSubmit = async (data: StoreFormData) => {
+    try {
+      const payload: IStoreUpdate = {
+        userId: user?.id,
+        // logoUrl: data.storeLogo || undefined,
+
+        storeName: data.storeName,
+        businessName: data.businessName,
+        businessSector: data.businessSector,
+        tagline: data.storeTagline,
+        storeDescription: data.storeDescription,
+
+        businessEmail: data.businessEmail,
+        businessPhone: data.businessPhone,
+        website: data.website,
+
+        country: data.country,
+        state: data.state,
+        zipCode: data.zipCode,
+        streetAddress: data.address,
+      };
+
+      console.log("Final Payload:", payload);
+
+      await createStore(payload, {
+        onSuccess: () => {
+          navigate("/onboarding");
+        },
+      });
+    } catch (error) {
+      console.error("Store creation failed:", error);
+    }
   };
 
   return (
@@ -69,13 +110,17 @@ export default function StoreDetailsForm() {
               <input
                 type="file"
                 accept="image/*"
-                {...register("storeLogo")}
+                id="storeLogo"
+                className="hidden"
+                // {...register("storeLogo")}
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file) setPreview(URL.createObjectURL(file));
+
+                  if (file) {
+                    setValue("storeLogo", file); // store ONLY the file
+                    setPreview(URL.createObjectURL(file));
+                  }
                 }}
-                className="hidden"
-                id="storeLogo"
               />
               <label htmlFor="storeLogo" className="flex flex-col items-center">
                 {preview ? (
@@ -110,7 +155,7 @@ export default function StoreDetailsForm() {
                   type="text"
                   {...register("storeName")}
                   placeholder="Enter your store name"
-                  className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-black focus:border-black sm:text-sm"
+                  className="mt-1 block w-full border rounded px-3 py-2"
                 />
                 {errors.storeName && (
                   <p className="text-red-500 text-sm">
@@ -126,7 +171,7 @@ export default function StoreDetailsForm() {
                   type="text"
                   {...register("businessName")}
                   placeholder="Enter your business name"
-                  className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-black focus:border-black sm:text-sm"
+                  className="mt-1 block w-full border rounded px-3 py-2"
                 />
                 {errors.businessName && (
                   <p className="text-red-500 text-sm">
@@ -140,7 +185,7 @@ export default function StoreDetailsForm() {
                 </label>
                 <select
                   {...register("businessSector")}
-                  className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-black focus:border-black sm:text-sm"
+                  className="mt-1 block w-full border rounded px-3 py-2"
                 >
                   <option value="">Select sector</option>
                   {businessSectors.map((sector) => (
@@ -163,7 +208,7 @@ export default function StoreDetailsForm() {
                   type="text"
                   {...register("storeTagline")}
                   placeholder="Affordable fashion for everyone"
-                  className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-black focus:border-black sm:text-sm"
+                  className="mt-1 block w-full border rounded px-3 py-2"
                 />
               </div>
             </div>
@@ -175,7 +220,7 @@ export default function StoreDetailsForm() {
                 {...register("storeDescription")}
                 rows={4}
                 placeholder="Describe your store..."
-                className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-black focus:border-black sm:text-sm"
+                className="mt-1 block w-full border rounded px-3 py-2"
               />
               {errors.storeDescription && (
                 <p className="text-red-500 text-sm">
@@ -199,7 +244,7 @@ export default function StoreDetailsForm() {
                   type="email"
                   {...register("businessEmail")}
                   placeholder="you@example.com"
-                  className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-black focus:border-black sm:text-sm"
+                  className="mt-1 block w-full border rounded px-3 py-2"
                 />
                 {errors.businessEmail && (
                   <p className="text-red-500 text-sm">
@@ -215,7 +260,7 @@ export default function StoreDetailsForm() {
                   type="text"
                   {...register("businessPhone")}
                   placeholder="+1 234 567 890"
-                  className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-black focus:border-black sm:text-sm"
+                  className="mt-1 block w-full border rounded px-3 py-2"
                 />
                 {errors.businessPhone && (
                   <p className="text-red-500 text-sm">
@@ -232,7 +277,7 @@ export default function StoreDetailsForm() {
                 type="url"
                 {...register("website")}
                 placeholder="https://example.com"
-                className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-black focus:border-black sm:text-sm"
+                className="mt-1 block w-full border rounded px-3 py-2"
               />
               {errors.website && (
                 <p className="text-red-500 text-sm">{errors.website.message}</p>
@@ -254,7 +299,7 @@ export default function StoreDetailsForm() {
                   type="text"
                   {...register("country")}
                   placeholder="Country"
-                  className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-black focus:border-black sm:text-sm"
+                  className="mt-1 block w-full border rounded px-3 py-2"
                 />
                 {errors.country && (
                   <p className="text-red-500 text-sm">
@@ -270,7 +315,7 @@ export default function StoreDetailsForm() {
                   type="text"
                   {...register("state")}
                   placeholder="State"
-                  className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-black focus:border-black sm:text-sm"
+                  className="mt-1 block w-full border rounded px-3 py-2"
                 />
                 {errors.state && (
                   <p className="text-red-500 text-sm">{errors.state.message}</p>
@@ -284,7 +329,7 @@ export default function StoreDetailsForm() {
                   type="text"
                   {...register("zipCode")}
                   placeholder="12345"
-                  className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-black focus:border-black sm:text-sm"
+                  className="mt-1 block w-full border rounded px-3 py-2"
                 />
                 {errors.zipCode && (
                   <p className="text-red-500 text-sm">
@@ -301,7 +346,7 @@ export default function StoreDetailsForm() {
                 type="text"
                 {...register("address")}
                 placeholder="123 Main St"
-                className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-black focus:border-black sm:text-sm"
+                className="mt-1 block w-full border rounded px-3 py-2"
               />
               {errors.address && (
                 <p className="text-red-500 text-sm">{errors.address.message}</p>
@@ -313,9 +358,36 @@ export default function StoreDetailsForm() {
           <div className="pt-6">
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-black to-gray-800 text-white py-3 rounded-lg font-medium hover:opacity-90 transition shadow-md"
+              disabled={isPending}
+              className={`px-4 py-2 rounded-lg bg-purple-600 text-white flex items-center justify-center gap-2 transition ${
+                isPending
+                  ? "opacity-75 cursor-not-allowed"
+                  : "hover:bg-purple-700"
+              }`}
             >
-              Save Store Details
+              {isPending && (
+                <svg
+                  className="animate-spin h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  ></path>
+                </svg>
+              )}
+              {isPending ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </form>
