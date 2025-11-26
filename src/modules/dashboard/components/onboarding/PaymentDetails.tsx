@@ -2,6 +2,8 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router-dom";
+import { useCreatePayoutDetails } from "../../lib/api/payoutDetails";
 
 // ✅ Schema
 const payoutSchema = z.object({
@@ -84,8 +86,19 @@ const ConnectPayoutPage: React.FC = () => {
   const allowCharges = watch("allowCustomerCharges");
   const acceptTerms = watch("acceptTerms");
 
-  const onSubmit = (data: PayoutFormData) => {
-    console.log("Payout Data:", data);
+  const navigate = useNavigate();
+  const { mutateAsync: createPayout, isPending } = useCreatePayoutDetails(); // or whatever your hook is named
+
+  const onSubmit = async (data: PayoutFormData) => {
+    try {
+      await createPayout(data, {
+        onSuccess: () => {
+          navigate("/onboarding");
+        },
+      });
+    } catch (error) {
+      console.error("Payout Details creation failed:", error);
+    }
   };
 
   return (
@@ -179,9 +192,36 @@ const ConnectPayoutPage: React.FC = () => {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-purple-600 text-white rounded py-2 hover:bg-purple-700 transition"
+            disabled={isPending}
+            className={`px-4 py-2 rounded-lg bg-purple-600 text-white flex items-center justify-center gap-2 transition w-full ${
+              isPending
+                ? "opacity-75 cursor-not-allowed"
+                : "hover:bg-purple-700"
+            }`}
           >
-            Save Payout Details
+            {isPending && (
+              <svg
+                className="animate-spin h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
+            )}
+            {isPending ? "Saving..." : "Save Payout Details"}
           </button>
         </form>
       </div>

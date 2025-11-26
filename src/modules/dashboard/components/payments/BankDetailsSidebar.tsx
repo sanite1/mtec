@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
+import { IPayoutDetails } from "../../lib/types/payoutDetails";
 
 // ✅ Schema
 const payoutSchema = z.object({
@@ -70,12 +71,16 @@ const Toggle: React.FC<ToggleProps> = ({ label, checked, onChange }) => {
 interface BankDetailsSidebarProps {
   onClose: () => void;
   onSave: (data: PayoutFormData) => void;
+  isPending: boolean;
+  details: IPayoutDetails | undefined;
 }
 
 // ✅ Main Sidebar Component
 export default function BankDetailsSidebar({
   onClose,
   onSave,
+  isPending,
+  details,
 }: BankDetailsSidebarProps) {
   const {
     register,
@@ -85,10 +90,18 @@ export default function BankDetailsSidebar({
     watch,
   } = useForm<PayoutFormData>({
     resolver: zodResolver(payoutSchema),
-    defaultValues: {
-      allowCustomerCharges: false,
-      acceptTerms: false,
-    },
+    defaultValues: details
+      ? {
+          accountName: details.accountName,
+          accountNumber: details.accountNumber,
+          acceptTerms: details.acceptTerms,
+          bankName: details.bankName,
+          allowCustomerCharges: details.allowCustomerCharges,
+        }
+      : {
+          allowCustomerCharges: false,
+          acceptTerms: false,
+        },
   });
 
   const allowCharges = watch("allowCustomerCharges");
@@ -96,7 +109,7 @@ export default function BankDetailsSidebar({
 
   const onSubmit = (data: PayoutFormData) => {
     onSave(data);
-    onClose();
+    // onClose();
   };
 
   return (
@@ -227,9 +240,36 @@ export default function BankDetailsSidebar({
           <button
             type="submit"
             form="bank-details-form"
-            className="px-6 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+            disabled={isPending}
+            className={`px-4 py-2 rounded-lg bg-purple-600 text-white flex items-center justify-center gap-2 transition ${
+              isPending
+                ? "opacity-75 cursor-not-allowed"
+                : "hover:bg-purple-700"
+            }`}
           >
-            Save Details
+            {isPending && (
+              <svg
+                className="animate-spin h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
+            )}
+            {isPending ? "Saving..." : "Save Payout Details"}
           </button>
         </div>
       </div>

@@ -10,6 +10,16 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import BankDetailsSidebar from "./BankDetailsSidebar";
+import {
+  useCreatePayoutDetails,
+  useFetchPayoutDetails,
+  useUpdatePayoutDetails,
+} from "../../lib/api/payoutDetails";
+import {
+  CreatePayoutDetailsRequest,
+  UpdatePayoutDetailsRequest,
+} from "../../lib/types/payoutDetails";
+import { getDecodedJwt } from "../../lib/auth";
 
 interface TransactionsSummaryProps {
   totalTransactions: number;
@@ -26,6 +36,46 @@ export default function TransactionsSummary({
 }: TransactionsSummaryProps) {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const user = getDecodedJwt();
+  const { mutateAsync: createPayout, isPending } = useCreatePayoutDetails(); // or whatever your hook is named
+  const { mutateAsync: updatePayout, isPending: isUpdating } =
+    useUpdatePayoutDetails(); // or whatever your hook is named
+
+  const {
+    data: payoutDetails,
+    isLoading,
+    refetch,
+  } = useFetchPayoutDetails(user?.id); // or whatever your hook is named
+
+  const onCreate = async (data: CreatePayoutDetailsRequest) => {
+    try {
+      await createPayout(data, {
+        onSuccess: () => {
+          setIsSidebarOpen(false);
+          refetch();
+        },
+      });
+    } catch (error) {
+      console.error("Payout Details creation failed:", error);
+    }
+  };
+
+  const onUpdate = async (data: UpdatePayoutDetailsRequest) => {
+    try {
+      await updatePayout(
+        { payoutId: payoutDetails?._id || "", payload: data },
+        {
+          onSuccess: () => {
+            setIsSidebarOpen(false);
+            refetch();
+          },
+        },
+      );
+    } catch (error) {
+      console.error("Payout Details creation failed:", error);
+    }
+  };
+
   return (
     <div>
       {/* Progress / Next Step */}
@@ -143,10 +193,15 @@ export default function TransactionsSummary({
 
       {isSidebarOpen && (
         <BankDetailsSidebar
+          details={payoutDetails}
+          isPending={isPending || isUpdating}
           onClose={() => setIsSidebarOpen(false)}
           onSave={(data) => {
-            console.log("Saved Bank Details:", data);
-            setIsSidebarOpen(false);
+            if (!isLoading && payoutDetails) {
+              onUpdate(data);
+            } else if (!isLoading && !payoutDetails) {
+              onCreate(data);
+            }
           }}
         />
       )}
