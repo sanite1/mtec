@@ -148,3 +148,25 @@ export const useFetchStoreById = (userId: string, storeId: string) => {
     },
   });
 };
+
+// -------------------- GET STORE BY ID --------------------
+export async function resolveSlug(slug: string): Promise<IStoreDetails> {
+  const response = await api.get<ApiResponse<IStoreDetails>>(
+    `/store/resolve/${slug}`,
+  );
+  return response.data;
+}
+
+export const useResolveSlug = (slug: string) => {
+  return useQuery({
+    queryKey: ["store-resolve", slug],
+    queryFn: () => resolveSlug(slug),
+    enabled: !!slug,
+    retry: 1,
+    meta: {
+      onError: (error: ApiError) => {
+        toast.error(error?.message || "Failed to resolve store details");
+      },
+    },
+  });
+};

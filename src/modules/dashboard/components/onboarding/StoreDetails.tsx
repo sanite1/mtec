@@ -41,6 +41,13 @@ const businessSectors = [
   "Other",
 ];
 
+export function formatNameToSlug(name: string): string {
+  return name
+    .toLowerCase() // convert to lowercase
+    .replace(/\s+/g, "") // remove all spaces
+    .trim(); // remove leading/trailing spaces
+}
+
 export default function StoreDetailsForm() {
   const [preview, setPreview] = useState<string | null>(null);
 
@@ -70,6 +77,8 @@ export default function StoreDetailsForm() {
         businessSector: data.businessSector,
         tagline: data.storeTagline,
         storeDescription: data.storeDescription,
+        slug: formatNameToSlug(data.storeName),
+        storeLink: `${formatNameToSlug(data.storeName)}.bitec.store`,
 
         businessEmail: data.businessEmail,
         businessPhone: data.businessPhone,

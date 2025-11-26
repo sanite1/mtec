@@ -9,6 +9,8 @@ export interface IStoreDetails {
   businessPhone: string;
   website?: string;
   storeName: string;
+  slug: string;
+  storeLink: string;
   businessName: string;
   businessSector: string;
   tagline?: string;
@@ -26,6 +28,8 @@ export interface IStoreCreate {
   streetAddress: string;
   businessEmail: string;
   businessPhone: string;
+  slug: string;
+  storeLink: string;
   website?: string;
   storeName: string;
   businessName: string;
@@ -43,6 +47,8 @@ export interface IStoreUpdate {
   streetAddress: string;
   businessEmail: string;
   businessPhone: string;
+  slug: string;
+  storeLink: string;
   website?: string;
   storeName: string;
   businessName: string;
