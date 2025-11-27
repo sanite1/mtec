@@ -18,11 +18,11 @@ export const getModule = (): "platform" | "storefront" | "dashboard" => {
 
 export function getStoreSlug(): string | null {
   const hostname = window.location.hostname;
-
+  const port = window.location.port;
   const pathname = window.location.pathname;
 
   // ✅ ✅ LOCAL DEV (storefront runs on 3002)
-  if (getModule() === "storefront") {
+  if (hostname === "localhost" && port === "3001") {
     // URL: localhost:3002/rapunzel
     const pathParts = pathname.split("/").filter(Boolean);
     return pathParts.length > 0 ? pathParts[0] : null;
@@ -31,8 +31,7 @@ export function getStoreSlug(): string | null {
   const parts = hostname.split(".");
 
   // rapunzel.bitec.store → ["rapunzel", "bitec", "store"]
-  if (parts.length >= 2 && parts[0] !== "bitec") {
-    console.log(parts[0]);
+  if (parts.length >= 2 && parts[0]) {
     return parts[0]; // rapunzel
   }
 
