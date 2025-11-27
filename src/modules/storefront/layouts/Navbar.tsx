@@ -112,19 +112,19 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
 
           {/* Auth Links */}
           <div className="hidden md:flex items-center space-x-4 text-sm font-medium">
-            <a href="/login" className="hover:text-purple-600">
-              Login
-            </a>
-            <a
-              href="/register"
-              className="px-3 py-1 rounded bg-purple-600 text-white hover:bg-purple-700"
-            >
-              Register
-            </a>
+            <Link to={`/login`}>
+              <p className="hover:text-purple-600">Login</p>
+            </Link>
+
+            <Link to={`/register`}>
+              <p className="px-3 py-1 rounded bg-purple-600 text-white hover:bg-purple-700">
+                Register
+              </p>
+            </Link>
           </div>
 
           {/* Cart */}
-          <Link to={"/cart"}>
+          <Link to={`/cart`}>
             <div className="relative cursor-pointer">
               <ShoppingCart className="text-2xl" />
               {totalItems > 0 && (

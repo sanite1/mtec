@@ -5,43 +5,7 @@ import { StorefrontRoutes } from "../modules/storefront/routes";
 import { AuthProvider } from "../modules/dashboard/context/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useResolveSlug } from "../modules/dashboard/lib/api/store";
-
-// Helper: detect which module to load
-const getModule = (): "platform" | "storefront" | "dashboard" => {
-  const hostname = window.location.hostname;
-  const port = window.location.port;
-
-  // --- Local environment ---
-  if (hostname === "localhost") {
-    if (port === "3001") return "dashboard";
-    if (port === "3002") return "storefront";
-    return "platform"; // default on 3000
-  }
-
-  // --- Production environment ---
-  if (hostname.startsWith("admin.")) return "dashboard";
-  if (hostname.startsWith("platform.")) return "platform";
-  return "storefront";
-};
-
-export function getStoreSlug(): string | null {
-  const hostname = window.location.hostname;
-
-  // localhost handling: rapunzel.localhost:3002
-  if (hostname.includes("localhost")) {
-    const parts = hostname.split(".");
-    return parts.length > 1 ? parts[0] : null;
-  }
-
-  const parts = hostname.split(".");
-
-  // rapunzel.bitec.store → ["rapunzel", "bitec", "store"]
-  if (parts.length >= 3) {
-    return parts[0]; // rapunzel
-  }
-
-  return null;
-}
+import { getModule, getStoreSlug } from "../utils";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +23,9 @@ const RoutesWrapper: React.FC = () => {
 
     refetch();
   }, [module]);
+  data
+    ? localStorage.setItem("store", JSON.stringify(data))
+    : localStorage.removeItem("store");
 
   if (module === "platform") {
     return <PlatformRoutes />;
@@ -77,7 +44,7 @@ const RoutesWrapper: React.FC = () => {
   if (isLoading) {
     return (
       <div className="h-screen flex items-center justify-center">
-        Loading Store...
+        Loading...
       </div>
     );
   }

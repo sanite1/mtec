@@ -3,6 +3,7 @@ import { useCart } from "../../context/CartContext";
 import { useState } from "react";
 import ProductDialog from "./AddToCartDialog";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   const { dispatch } = useCart();
@@ -23,17 +24,17 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
 
   return (
     <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer">
-      <a href={`/product/${product.id}`}>
+      <Link to={`/product/${product.id}`}>
         <img
           src={product.image}
           alt={product.name}
           className="w-full h-56 object-cover"
         />
-      </a>
+      </Link>
       <div className="p-4">
-        <a href={`/product/${product.id}`}>
+        <Link to={`/product/${product.id}`}>
           <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
-        </a>
+        </Link>
         <div className="mb-3">
           {product.oldPrice && (
             <span className="text-gray-500 line-through mr-2">

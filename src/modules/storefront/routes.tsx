@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, BrowserRouter } from "react-router-dom";
 import MainLayout from "./layouts/Mainlayout";
 import Home from "./pages/Home";
 import ProductDetails from "./pages/ProductPage";
@@ -9,8 +9,10 @@ import NotFound from "./pages/NotFound";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import { CartProvider } from "./context/CartContext";
 import { Toaster } from "sonner";
+import { IStoreDetails } from "../dashboard/lib/types/store";
 
 export const StorefrontRoutes: React.FC = () => {
+  const store: IStoreDetails = JSON.parse(localStorage.getItem("store")!);
   return (
     <CartProvider>
       <Routes>
