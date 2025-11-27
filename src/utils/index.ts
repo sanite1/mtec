@@ -31,7 +31,8 @@ export function getStoreSlug(): string | null {
   const parts = hostname.split(".");
 
   // rapunzel.bitec.store → ["rapunzel", "bitec", "store"]
-  if (parts.length >= 3) {
+  if (parts.length >= 2 && parts[0] !== "bitec") {
+    console.log(parts[0]);
     return parts[0]; // rapunzel
   }
 
