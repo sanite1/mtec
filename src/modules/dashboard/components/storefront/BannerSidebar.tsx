@@ -1,9 +1,27 @@
 // BannerSidebar.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X, ImageIcon, Trash } from "lucide-react";
+import { BannerPayload } from "../../lib/types/storefront";
+
+async function convertUrlToFile(url: string, filename?: string): Promise<File> {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch image: ${url}`);
+  }
+
+  const blob = await response.blob();
+
+  const finalName =
+    filename || url.split("/").pop() || `image-${Date.now()}.jpg`;
+
+  return new File([blob], finalName, {
+    type: blob.type || "image/jpeg",
+  });
+}
 
 // ----------------- Schema -----------------
 const bannerSchema = z.object({
@@ -18,9 +36,10 @@ const bannerSchema = z.object({
 type BannerForm = z.infer<typeof bannerSchema>;
 
 interface BannerSidebarProps {
-  initialData?: Partial<BannerForm>;
-  onSave: (data: BannerForm) => void;
+  initialData?: BannerPayload;
+  onSave: (data: any) => void;
   onClose: () => void;
+  isPending: boolean;
 }
 
 // ----------------- Component -----------------
@@ -28,6 +47,7 @@ export default function BannerSidebar({
   initialData,
   onSave,
   onClose,
+  isPending,
 }: BannerSidebarProps) {
   const {
     control,
@@ -35,18 +55,37 @@ export default function BannerSidebar({
     formState: { errors },
     watch,
     setValue,
+    reset,
   } = useForm<BannerForm>({
     resolver: zodResolver(bannerSchema),
     defaultValues: {
       title: initialData?.title || "",
-      image: initialData?.image || "",
+      subtext: initialData?.subtext || "",
+      // image: initialData?.image || "",
     },
   });
 
-  const imgFile = watch("image") as File | null;
+  let imgFile = watch("image") as File | null;
   const [preview, setPreview] = useState<string | null>(
     imgFile ? URL.createObjectURL(imgFile) : null,
   );
+
+  useEffect(() => {
+    const mapBannerToForm = async () => {
+      if (initialData) {
+        const imageFile = initialData.image
+          ? await convertUrlToFile(initialData.image)
+          : undefined;
+
+        imgFile = imageFile || null;
+
+        imageFile && setPreview(URL.createObjectURL(imageFile));
+
+        setValue("image", imgFile);
+      }
+    };
+    mapBannerToForm();
+  }, [initialData, reset]);
 
   // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   const file = e.target.files?.[0] || null;
@@ -55,10 +94,12 @@ export default function BannerSidebar({
   // };
 
   const onSubmit = (data: BannerForm) => {
-    console.log(data);
-
-    onSave(data);
-    onClose();
+    const payload = {
+      banner: { title: data.title, subtext: data.subtext },
+      bannerImage: data.image,
+    };
+    console.log(payload);
+    onSave(payload);
   };
 
   const [file, setFile] = useState<File | null>(null);
@@ -249,9 +290,36 @@ export default function BannerSidebar({
           <button
             type="submit"
             form="banner-form"
-            className="px-6 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+            disabled={isPending}
+            className={`px-4 py-2 rounded-lg bg-purple-600 text-white flex items-center justify-center gap-2 transition ${
+              isPending
+                ? "opacity-75 cursor-not-allowed"
+                : "hover:bg-purple-700"
+            }`}
           >
-            Save
+            {isPending && (
+              <svg
+                className="animate-spin h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
+            )}
+            {isPending ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>

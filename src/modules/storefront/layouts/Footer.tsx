@@ -1,5 +1,6 @@
 import React from "react";
 import { Mail, Phone, MapPin, Send, PhoneCall } from "lucide-react";
+import { IStoreDetails } from "../lib/types/store";
 
 interface FooterLink {
   label: string;
@@ -27,19 +28,21 @@ const Footer: React.FC<FooterProps> = ({
   bgColor = "bg-gray-900",
   whatsappLink = "https://wa.me/2349012345678",
 }) => {
+  const store: IStoreDetails = JSON.parse(
+    localStorage.getItem("store") || "null",
+  );
   return (
     <footer className={`${bgColor} text-gray-200 py-12 pb-0 relative`}>
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-10">
         {/* Logo & Description */}
         <div>
-          {/* {logo ? (
-            <img src={logo} alt="Logo" className="h-12 w-auto mb-4" />
+          {store.logoUrl ? (
+            <img src={store.logoUrl} alt="Logo" className="h-12 w-auto mb-4" />
           ) : (
-              <p className="text-2xl font-bold text-purple-500 mb-4">MTEC</p>
-            )} */}
-          <p className="text-5xl font-bold text-purple-500 mb-4">MTEC</p>
-          {description && (
-            <p className="text-sm leading-relaxed">{description}</p>
+            <p className="text-2xl font-bold text-purple-500 mb-4">MTEC</p>
+          )}
+          {store.storeDescription && (
+            <p className="text-sm leading-relaxed">{store.storeDescription}</p>
           )}
         </div>
 
@@ -49,15 +52,15 @@ const Footer: React.FC<FooterProps> = ({
           <ul className="space-y-3 text-sm">
             <li className="flex items-center space-x-2">
               <Mail className="w-4 h-4 text-purple-400" />
-              <span>{email}</span>
+              <span>{store.businessEmail}</span>
             </li>
             <li className="flex items-center space-x-2">
               <Phone className="w-4 h-4 text-purple-400" />
-              <span>{phone}</span>
+              <span>{store.businessPhone}</span>
             </li>
             <li className="flex items-center space-x-2">
               <MapPin className="w-4 h-4 text-purple-400" />
-              <span>{address}</span>
+              <span>{`${store.streetAddress}, ${store.state}, ${store.zipCode}, ${store.country}`}</span>
             </li>
           </ul>
         </div>

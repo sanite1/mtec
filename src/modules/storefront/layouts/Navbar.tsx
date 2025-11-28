@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { Product } from "../types/products";
 import { sampleProducts } from "../data/products";
+import { IStoreDetails } from "../lib/types/store";
 
 interface NavbarProps {
   logo: string;
@@ -16,6 +17,9 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
   const [filtered, setFiltered] = useState<Product[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
 
+  const store: IStoreDetails = JSON.parse(
+    localStorage.getItem("store") || "null",
+  );
   const { state } = useCart();
   const totalItems = state.cart.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -51,7 +55,12 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
         {/* Logo */}
         <Link to={"/"}>
           <div className="flex items-center space-x-2">
-            <p className="text-3xl font-bold text-purple-700">MTEC</p>
+            {/* <p className="text-3xl font-bold text-purple-700">MTEC</p> */}
+            <img
+              src={store.logoUrl}
+              alt="Logo"
+              className="h-12 font-bold text-purple-700"
+            />
           </div>
         </Link>
 

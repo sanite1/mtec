@@ -2,11 +2,12 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import api from "../../../../lib/network/api";
 import { ApiResponse, ApiError } from "../../../../lib/network/axios";
 import {
+  BannerPayload,
+  NewsletterPayload,
   StorefrontResponse,
   UpdateStorefrontPayload,
 } from "../types/storefront";
 import { toast } from "sonner";
-import { getDecodedJwt } from "../auth";
 
 export const fetchStorefront = async (
   userId: string,
@@ -33,7 +34,6 @@ export const useStorefront = (userId: string) =>
       },
     },
   });
-
 export const updateStorefront = async ({
   userId,
   payload,
@@ -42,53 +42,88 @@ export const updateStorefront = async ({
   payload: UpdateStorefrontPayload;
 }): Promise<StorefrontResponse> => {
   const formData = new FormData();
-  const user = getDecodedJwt();
 
   Object.entries(payload).forEach(([key, value]) => {
-    if (!value) return;
+    if (value === undefined || value === null) return;
 
-    if (key === "banner" && typeof value === "object" && (value as any).image) {
-      const banner = value as any;
-      if (banner.image instanceof File) {
-        formData.append("bannerImage", banner.image);
-      }
-      formData.append(
-        "banner",
-        JSON.stringify({ title: banner.title, subtext: banner.subtext }),
-      );
+    /* ----------------------------------------
+       ✅ TOP-LEVEL FILES
+      -----------------------------------------*/
+    if (
+      (key === "bannerImage" || key === "newsletterImg") &&
+      value instanceof File
+    ) {
+      formData.append(key, value);
       return;
     }
 
-    if (
-      key === "newsletter" &&
-      typeof value === "object" &&
-      (value as any).img
-    ) {
-      const newsletter = value as any;
-      if (newsletter.img instanceof File) {
+    /* ----------------------------------------
+       ✅ BANNER (FLATTENED – SAFE)
+      -----------------------------------------*/
+    if (key === "banner" && typeof value === "object") {
+      const banner = value as BannerPayload;
+
+      // if (banner?.image instanceof File) {
+      //   formData.append("bannerImage", banner.image);
+      // }
+
+      if (typeof banner?.title === "string") {
+        formData.append("banner[title]", banner.title);
+      }
+
+      if (typeof banner?.subtext === "string") {
+        formData.append("banner[subtext]", banner.subtext);
+      }
+
+      return;
+    }
+
+    /* ----------------------------------------
+       ✅ NEWSLETTER (FLATTENED – SAFE)
+      -----------------------------------------*/
+    if (key === "newsletter" && typeof value === "object") {
+      const newsletter = value as NewsletterPayload;
+
+      if (newsletter?.img instanceof File) {
         formData.append("newsletterImg", newsletter.img);
       }
-      formData.append(
-        "newsletter",
-        JSON.stringify({
-          headline: newsletter.headline,
-          subtext: newsletter.subtext,
-        }),
-      );
+
+      if (typeof newsletter?.headline === "string") {
+        formData.append("newsletter[headline]", newsletter.headline);
+      }
+
+      if (typeof newsletter?.subtext === "string") {
+        formData.append("newsletter[subtext]", newsletter.subtext);
+      }
+
       return;
     }
 
-    // ✅ default nested json fields
-    if (typeof value === "object") {
-      formData.append(key, JSON.stringify(value));
-    } else {
-      formData.append(key, String(value));
+    /* ----------------------------------------
+       ✅ ALL OTHER OBJECTS (FLATTEN, NO RAW OBJECTS)
+      -----------------------------------------*/
+    if (typeof value === "object" && !(value instanceof File)) {
+      Object.entries(value).forEach(([subKey, subValue]) => {
+        if (subValue === undefined || subValue === null) return;
+
+        // ✅ ABSOLUTE SAFETY CAST
+        formData.append(
+          `${key}[${subKey}]`,
+          String(
+            typeof subValue === "object" ? JSON.stringify(subValue) : subValue,
+          ),
+        );
+      });
+      return;
     }
+
+    /* ----------------------------------------
+       ✅ PRIMITIVES ONLY
+      -----------------------------------------*/
+    formData.append(key, String(value));
   });
 
-  formData.append("userId", user?.id);
-
-  const res = await api.patch<ApiResponse<StorefrontResponse>>(
+  const res = await api.put<ApiResponse<StorefrontResponse>>(
     `/storefront/${userId}`,
     formData,
     { headers: { "Content-Type": "multipart/form-data" } },

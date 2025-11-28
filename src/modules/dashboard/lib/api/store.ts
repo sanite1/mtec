@@ -1,6 +1,6 @@
 import { ApiResponse, ApiError } from "../../../../lib/network/axios";
 import api from "../../../../lib/network/api";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { IStoreCreate, IStoreDetails } from "../types/store";
 import { getDecodedJwt } from "../auth";
 import { toast } from "sonner";
@@ -11,20 +11,28 @@ export async function createStore(
   payload: IStoreCreate,
 ): Promise<ApiResponse<IStoreDetails>> {
   const formData = new FormData();
-  const user = getDecodedJwt();
-  payload = removeEmptyFields(payload);
-  Object.entries(payload).forEach(([key, value]) => {
+  const refinedPayload = removeEmptyFields(payload);
+  if (payload.logoUrl) {
+    refinedPayload.logoUrl = payload.logoUrl;
+  }
+  Object.entries(refinedPayload).forEach(([key, value]) => {
     if (value === undefined || value === null) return;
 
-    // Handle nested objects (storeInfo, contactInfo, address)
-    if (typeof value === "object" && !(value instanceof File)) {
-      formData.append(key, JSON.stringify(value));
-    } else {
-      formData.append(key, String(value));
+    // ✅ If it's a File, append directly
+    if (value instanceof File) {
+      formData.append(key, value);
+      return;
     }
-  });
 
-  //   formData.append("userId", user?.id);
+    // ✅ If it's an object, JSON stringify
+    if (typeof value === "object") {
+      formData.append(key, JSON.stringify(value));
+      return;
+    }
+
+    // ✅ Normal string/number
+    formData.append(key, String(value));
+  });
 
   const response = await api.post<ApiResponse<IStoreDetails>>(
     "/store",
@@ -125,21 +133,18 @@ export function useDeleteStore() {
 }
 
 // -------------------- GET STORE BY ID --------------------
-export async function fetchStoreById(
-  userId: string,
-  storeId: string,
-): Promise<IStoreDetails> {
+export async function fetchStoreById(userId: string): Promise<IStoreDetails> {
   const response = await api.get<ApiResponse<IStoreDetails>>(
-    `/store/${userId}/${storeId}`,
+    `/store/${userId}`,
   );
   return response.data;
 }
 
-export const useFetchStoreById = (userId: string, storeId: string) => {
+export const useFetchStoreById = (userId: string) => {
   return useQuery({
-    queryKey: ["store-details", userId, storeId],
-    queryFn: () => fetchStoreById(userId, storeId),
-    enabled: !!userId && !!storeId,
+    queryKey: ["store-details", userId],
+    queryFn: () => fetchStoreById(userId),
+    enabled: !!userId,
     retry: 1,
     meta: {
       onError: (error: ApiError) => {

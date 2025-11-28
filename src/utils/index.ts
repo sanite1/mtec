@@ -5,9 +5,9 @@ export const getModule = (): "platform" | "storefront" | "dashboard" => {
 
   // --- Local environment ---
   if (hostname === "localhost") {
-    if (port === "3002") return "dashboard";
+    if (port === "3000") return "dashboard";
     if (port === "3001") return "storefront";
-    return "platform"; // default on 3000
+    return "platform"; // default on 3002
   }
 
   // --- Production environment ---

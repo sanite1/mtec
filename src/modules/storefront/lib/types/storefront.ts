@@ -49,22 +49,6 @@ export interface WhatsappPayload {
   number?: string;
 }
 
-export interface UpdateStorefrontPayload {
-  theme?: string;
-  banner?: BannerPayload;
-  bannerImage?: any;
-  about?: AboutPayload;
-  contact?: ContactPayload;
-  location?: LocationPayload;
-  newsletterImg?: any;
-  newsletter?: NewsletterPayload;
-  returnPolicy?: ReturnPolicyPayload;
-  socialMedia?: SocialMediaPayload;
-  customMessage?: CustomMessagePayload;
-  productVariation?: ProductVariationPayload;
-  whatsapp?: WhatsappPayload;
-}
-
 export interface StorefrontResponse {
   _id: string;
   userId: string;

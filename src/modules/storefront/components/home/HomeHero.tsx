@@ -1,4 +1,6 @@
 import React from "react";
+import { useStorefront } from "../../lib/api/storefront";
+import { IStoreDetails } from "../../lib/types/store";
 
 interface HomeHeroProps {
   banner?: string; // optional banner image
@@ -7,7 +9,13 @@ interface HomeHeroProps {
 }
 
 const HomeHero: React.FC<HomeHeroProps> = ({ banner, title, subtitle }) => {
-  const hasContent = banner || title || subtitle;
+  const store: IStoreDetails = JSON.parse(
+    localStorage.getItem("store") || "null",
+  );
+  const { data } = useStorefront(store.userId);
+
+  const hasContent =
+    data?.banner?.image || data?.banner?.title || data?.banner?.subtext;
 
   return (
     <section
@@ -15,9 +23,9 @@ const HomeHero: React.FC<HomeHeroProps> = ({ banner, title, subtitle }) => {
         hasContent ? "" : "bg-gray-100"
       }`}
       style={
-        banner
+        data?.banner?.image
           ? {
-              backgroundImage: `url(${banner})`,
+              backgroundImage: `url(${data?.banner?.image})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
             }
@@ -28,13 +36,17 @@ const HomeHero: React.FC<HomeHeroProps> = ({ banner, title, subtitle }) => {
       {<div className="absolute inset-0 bg-black/50" />}
 
       {/* Text content */}
-      {(title || subtitle) && (
+      {(data?.banner?.title || data?.banner?.subtext) && (
         <div className="relative text-center text-white max-w-2xl px-6">
-          {title && (
-            <h1 className="text-3xl md:text-5xl font-bold mb-4">{title}</h1>
+          {data?.banner?.title && (
+            <h1 className="text-3xl md:text-5xl font-bold mb-4">
+              {data?.banner?.title}
+            </h1>
           )}
-          {subtitle && (
-            <p className="text-lg md:text-xl opacity-90">{subtitle}</p>
+          {data?.banner?.subtext && (
+            <p className="text-lg md:text-xl opacity-90">
+              {data?.banner?.subtext}
+            </p>
           )}
         </div>
       )}

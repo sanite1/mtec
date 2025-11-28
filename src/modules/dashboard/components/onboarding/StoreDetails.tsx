@@ -60,8 +60,6 @@ export default function StoreDetailsForm() {
     resolver: zodResolver(storeSchema),
   });
 
-  console.log(errors);
-
   const user = getDecodedJwt();
   const navigate = useNavigate();
   const { mutateAsync: createStore, isPending } = useCreateStore(); // or whatever your hook is named
@@ -70,7 +68,7 @@ export default function StoreDetailsForm() {
     try {
       const payload: IStoreUpdate = {
         userId: user?.id,
-        // logoUrl: data.storeLogo || undefined,
+        logoUrl: data.storeLogo || undefined,
 
         storeName: data.storeName,
         businessName: data.businessName,

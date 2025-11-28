@@ -12,7 +12,7 @@ import ReturnPolicySidebar from "../components/storefront/ReturnPolicySidebar";
 //   SocialMediaForm,
 // } from "../components/storefront/SocialMediaSidebar";
 import WhatsAppSidebar from "../components/storefront/WhatsAppSidebar";
-import { useStorefront } from "../lib/api/storefront";
+import { useStorefront, useUpdateStorefront } from "../lib/api/storefront";
 import { getDecodedJwt } from "../lib/auth";
 import { StorefrontSettingsSkeleton } from "../components/storefront/StorefrontSettingsSkeleton";
 
@@ -40,7 +40,7 @@ interface ToggleRowProps {
 }
 
 interface StorefrontData {
-  banner?: { title: string; image: string };
+  banner?: { title: string; subtext: string; image: string };
   about?: { content: string; title: string };
   contact?: { email: string; phone: string; address: string };
   location?: { address: string };
@@ -100,23 +100,26 @@ const ToggleRow: React.FC<ToggleRowProps> = ({
 
 // ----------------- MAIN -----------------
 const CustomizeStorefront: React.FC = () => {
+  const navigate = useNavigate();
+  const user = getDecodedJwt();
+
+  const { data, isFetching, refetch } = useStorefront(user?.id);
+
   const [toggles, setToggles] = useState<Record<string, boolean>>({
-    banner: false,
-    about: false,
-    contact: false,
-    location: false,
-    newsletter: false,
-    returnPolicy: false,
-    socialMedia: false,
-    customMessage: false,
-    productVariation: false,
-    whatsapp: false,
+    banner: Boolean(data?.banner),
+    about: Boolean(data?.about),
+    contact: Boolean(data?.contact),
+    location: Boolean(data?.location),
+    newsletter: Boolean(data?.newsletter),
+    returnPolicy: Boolean(data?.returnPolicy),
+    socialMedia: Boolean(data?.socialMedia),
+    customMessage: Boolean(data?.customMessage),
+    productVariation: Boolean(data?.productVariation),
+    whatsapp: Boolean(data?.whatsapp),
   });
 
   const [sidebar, setSidebar] = useState<SidebarType>(null);
   const [storefrontData, setStorefrontData] = useState<StorefrontData>({});
-
-  const navigate = useNavigate();
 
   const openSidebar = (key: SidebarType, fresh?: boolean) => {
     if (fresh) {
@@ -126,9 +129,18 @@ const CustomizeStorefront: React.FC = () => {
     setSidebar(key);
   };
 
-  const saveSidebarData = (key: SidebarType, data: any) => {
+  const { mutateAsync: updateStorefront, isPending } = useUpdateStorefront();
+  const saveSidebarData = async (key: SidebarType, data: any) => {
     if (!key) return;
     setStorefrontData((prev) => ({ ...prev, [key]: data }));
+
+    try {
+      await updateStorefront({ userId: user?.id, payload: data });
+      refetch();
+      setSidebar(null);
+    } catch (error) {
+      console.warn(error);
+    }
   };
 
   const handleToggle = (key: SidebarType, requiresEdit?: boolean) => {
@@ -140,10 +152,6 @@ const CustomizeStorefront: React.FC = () => {
       return { ...prev, [key!]: newVal };
     });
   };
-
-  const user = getDecodedJwt();
-
-  const { isFetching } = useStorefront(user?.id);
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -321,7 +329,8 @@ const CustomizeStorefront: React.FC = () => {
       {/* Sidebar Switch */}
       {sidebar === "banner" && (
         <BannerSidebar
-          initialData={storefrontData.banner}
+          initialData={data?.banner}
+          isPending={isPending}
           onSave={(data: any) => saveSidebarData("banner", data)}
           onClose={() => setSidebar(null)}
         />
