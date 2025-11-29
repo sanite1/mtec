@@ -27,6 +27,7 @@ const createOrderSchema = z.object({
   shippingAddress: z.object({
     fullName: z.string(),
     phone: z.string(),
+    email: z.string(),
     addressLine1: z.string(),
     addressLine2: z.string().optional(),
     city: z.string(),
@@ -156,6 +157,11 @@ export default function CreateOrderPage() {
               <input
                 {...register("shippingAddress.phone")}
                 placeholder="Phone Number"
+                className="border rounded-lg p-2 w-full"
+              />
+              <input
+                {...register("shippingAddress.email")}
+                placeholder="Email Address"
                 className="border rounded-lg p-2 w-full"
               />
               <input

@@ -651,24 +651,29 @@ export default function CreateProduct() {
               {/* Variations */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Has variations?
+                  Has variations?{" "}
+                  <span className="text-red-300 text-xs italic">
+                    (this option can't be changed)
+                  </span>
                 </label>
                 <div className="mt-2 flex gap-6">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="radio"
+                      disabled
                       checked={hasVariations === true}
-                      onChange={() => setValue("hasVariations", true)}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500"
+                      // onChange={() => setValue("hasVariations", true)}
+                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 cursor-not-allowed"
                     />
                     <span className="text-sm">Yes</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="radio"
+                      disabled
                       checked={hasVariations === false}
-                      onChange={() => setValue("hasVariations", false)}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500"
+                      // onChange={() => setValue("hasVariations", false)}
+                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 cursor-not-allowed"
                     />
                     <span className="text-sm">No</span>
                   </label>

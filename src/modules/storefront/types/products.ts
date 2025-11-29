@@ -1,3 +1,5 @@
+import { ProductDetails } from "../lib/types/products";
+
 export interface ProductAttribute {
   name: string; // e.g., "Size"
   options: string[]; // e.g., ["S", "M", "L", "XL"]
@@ -14,7 +16,13 @@ export interface Product {
   attributes?: ProductAttribute[]; // e.g., Size, Color
 }
 
-export interface CartItem extends Product {
+export interface CartItem {
+  productDetails: ProductDetails;
+  productId: string;
+  variationId?: string;
+  price: number;
+  name?: string;
+  sku?: string;
   quantity: number;
   selectedAttributes?: Record<string, string>;
 }

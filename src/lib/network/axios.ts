@@ -47,6 +47,7 @@ interface ErrorsObject {
 export type ApiError = AxiosError<{
   status: boolean;
   message: string;
+  fields?: { message: string }[];
   errors?: ErrorsObject[];
 }>;
 

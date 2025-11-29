@@ -45,8 +45,8 @@ const ShippingTable = () => {
         return <span>{formatDate(date)}</span>;
       },
     },
-    { accessorKey: "name", header: "Location Name" },
-    { accessorKey: "location", header: "Location" },
+    { accessorKey: "name", header: "Shipping Name" },
+    { accessorKey: "locationName", header: "Location" },
     {
       accessorKey: "description",
       header: "Shipping Description",

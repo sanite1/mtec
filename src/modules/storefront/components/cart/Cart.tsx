@@ -8,7 +8,7 @@ export default function Cart() {
   const { cart } = state;
 
   const updateQuantity = (id: string, delta: number) => {
-    const updatedItem = cart.find((item) => item.id === id);
+    const updatedItem = cart.find((item) => item.productId === id);
     if (!updatedItem) return;
 
     const newQty = Math.max(1, updatedItem.quantity + delta);
@@ -41,13 +41,17 @@ export default function Cart() {
           <div className="divide-y">
             {cart.map((item) => (
               <div
-                key={item.id}
+                key={item.productId}
                 className="flex flex-col md:flex-row md:items-center justify-between py-6 gap-4"
               >
                 {/* Product Info */}
                 <div className="flex items-center gap-4 w-full md:w-2/3">
                   <img
-                    src={item.image}
+                    src={
+                      item.productDetails.images
+                        ? item.productDetails.images[0]
+                        : ""
+                    }
                     alt={item.name}
                     className="w-28 h-28 object-cover rounded-md border"
                   />
@@ -80,21 +84,21 @@ export default function Cart() {
                 <div className="flex items-center gap-4">
                   <div className="flex items-center border rounded">
                     <button
-                      onClick={() => updateQuantity(item.id, -1)}
+                      onClick={() => updateQuantity(item.productId, -1)}
                       className="px-3 py-1 text-lg"
                     >
                       –
                     </button>
                     <span className="px-4">{item.quantity}</span>
                     <button
-                      onClick={() => updateQuantity(item.id, 1)}
+                      onClick={() => updateQuantity(item.productId, 1)}
                       className="px-3 py-1 text-lg"
                     >
                       +
                     </button>
                   </div>
                   <button
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => removeItem(item.productId)}
                     className="text-gray-500 hover:text-red-500"
                   >
                     <Trash2 size={18} />
@@ -103,7 +107,8 @@ export default function Cart() {
 
                 {/* Item Total */}
                 <p className="text-purple-600 font-semibold w-28 text-right">
-                  ₦{(item.price * item.quantity).toLocaleString()}.00
+                  ₦{(item.price * item.quantity).toLocaleString()}
+                  .00
                 </p>
               </div>
             ))}

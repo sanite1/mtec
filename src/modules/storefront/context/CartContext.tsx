@@ -1,17 +1,20 @@
-import React, { createContext, useContext, useReducer, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  ReactNode,
+  useEffect,
+} from "react";
 import { CartItem } from "../types/products";
+import { ShippingAddress } from "../lib/types/orders";
+
+/* ------------------- TYPES ------------------- */
 
 export interface Order {
   id: number;
   items: CartItem[];
   total: number;
-  shipping: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    address: string;
-  };
+  shipping: ShippingAddress;
   date: string;
 }
 
@@ -24,24 +27,57 @@ type CartAction =
   | { type: "ADD_TO_CART"; payload: CartItem }
   | { type: "REMOVE_FROM_CART"; payload: string }
   | { type: "CLEAR_CART" }
-  | { type: "SET_ORDER"; payload: Order };
+  | { type: "SET_ORDER"; payload: Order }
+  | { type: "HYDRATE"; payload: CartState };
 
-// --- Initial State ---
+/* ------------------- LOCAL STORAGE KEYS ------------------- */
+
+const CART_STORAGE_KEY = "mtec_cart_state";
+
+/* ------------------- INITIAL STATE ------------------- */
+
 const initialState: CartState = {
   cart: [],
   order: null,
 };
 
-// --- Reducer ---
+/* ------------------- REDUCER ------------------- */
+
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
-    case "ADD_TO_CART":
-      return { ...state, cart: [...state.cart, action.payload] };
+    case "HYDRATE":
+      return action.payload;
+
+    case "ADD_TO_CART": {
+      const incoming = action.payload;
+
+      const existingIndex = state.cart.findIndex((item) => {
+        if (incoming.variationId) {
+          return (
+            item.productId === incoming.productId &&
+            item.variationId === incoming.variationId
+          );
+        }
+        return item.productId === incoming.productId;
+      });
+
+      if (existingIndex !== -1) {
+        const updatedCart = [...state.cart];
+        updatedCart[existingIndex] = {
+          ...updatedCart[existingIndex],
+          quantity: updatedCart[existingIndex].quantity + incoming.quantity,
+        };
+
+        return { ...state, cart: updatedCart };
+      }
+
+      return { ...state, cart: [...state.cart, incoming] };
+    }
 
     case "REMOVE_FROM_CART":
       return {
         ...state,
-        cart: state.cart.filter((item) => item.id !== action.payload),
+        cart: state.cart.filter((item) => item.productId !== action.payload),
       };
 
     case "CLEAR_CART":
@@ -55,18 +91,35 @@ function cartReducer(state: CartState, action: CartAction): CartState {
   }
 }
 
-// --- Context Types ---
+/* ------------------- CONTEXT ------------------- */
+
 interface CartContextType {
   state: CartState;
   dispatch: React.Dispatch<CartAction>;
 }
 
-// --- Create Context ---
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-// --- Provider ---
+/* ------------------- PROVIDER ------------------- */
+
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(cartReducer, initialState);
+  const [state, dispatch] = useReducer(
+    cartReducer,
+    initialState,
+    (defaultState) => {
+      try {
+        const stored = localStorage.getItem(CART_STORAGE_KEY);
+        return stored ? JSON.parse(stored) : defaultState;
+      } catch {
+        return defaultState;
+      }
+    },
+  );
+
+  /* ✅ Persist state on every change */
+  useEffect(() => {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(state));
+  }, [state]);
 
   return (
     <CartContext.Provider value={{ state, dispatch }}>
@@ -75,7 +128,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// --- Custom Hook ---
+/* ------------------- HOOK ------------------- */
+
 export function useCart(): CartContextType {
   const context = useContext(CartContext);
   if (!context) {

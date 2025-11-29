@@ -14,8 +14,6 @@ const RoutesWrapper: React.FC = () => {
 
   const slug = getStoreSlug() || "";
 
-  console.log(module, "slug:", slug);
-
   const { data, isLoading, refetch, isError } = useResolveSlug(
     module === "storefront" ? slug : "",
   );

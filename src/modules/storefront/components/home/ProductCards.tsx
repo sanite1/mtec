@@ -1,28 +1,53 @@
 import { useState, useMemo } from "react";
-import { Product } from "../../types/products";
 import AddToCartDialog from "./AddToCartDialog";
 import ProductCard from "./ProductCard";
+import { useUserProducts } from "../../lib/api/products";
+import { IStoreDetails } from "../../lib/types/store";
+import { ProductDetails } from "../../lib/types/products";
 
-interface ProductCardsProps {
-  products: Product[];
-}
+const ProductCards: React.FC = () => {
+  const store: IStoreDetails = JSON.parse(
+    localStorage.getItem("store") || "null",
+  );
 
-const ProductCards: React.FC<ProductCardsProps> = ({ products }) => {
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const { data: products, isLoading, error } = useUserProducts(store.userId);
+
+  const [selectedProduct, setSelectedProduct] = useState<ProductDetails | null>(
+    null,
+  );
+
   const [activeCategory, setActiveCategory] = useState<string>("All");
 
-  const categories = useMemo(() => {
-    const unique = Array.from(new Set(products.map((p) => p.category))).filter(
-      Boolean,
-    ) as string[]; // removes undefined/null
-    return ["All", ...unique];
-  }, [products]);
+  // ✅ ALWAYS FORCE ARRAY
+  const safeProducts = Array.isArray(products?.products)
+    ? products?.products
+    : Array.isArray(products)
+      ? products?.products
+      : [];
 
-  // Filter products by category
+  const categories = useMemo(() => {
+    const unique = Array.from(
+      new Set(safeProducts?.map((p) => p.collection)),
+    ).filter(Boolean) as string[];
+    return ["All", ...unique];
+  }, [safeProducts]);
+
   const filteredProducts =
     activeCategory === "All"
-      ? products
-      : products.filter((p) => p.category === activeCategory);
+      ? safeProducts
+      : safeProducts?.filter((p) => p.collection === activeCategory);
+
+  if (isLoading) {
+    return <div className="text-center py-10">Loading products...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-10 text-red-500">
+        Failed to load products
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-10">
@@ -45,12 +70,8 @@ const ProductCards: React.FC<ProductCardsProps> = ({ products }) => {
 
       {/* Grid of products */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {filteredProducts.map((p) => (
-          <ProductCard
-            key={p.id}
-            product={p}
-            // onAddToCart={(prod) => setSelectedProduct(prod)}
-          />
+        {filteredProducts?.map((p) => (
+          <ProductCard key={p._id} product={p} />
         ))}
       </div>
 

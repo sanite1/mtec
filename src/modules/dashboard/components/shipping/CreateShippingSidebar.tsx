@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
 import { useCreateShipping } from "../../lib/api/shipping";
 import { getDecodedJwt } from "../../lib/auth";
+import StoreSelector from "../../lib/utils/StoreSelector";
+import { Location } from "../../lib/types/locations";
 
 // ----------------- Schema -----------------
 const shippingSchema = z.object({
@@ -43,15 +45,23 @@ export default function CreateShippingSidebar({
     resolver: zodResolver(shippingSchema),
   });
 
+  const [LocationModalOpen, setLocationModalOpen] = useState(false);
+  const [location, setLocation] = useState<Location>();
+
   const userId = getDecodedJwt()?.id;
   const { mutate: createShipping, isPending } = useCreateShipping();
+
+  const onSelectLocation = (location: Location) => {
+    setLocation(location);
+  };
 
   const onSubmit = (data: ShippingForm) => {
     // Replace with actual logged-in user ID (e.g. from auth context or redux)
     const payload = {
       ...data,
       price: Number(data.price),
-      location: "Headquarters",
+      locationName: location?.name,
+      location: location?._id,
       userId: userId, // ✅ include userId
     };
     createShipping(payload, {
@@ -86,10 +96,10 @@ export default function CreateShippingSidebar({
           className="flex-1 overflow-y-auto p-6 space-y-6"
           id="create-shipping-form"
         >
-          {/* Location Name */}
+          {/* Shipping Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Location Name
+              Shipping Name
             </label>
             <Controller
               name="name"
@@ -101,7 +111,7 @@ export default function CreateShippingSidebar({
                   className={`w-full px-3 py-2 border rounded-md ${
                     errors.name ? "border-red-500" : "border-gray-300"
                   }`}
-                  placeholder="Enter location name"
+                  placeholder="Enter shipping name"
                 />
               )}
             />
@@ -182,6 +192,25 @@ export default function CreateShippingSidebar({
               </p>
             )}
           </div>
+
+          <button
+            type="button"
+            onClick={() => setLocationModalOpen(true)}
+            className="px-5 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition disabled:opacity-50"
+          >
+            Select Store Location
+          </button>
+
+          {location && (
+            <div>
+              <div className="flex justify-between items-center bg-gray-50 border border-gray-200 p-3 rounded-lg">
+                <div>
+                  <p className="font-medium text-gray-800">{location.name}</p>
+                  {/* <p className="text-sm text-gray-600">₦{p.price ?? 0}</p> */}
+                </div>
+              </div>
+            </div>
+          )}
         </form>
 
         {/* Footer */}
@@ -207,6 +236,12 @@ export default function CreateShippingSidebar({
             {isPending ? "Creating..." : "Create"}
           </button>
         </div>
+
+        <StoreSelector
+          open={LocationModalOpen}
+          onClose={() => setLocationModalOpen(false)}
+          onSelect={(loc) => onSelectLocation(loc)}
+        />
       </div>
     </div>
   );

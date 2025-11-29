@@ -42,7 +42,7 @@ export default function OrderCSummary() {
         <div className="divide-y">
           {order.items.map((item) => (
             <div
-              key={item.id}
+              key={item.productId}
               className="flex justify-between items-center py-3"
             >
               <div>
@@ -64,9 +64,11 @@ export default function OrderCSummary() {
                     </div>
                   )}
               </div>
-              <p className="font-semibold text-purple-600">
-                ₦{(item.price * item.quantity).toLocaleString()}
-              </p>
+              {item.price && (
+                <p className="font-semibold text-purple-600">
+                  ₦{(item.price * item.quantity).toLocaleString()}
+                </p>
+              )}
             </div>
           ))}
         </div>
@@ -82,12 +84,10 @@ export default function OrderCSummary() {
         <h2 className="text-xl font-semibold mb-4 text-gray-700">
           Shipping Information
         </h2>
-        <p className="text-gray-600">
-          {order.shipping.firstName} {order.shipping.lastName}
-        </p>
+        <p className="text-gray-600">{order.shipping.fullName}</p>
         <p className="text-gray-600">{order.shipping.email}</p>
         <p className="text-gray-600">{order.shipping.phone}</p>
-        <p className="text-gray-600">{order.shipping.address}</p>
+        <p className="text-gray-600">{order.shipping.email}</p>
       </div>
 
       <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">

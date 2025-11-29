@@ -2,9 +2,12 @@ import { Flag, Locate, Search, ShoppingCart, Menu, X } from "lucide-react";
 import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import { Product } from "../types/products";
-import { sampleProducts } from "../data/products";
+// import { Product } from "../types/products";
+// import { sampleProducts } from "../data/products";
 import { IStoreDetails } from "../lib/types/store";
+import { useUserProducts } from "../lib/api/products";
+import { ProductDetails } from "../lib/types/products";
+import StoreSelector from "../components/home/StoreSelector";
 
 interface NavbarProps {
   logo: string;
@@ -14,26 +17,27 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filtered, setFiltered] = useState<Product[]>([]);
+  const [filtered, setFiltered] = useState<ProductDetails[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
 
   const store: IStoreDetails = JSON.parse(
     localStorage.getItem("store") || "null",
   );
-  const { state } = useCart();
-  const totalItems = state.cart.reduce((sum, item) => sum + item.quantity, 0);
 
+  const { data: products, isLoading, error } = useUserProducts(store.userId);
+  const { state } = useCart();
+  const totalItems = state.cart.length;
   // Filter products as user types
   useEffect(() => {
     if (searchTerm.trim() === "") {
       setFiltered([]);
     } else {
-      const results = sampleProducts.filter(
+      const results = products?.products.filter(
         (p) =>
           p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.category?.toLowerCase().includes(searchTerm.toLowerCase()),
+          p.collection?.toLowerCase().includes(searchTerm.toLowerCase()),
       );
-      setFiltered(results);
+      setFiltered(results || []);
     }
   }, [searchTerm]);
 
@@ -49,8 +53,18 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const [LocationModalOpen, setLocationModalOpen] = useState(false);
+
+  const selectedLocation =
+    JSON.parse(localStorage.getItem("selectedLocation")!) || {};
+
   return (
     <nav className="w-full bg-white shadow-sm fixed top-0 z-30">
+      <StoreSelector
+        open={LocationModalOpen}
+        onClose={() => setLocationModalOpen(false)}
+        // onCreate={onCreateVariant}
+      />
       <div className="container mx-auto px-4 flex items-center justify-between py-3">
         {/* Logo */}
         <Link to={"/"}>
@@ -82,8 +96,8 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
             <div className="absolute top-12 left-0 w-full bg-white border rounded shadow-lg max-h-60 overflow-y-auto z-40">
               {filtered.map((item) => (
                 <Link
-                  key={item.id}
-                  to={`/product/${item.id}`}
+                  key={item._id}
+                  to={`/product/${item._id}`}
                   onClick={() => {
                     setSearchTerm("");
                     setFiltered([]);
@@ -114,9 +128,14 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
           </div>
 
           {/* Location Selector */}
-          <div className="hidden sm:flex items-center space-x-1 cursor-pointer">
+          <div
+            onClick={() => setLocationModalOpen(true)}
+            className="hidden sm:flex items-center space-x-1 cursor-pointer"
+          >
             <Locate className="text-green-600 w-5 h-5" />
-            <span className="text-sm font-medium">Lagos</span>
+            <span className="text-sm font-medium">
+              {selectedLocation?.locationName}
+            </span>
           </div>
 
           {/* Auth Links */}
@@ -181,8 +200,8 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
             <div className="absolute top-16 left-0 w-full bg-white border rounded shadow-lg max-h-60 overflow-y-auto z-40">
               {filtered.map((item) => (
                 <Link
-                  key={item.id}
-                  to={`/product/${item.id}`}
+                  key={item._id}
+                  to={`/product/${item._id}`}
                   onClick={() => {
                     setSearchTerm("");
                     setFiltered([]);
@@ -205,9 +224,14 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
             <Flag className="text-green-600 w-5 h-5" />
             <span className="text-sm font-medium">NGN</span>
           </div>
-          <div className="flex items-center space-x-2">
+          <div
+            onClick={() => setLocationModalOpen(true)}
+            className="flex items-center space-x-2"
+          >
             <Locate className="text-green-600 w-5 h-5" />
-            <span className="text-sm font-medium">Lagos</span>
+            <span className="text-sm font-medium">
+              {selectedLocation.locationName}
+            </span>
           </div>
         </div>
       )}

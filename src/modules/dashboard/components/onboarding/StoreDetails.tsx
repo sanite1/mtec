@@ -88,8 +88,6 @@ export default function StoreDetailsForm() {
         streetAddress: data.address,
       };
 
-      console.log("Final Payload:", payload);
-
       await createStore(payload, {
         onSuccess: () => {
           navigate("/onboarding");

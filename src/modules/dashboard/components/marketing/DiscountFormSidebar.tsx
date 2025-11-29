@@ -86,7 +86,7 @@ export default function DiscountFormSidebar({
     const payload = {
       ...data,
       discountValue: Number(data.discountValue),
-      location: "HQ",
+      location: "headquarters",
     };
 
     onSave(payload);
@@ -122,7 +122,7 @@ export default function DiscountFormSidebar({
           {/* Discount Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Discount Name
+              Discount Name / Code
             </label>
             <Controller
               name="discountName"
@@ -134,7 +134,7 @@ export default function DiscountFormSidebar({
                   className={`w-full px-3 py-2 border rounded-md ${
                     errors.discountName ? "border-red-500" : "border-gray-300"
                   }`}
-                  placeholder="Enter discount name"
+                  placeholder="Eg: CHRISTMAS2026"
                 />
               )}
             />

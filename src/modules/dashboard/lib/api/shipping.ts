@@ -59,6 +59,7 @@ export const useCreateShipping = () => {
     },
     onError: (error: ApiError) => {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
       toast.error("Request Failed", { description: errorMessage });

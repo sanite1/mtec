@@ -3,9 +3,11 @@ import { ShoppingCart, X } from "lucide-react";
 import { Product } from "../../types/products";
 import { useCart } from "../../context/CartContext";
 import { toast } from "sonner";
+import { ProductDetails } from "../../lib/types/products";
+import { findMatchingVariation } from "../details/ProductDetails";
 
 interface ProductDialogProps {
-  product: Product;
+  product: ProductDetails;
   onClose: () => void;
 }
 
@@ -21,12 +23,27 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ product, onClose }) => {
   };
 
   const handleAddToCart = () => {
+    const matchingVariation = findMatchingVariation(
+      selectedAttributes,
+      product.variations,
+    );
     dispatch({
       type: "ADD_TO_CART",
       payload: {
-        ...product,
+        productDetails: product,
         quantity,
-        selectedAttributes,
+        productId: product._id,
+        name: product.name,
+        ...(selectedAttributes
+          ? {
+              variationId: matchingVariation?._id,
+              price: matchingVariation?.price || 0,
+              sku: matchingVariation?.sku,
+            }
+          : {
+              price: product?.price || 0,
+              sku: product?.sku,
+            }),
       },
     });
 
@@ -63,7 +80,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ product, onClose }) => {
           {/* Left - Product Image */}
           <div className="flex justify-center items-start w-full">
             <img
-              src={product.image}
+              src={product?.images ? product?.images[0] : ""}
               alt={product.name}
               className="w-full h-auto rounded-lg shadow-md object-contain"
             />
@@ -77,40 +94,42 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ product, onClose }) => {
 
             {/* Price */}
             <div className="flex items-center space-x-4 mb-4">
-              {product.oldPrice && (
+              {product.discountPrice && (
                 <span className="text-gray-400 line-through text-lg">
-                  ₦{product.oldPrice.toLocaleString()}
+                  ₦{product.price?.toLocaleString()}
                 </span>
               )}
               <span className="text-2xl font-semibold text-purple-600">
-                ₦{product.price.toLocaleString()}
+                ₦{product.price?.toLocaleString()}
               </span>
             </div>
 
             {/* Category */}
-            {product.category && (
+            {product.collection && (
               <p className="text-sm text-gray-500 mb-6">
-                Category: {product.category}
+                Category: {product.collection}
               </p>
             )}
 
             {/* Attributes */}
-            {product.attributes &&
-              product.attributes.map((attr) => (
+            {product.variantsOptionGroup &&
+              product.variantsOptionGroup.map((attr) => (
                 <div key={attr.name} className="mb-5">
                   <h4 className="font-medium mb-2">{attr.name}</h4>
                   <div className="flex gap-2 flex-wrap">
-                    {attr.options.map((val) => (
+                    {attr.values.map((val) => (
                       <button
-                        key={val}
-                        onClick={() => handleAttributeSelect(attr.name, val)}
+                        key={val.id}
+                        onClick={() =>
+                          handleAttributeSelect(attr.name, val.value)
+                        }
                         className={`px-4 py-2 rounded border transition ${
-                          selectedAttributes[attr.name] === val
+                          selectedAttributes[attr.name] === val.value
                             ? "bg-purple-600 text-white border-purple-600"
                             : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
                         }`}
                       >
-                        {val}
+                        {val.value}
                       </button>
                     ))}
                   </div>
@@ -138,17 +157,17 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ product, onClose }) => {
             <button
               onClick={handleAddToCart}
               disabled={
-                product.attributes &&
-                product.attributes.length > 0 &&
+                product.variantsOptionGroup &&
+                product.variantsOptionGroup.length > 0 &&
                 Object.keys(selectedAttributes).length <
-                  product.attributes.length
+                  product.variantsOptionGroup.length
               }
               className={`flex items-center gap-2 px-6 py-3 rounded-lg shadow-md transition
                 ${
-                  product.attributes &&
-                  product.attributes.length > 0 &&
+                  product.variantsOptionGroup &&
+                  product.variantsOptionGroup.length > 0 &&
                   Object.keys(selectedAttributes).length <
-                    product.attributes.length
+                    product.variantsOptionGroup.length
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-purple-600 hover:bg-purple-700 text-white"
                 }`}

@@ -42,25 +42,37 @@ const productColumns = [
       const row = info.row.original as SafeProduct;
       const priceRange = row.priceRange;
 
-      // ✅ If priceRange exists as a string like "10000 - 15000"
-      if (typeof priceRange === "string" && priceRange.includes("-")) {
-        const [min, max] = priceRange
-          .split("-")
-          .map((v) => Number(v.trim()))
-          .filter((v) => !isNaN(v));
+      // ✅ Case 1: priceRange is a STRING
+      if (typeof priceRange === "string") {
+        // ✅ Handle RANGE: "120000 - 175000"
+        if (priceRange.includes("-")) {
+          const [min, max] = priceRange
+            .split("-")
+            .map((v) => Number(v.trim()))
+            .filter((v) => !isNaN(v));
 
-        if (min && max) {
-          return `₦${min.toLocaleString("en-NG", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })} - ₦${max.toLocaleString("en-NG", {
+          if (min && max) {
+            return `₦${min.toLocaleString("en-NG", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })} - ₦${max.toLocaleString("en-NG", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}`;
+          }
+        }
+
+        // ✅ Handle SINGLE value string: "15000"
+        const single = Number(priceRange.trim());
+        if (!isNaN(single)) {
+          return `₦${single.toLocaleString("en-NG", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}`;
         }
       }
 
-      // ✅ Fallback to single numeric price
+      // ✅ Case 2: fallback to numeric price
       if (typeof value === "number" && !isNaN(value)) {
         return `₦${value.toLocaleString("en-NG", {
           minimumFractionDigits: 2,
@@ -68,7 +80,7 @@ const productColumns = [
         })}`;
       }
 
-      // ✅ Otherwise show a dash
+      // ✅ Final fallback
       return "—";
     },
   },

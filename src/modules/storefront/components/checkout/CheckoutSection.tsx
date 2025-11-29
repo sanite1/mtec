@@ -5,12 +5,29 @@ import { useNavigate } from "react-router-dom";
 import AddressModal, { Address } from "./AddressModal";
 import { useCart } from "../../context/CartContext";
 import { Alert } from "@mui/material";
+import ShippingAddressSidebar from "./ShippingSidebar";
+import { ShippingAddress } from "../../lib/types/orders";
+import { useStoreShipping } from "../../lib/api/shipping";
+import { IStoreDetails } from "../../lib/types/store";
+import { Shipping } from "../../lib/types/shipping";
 
 const CheckoutSection: React.FC = () => {
   const { state, dispatch } = useCart();
   const { cart } = state;
   const [showAddressError, setShowAddressError] = useState<Boolean>(false);
 
+  const [selectedShipping, setSelectedShipping] = useState<Shipping | null>(
+    null,
+  );
+
+  const store: IStoreDetails = JSON.parse(
+    localStorage.getItem("store") || "null",
+  );
+
+  const { data, isLoading, refetch } = useStoreShipping(store.userId, {
+    page: 1,
+    limit: 20,
+  });
   const navigate = useNavigate();
 
   const handlePlaceOrder = () => {
@@ -40,20 +57,21 @@ const CheckoutSection: React.FC = () => {
     dispatch({ type: "CLEAR_CART" });
     navigate("/order-confirmation");
   };
+
   const [note, setNote] = useState("");
   const [coupon, setCoupon] = useState("");
-  const [address, setAddress] = useState<Address | null>(null);
+  const [address, setAddress] = useState<ShippingAddress | null>(null);
   const [addrOpen, setAddrOpen] = useState(false);
 
   const subtotal = useMemo(
     () => cart.reduce((s, i) => s + i.price * i.quantity, 0),
     [cart],
   );
-  const shipping = 0; // placeholder—integrate provider later
-  const total = subtotal + shipping;
+  let shipping = 0; // placeholder—integrate provider later
+  let total = subtotal + (selectedShipping?.price || 0);
 
   const updateQty = (id: string, delta: number) => {
-    const existing = cart.find((i) => i.id === id);
+    const existing = cart.find((i) => i.productDetails._id === id);
     if (!existing) return;
 
     const newQty = Math.max(1, existing.quantity + delta);
@@ -93,9 +111,7 @@ const CheckoutSection: React.FC = () => {
             ) : (
               <div className="rounded-lg border bg-gray-50 p-4 text-sm">
                 <div className="flex justify-between">
-                  <p className="font-medium">
-                    {address.firstName} {address.lastName}
-                  </p>
+                  <p className="font-medium">{address.fullName}</p>
                   <button
                     onClick={() => setAddrOpen(true)}
                     className="text-purple-600 hover:underline"
@@ -105,7 +121,7 @@ const CheckoutSection: React.FC = () => {
                 </div>
                 <p className="text-gray-600">{address.email}</p>
                 <p className="text-gray-600">{address.phone}</p>
-                <p className="text-gray-700 mt-1">{address.address}</p>
+                <p className="text-gray-700 mt-1">{`${address.addressLine1}, ${address.addressLine2 ? `${address.addressLine2},` : ""} ${address.city}, ${address.state}, ${address.country}`}</p>
               </div>
             )}
           </section>
@@ -121,14 +137,73 @@ const CheckoutSection: React.FC = () => {
           </section>
 
           {/* Shipping */}
-          <section className="border rounded-xl p-5">
-            <h2 className="text-lg font-semibold mb-3">Select Shipping Rate</h2>
-            <button
-              type="button"
-              className="w-full border rounded-lg px-4 py-3 hover:bg-gray-50"
-            >
-              Click here to see delivery prices
-            </button>
+          <section className="border rounded-xl p-5 space-y-4">
+            <h2 className="text-lg font-semibold">Select Shipping Rate</h2>
+
+            {isLoading && (
+              <p className="text-sm text-gray-500">
+                Loading shipping methods...
+              </p>
+            )}
+
+            {!isLoading && data?.shipping?.length === 0 && (
+              <p className="text-sm text-gray-500">
+                No shipping methods available for this store.
+              </p>
+            )}
+
+            <div className="space-y-3">
+              {data?.shipping?.map((method) => {
+                const isSelected = selectedShipping?._id === method._id;
+
+                return (
+                  <button
+                    key={method._id}
+                    type="button"
+                    onClick={() => {
+                      shipping = method.price;
+                      setSelectedShipping(method);
+                    }}
+                    className={`w-full text-left border rounded-lg px-4 py-4 transition flex items-start justify-between gap-4 ${
+                      isSelected
+                        ? "border-purple-600 bg-purple-50 "
+                        : "hover:bg-gray-50 border-gray-300"
+                    }`}
+                  >
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">{method.name}</p>
+                      {/* <p className="text-sm text-gray-500 capitalize">
+                        {method.location}
+                      </p> */}
+
+                      {method.description && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {method.description}
+                        </p>
+                      )}
+
+                      {method.estimatedDeliveryDays && (
+                        <p className="text-xs text-gray-600 mt-1">
+                          ⏱ Delivery: {method.estimatedDeliveryDays}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="text-right whitespace-nowrap">
+                      <p className="font-semibold text-gray-900">
+                        ₦{method.price.toLocaleString("en-NG")}
+                      </p>
+
+                      {isSelected && (
+                        <p className="text-xs text-purple-600 mt-1 font-medium">
+                          Selected
+                        </p>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </section>
         </div>
 
@@ -143,13 +218,17 @@ const CheckoutSection: React.FC = () => {
             <div className="divide-y">
               {cart.map((item) => (
                 <div
-                  key={item.id}
+                  key={item.productId}
                   className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4"
                 >
                   {/* info */}
                   <div className="flex items-center gap-4 sm:w-2/3 w-full">
                     <img
-                      src={item.image}
+                      src={
+                        item.productDetails.images
+                          ? item.productDetails.images[0]
+                          : ""
+                      }
                       alt={item.name}
                       className="w-20 h-20 rounded-md object-cover border"
                     />
@@ -157,7 +236,7 @@ const CheckoutSection: React.FC = () => {
                       <p className="font-medium text-gray-800 truncate">
                         {item.name}
                       </p>
-                      {item.selectedAttributes &&
+                      {/* {item.selectedAttributes &&
                         Object.keys(item.selectedAttributes).length > 0 && (
                           <div className=" text-sm text-gray-500 space-x-1 flex">
                             {Object.entries(item.selectedAttributes).map(
@@ -168,27 +247,27 @@ const CheckoutSection: React.FC = () => {
                                   </span>{" "}
                                   {String(value)}
                                 </p>
-                              ),
+                              )
                             )}
                           </div>
-                        )}
+                        )} */}
                       <div className="mt-2 flex items-center gap-2">
                         <button
-                          onClick={() => updateQty(item.id, -1)}
+                          onClick={() => updateQty(item.productDetails._id, -1)}
                           className="w-8 h-8 border rounded hover:bg-gray-50"
                         >
                           –
                         </button>
                         <span className="px-2">{item.quantity}</span>
                         <button
-                          onClick={() => updateQty(item.id, 1)}
+                          onClick={() => updateQty(item.productDetails._id, 1)}
                           className="w-8 h-8 border rounded hover:bg-gray-50"
                         >
                           +
                         </button>
 
                         <button
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeItem(item.productDetails._id)}
                           className="ml-3 text-gray-500 hover:text-red-500"
                           aria-label="Remove item"
                         >
@@ -215,7 +294,9 @@ const CheckoutSection: React.FC = () => {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Shipping</span>
-              <span className="font-medium">₦{shipping.toLocaleString()}</span>
+              <span className="font-medium">
+                ₦{selectedShipping?.price?.toLocaleString() || 0}
+              </span>
             </div>
 
             <div className="flex gap-2 pt-2">
@@ -259,7 +340,7 @@ const CheckoutSection: React.FC = () => {
       </div>
 
       {/* Modal */}
-      <AddressModal
+      {/* <AddressModal
         open={addrOpen}
         onClose={() => setAddrOpen(false)}
         onSave={(a) => {
@@ -267,7 +348,17 @@ const CheckoutSection: React.FC = () => {
           setAddrOpen(false);
         }}
         initial={address}
-      />
+      /> */}
+      {addrOpen && (
+        <ShippingAddressSidebar
+          onClose={() => setAddrOpen(false)}
+          onSave={(a) => {
+            setAddress(a);
+            setAddrOpen(false);
+          }}
+          details={address}
+        />
+      )}
     </div>
   );
 };

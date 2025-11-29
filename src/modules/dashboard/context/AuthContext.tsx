@@ -59,7 +59,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       const updatedUser = localStorage.getItem("user");
       setUser(updatedUser ? JSON.parse(updatedUser) : null);
       setIsAuthenticated(true);
-      console.log("Token refreshed successfully ✅");
     } catch (error) {
       console.error("Token refresh failed ❌", error);
       logout();
@@ -101,8 +100,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       const token = getToken();
       const decoded = getDecodedJwt(token || "");
 
-      console.log(token);
-
       if (!token || !decoded) {
         setIsAuthenticated(false);
         setUser(null);
@@ -112,7 +109,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
       const currentTime = Date.now() / 1000;
       if (decoded.exp < currentTime) {
-        console.log("Access token expired. Attempting refresh...");
         await refreshAccessToken();
       } else {
         setIsAuthenticated(true);

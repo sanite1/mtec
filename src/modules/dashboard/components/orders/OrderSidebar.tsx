@@ -197,7 +197,9 @@ export default function OrderDetailsSidebar({
               <p className="font-medium text-gray-800">
                 {order.shippingAddress.fullName}
               </p>
-              <p className="text-gray-600">{order.shippingAddress.phone}</p>
+              <p className="text-gray-600">
+                {order.shippingAddress.phone} | {order.shippingAddress.email}
+              </p>
               <p className="text-gray-600">
                 {order.shippingAddress.addressLine1}
               </p>

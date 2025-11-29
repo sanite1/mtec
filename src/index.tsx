@@ -8,7 +8,6 @@ import { getModule, getStoreBasePath } from "./utils";
 const rootElement = document.getElementById("root") as HTMLElement;
 const root = ReactDOM.createRoot(rootElement);
 const module = getModule();
-console.log(module, getStoreBasePath());
 
 root.render(
   <React.StrictMode>

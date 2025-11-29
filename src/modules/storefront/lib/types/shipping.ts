@@ -2,10 +2,9 @@ export interface Shipping {
   _id: string;
   userId: string;
   name: string;
+  location: string;
   description?: string;
   price: number;
-  location?: string;
-  locationName?: string;
   estimatedDeliveryDays?: string;
   isActive: boolean;
   createdAt: string;
@@ -14,6 +13,7 @@ export interface Shipping {
 
 export interface ShippingFilters {
   search?: string;
+  location?: string;
   page?: number;
   limit?: number;
   isActive?: boolean;
@@ -29,8 +29,6 @@ export interface ShippingResponseData {
 export interface ShippingForm {
   name?: string;
   description?: string;
-  location?: string;
-  locationName?: string;
   price?: number;
   estimatedDeliveryDays?: string;
   isActive?: boolean;
