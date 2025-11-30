@@ -5,13 +5,15 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusCircle, X } from "lucide-react";
 import { Discount, DiscountPayload } from "../../lib/types/discount";
-import { useNavigate } from "react-router-dom";
 import SelectProductsDialog from "./SelectProductsDialog";
+import { Location } from "../../lib/types/locations";
+import StoreSelector from "../../lib/utils/StoreSelector";
+import { ConvertPriceRangeToLocale } from "../../lib/utils/utils";
 
 // ----------------- Schema -----------------
 const discountSchema = z.object({
   id: z.string().optional(),
-  discountName: z.string().min(1, "Discount name is required"),
+  discountName: z.string().min(2, "Discount name is required"),
   description: z.string().min(1, "Discount description is required"),
   discountValue: z
     .string()
@@ -27,7 +29,7 @@ const discountSchema = z.object({
       z.object({
         productId: z.string().optional(),
         name: z.string().optional(),
-        price: z.number().optional(),
+        price: z.string().optional(),
       }),
     )
     .optional(),
@@ -49,17 +51,21 @@ export default function DiscountFormSidebar({
   onSave,
   loading,
 }: DiscountFormSidebarProps) {
-  const navigate = useNavigate();
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState<
     | {
         productId?: string;
         variationId?: string;
         name?: string;
-        price?: number;
+        price?: string;
       }[]
     | undefined
   >(discount?.products);
+  const [LocationModalOpen, setLocationModalOpen] = useState(false);
+  const [location, setLocation] = useState<Location>();
+  const onSelectLocation = (location: Location) => {
+    setLocation(location);
+  };
 
   const {
     control,
@@ -86,7 +92,8 @@ export default function DiscountFormSidebar({
     const payload = {
       ...data,
       discountValue: Number(data.discountValue),
-      location: "headquarters",
+      locationName: location?.name || "",
+      location: location?._id || "",
     };
 
     onSave(payload);
@@ -312,13 +319,34 @@ export default function DiscountFormSidebar({
                   >
                     <div>
                       <p className="font-medium text-gray-800">{p.name}</p>
-                      <p className="text-sm text-gray-600">₦{p.price ?? 0}</p>
+                      <p className="text-sm text-gray-600">
+                        {ConvertPriceRangeToLocale(p.price) || "0"}
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
             )}
           </section>
+
+          <button
+            type="button"
+            onClick={() => setLocationModalOpen(true)}
+            className="px-5 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition disabled:opacity-50"
+          >
+            Select Store Location
+          </button>
+
+          {location && (
+            <div>
+              <div className="flex justify-between items-center bg-gray-50 border border-gray-200 p-3 rounded-lg">
+                <div>
+                  <p className="font-medium text-gray-800">{location.name}</p>
+                  {/* <p className="text-sm text-gray-600">₦{p.price ?? 0}</p> */}
+                </div>
+              </div>
+            </div>
+          )}
         </form>
 
         {/* Footer */}
@@ -383,6 +411,12 @@ export default function DiscountFormSidebar({
               }),
             );
           }}
+        />
+
+        <StoreSelector
+          open={LocationModalOpen}
+          onClose={() => setLocationModalOpen(false)}
+          onSelect={(loc) => onSelectLocation(loc)}
         />
       </div>
     </div>

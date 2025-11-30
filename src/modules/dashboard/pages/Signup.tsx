@@ -56,6 +56,7 @@ export default function Signup() {
     } catch (error: any) {
       // Extract error message properly
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
       toast.error(errorMessage);

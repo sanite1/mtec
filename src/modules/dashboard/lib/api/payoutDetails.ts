@@ -33,6 +33,7 @@ export function useCreatePayoutDetails() {
     },
     onError: (error: ApiError) => {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
 
@@ -69,6 +70,7 @@ export function useUpdatePayoutDetails() {
     },
     onError: (error: ApiError) => {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
 
@@ -92,6 +94,7 @@ export function useDeletePayoutDetails() {
     },
     onError: (error: ApiError) => {
       const msg =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
 

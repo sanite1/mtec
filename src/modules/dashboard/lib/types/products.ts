@@ -6,7 +6,13 @@ export interface Product {
   description?: string;
   price: number;
   collection?: string;
+  location?: string;
   priceRange?: string;
+  variantsOptionGroup?: Array<{
+    id: string;
+    name: string;
+    values: Array<{ id: string; value: string }>;
+  }>;
   images?: string[];
   totalStock: number;
   isActive: boolean;
@@ -52,11 +58,11 @@ export interface ProductDetailsResponse {
   price: number;
   costPrice: number;
   discountPrice: number;
-  priceRange?: string;
-  location?: string;
   unit: string;
   collection?: string;
   images?: string[];
+  location?: string;
+  priceRange?: string;
   variantsOptionGroup?: Array<{
     id: string;
     name: string;

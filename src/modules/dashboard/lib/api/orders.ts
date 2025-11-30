@@ -33,6 +33,7 @@ export function useCreateOrder() {
     },
     onError: (error: ApiError) => {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
 
@@ -141,6 +142,7 @@ export const useCancelOrder = () => {
     },
     onError: (error: ApiError) => {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
 
@@ -174,6 +176,7 @@ export const useUpdateOrderStatus = () => {
     },
     onError: (error: ApiError) => {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
 
@@ -215,6 +218,7 @@ export const useUpdatePaymentStatus = () => {
     },
     onError: (error: ApiError) => {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
 

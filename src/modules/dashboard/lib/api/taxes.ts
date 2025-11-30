@@ -50,6 +50,7 @@ export const useCreateTax = () => {
     },
     onError: (error: ApiError) => {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
       toast.error("Request Failed", { description: errorMessage });
@@ -82,6 +83,7 @@ export const useUpdateTax = () => {
     },
     onError: (error: ApiError) => {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
       toast.error("Request Failed", { description: errorMessage });
@@ -106,6 +108,7 @@ export const useDeleteTax = () => {
     },
     onError: (error: ApiError) => {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
       toast.error("Request Failed", { description: errorMessage });

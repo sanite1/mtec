@@ -52,6 +52,7 @@ export const useLogin = () => {
     },
     onError: (error: ApiError) => {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
 
@@ -84,6 +85,7 @@ export const useRefresh = () => {
     },
     onError: (error: ApiError) => {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
 
@@ -110,6 +112,7 @@ export const useForgotPassword = () => {
     },
     onError: (error: ApiError) => {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
 
@@ -149,6 +152,7 @@ export const useResetPassword = () => {
     },
     onError: (error: ApiError) => {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
 
@@ -193,6 +197,7 @@ export const useSignup = () => {
     },
     onError: (error: ApiError) => {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
 
@@ -223,6 +228,7 @@ export const useVerifyAccount = () => {
     },
     onError: (error) => {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Verification failed. Please try again.";
       toast.error("Verification Failed", {
@@ -303,7 +309,9 @@ export const useUpdateUser = () => {
     },
     onError: (error) => {
       const errorMessage =
-        error.response?.data?.message || "Failed to update profile. Try again.";
+        error.response?.data?.fields?.[0].message ||
+        error.response?.data?.message ||
+        "Failed to update profile. Try again.";
       toast.error("Update Failed", {
         description: errorMessage,
       });
@@ -341,7 +349,10 @@ export const useUpdatePassword = () => {
     },
     onError: (error: ApiError) => {
       toast.error("Password Update Failed", {
-        description: error.response?.data?.message || "Something went wrong!",
+        description:
+          error.response?.data?.fields?.[0].message ||
+          error.response?.data?.message ||
+          "Something went wrong!",
       });
     },
   });
@@ -369,6 +380,7 @@ export const useUnsubscribe = () => {
     },
     onError: (error) => {
       const message =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Failed to unsubscribe. Please try again.";
 

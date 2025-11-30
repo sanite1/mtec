@@ -70,6 +70,7 @@ export const useCreateDiscount = () => {
     },
     onError: (error: ApiError) => {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
       toast.error("Request Failed", { description: errorMessage });
@@ -109,6 +110,7 @@ export const useUpdateDiscount = () => {
     },
     onError: (error: ApiError) => {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
       toast.error("Request Failed", { description: errorMessage });
@@ -135,6 +137,7 @@ export const useDeleteDiscount = () => {
     },
     onError: (error: ApiError) => {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
       toast.error("Request Failed", { description: errorMessage });

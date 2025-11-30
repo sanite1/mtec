@@ -8,11 +8,12 @@ export interface Discount {
   startDate: string;
   endDate: string;
   location: string;
+  locationName: string;
   products?: {
     productId?: string;
     variationId?: string;
     name?: string;
-    price?: number;
+    price?: string;
   }[];
   createdAt: string;
   updatedAt: string;
@@ -41,11 +42,12 @@ export interface DiscountPayload {
   startDate: string;
   endDate: string;
   location: string;
+  locationName: string;
   products?: {
     productId?: string;
     variationId?: string;
     name?: string;
-    price?: number;
+    price?: string;
   }[];
 }
 

@@ -1,24 +1,35 @@
 import React from "react";
 import { CheckCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
+import { useOrderById } from "../../lib/api/orders";
 
 export default function OrderCSummary() {
   const { state } = useCart();
   const order = state.order;
-
-  if (!order) {
+  const { id } = useParams();
+  const { data, isError, isLoading } = useOrderById(id as string);
+  if (isLoading) {
     return (
-      <div className="max-w-2xl mx-auto px-6 py-16 text-center">
-        <p className="text-lg text-gray-600">
-          No order found. Please place an order first.
-        </p>
-        <Link
-          to="/"
-          className="mt-6 inline-block px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
-        >
-          Go Shopping
-        </Link>
+      <div className="max-w-2xl mx-auto px-6 py-16 text-center h-[100vh] items-center flex justify-center ">
+        <p className="text-lg text-gray-600">Loading order...</p>
+      </div>
+    );
+  }
+  if (!order || isError) {
+    return (
+      <div className="max-w-2xl mx-auto px-6 py-16 text-center  h-[100vh] items-center flex justify-center">
+        <div className="">
+          <p className="text-lg text-gray-600">
+            No order found. Please place an order first.
+          </p>
+          <Link
+            to="/"
+            className="mt-6 inline-block px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+          >
+            Go Shopping
+          </Link>
+        </div>
       </div>
     );
   }
@@ -31,8 +42,8 @@ export default function OrderCSummary() {
         Thank you for your order!
       </h1>
       <p className="text-gray-600 mb-10">
-        Your order <span className="font-medium">#{order.id}</span> has been
-        successfully placed on {order.date}.
+        Your order <span className="font-medium">#{data?.orderNumber}</span> has
+        been successfully placed on {order.date}.
       </p>
 
       <div className="bg-gray-50 rounded-lg shadow p-6 text-left">
@@ -87,7 +98,7 @@ export default function OrderCSummary() {
         <p className="text-gray-600">{order.shipping.fullName}</p>
         <p className="text-gray-600">{order.shipping.email}</p>
         <p className="text-gray-600">{order.shipping.phone}</p>
-        <p className="text-gray-600">{order.shipping.email}</p>
+        <p className="text-gray-700 mt-1">{`${order.shipping.addressLine1}, ${order.shipping.addressLine2 ? `${order.shipping.addressLine2},` : ""} ${order.shipping.city}, ${order.shipping.state}, ${order.shipping.country}`}</p>
       </div>
 
       <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">

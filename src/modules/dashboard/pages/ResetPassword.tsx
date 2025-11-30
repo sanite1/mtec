@@ -51,6 +51,7 @@ export default function ResetPassword() {
       setSuccess(true);
     } catch (error: any) {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
       setErrorMsg(errorMessage);

@@ -52,6 +52,7 @@ export const useUpdateOnboardingStep = (userId: string) => {
     },
     onError: (error: ApiError) => {
       const errorMessage =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
 

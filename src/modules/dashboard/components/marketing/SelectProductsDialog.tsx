@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Check, Loader2 } from "lucide-react";
 import { getDecodedJwt } from "../../lib/auth";
 import { useUserProducts } from "../../lib/api/products";
+import { ConvertPriceRangeToLocale } from "../../lib/utils/utils";
 
 interface SelectProductsDialogProps {
   open: boolean;
@@ -11,7 +12,7 @@ interface SelectProductsDialogProps {
     selected: {
       productId: string;
       variationId?: string;
-      price?: number;
+      price?: string;
       name?: string;
       sku?: string;
       quantity: number;
@@ -43,7 +44,10 @@ export default function SelectProductsDialog({
         ?.map((p) => ({
           productId: p._id,
           name: p.name,
-          price: p.price ?? 0,
+          price:
+            p?.variantsOptionGroup && p?.variantsOptionGroup?.length > 0
+              ? p.priceRange
+              : String(p.price ?? 0),
           sku: p.sku ?? "",
           quantity: 1,
         })) || [];
@@ -101,7 +105,11 @@ export default function SelectProductsDialog({
                   <div>
                     <p className="font-medium text-gray-800">{p.name}</p>
                     <p className="text-sm text-gray-500">
-                      ₦{p.price?.toLocaleString() || "0"}
+                      ₦
+                      {p.variantsOptionGroup &&
+                        ConvertPriceRangeToLocale(p.priceRange)}
+                      {(p.variantsOptionGroup && p.price?.toLocaleString()) ||
+                        "0"}
                     </p>
                   </div>
                   {selectedIds.includes(p._id) && (

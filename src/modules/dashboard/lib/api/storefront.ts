@@ -27,6 +27,7 @@ export const useStorefront = (userId: string) =>
     meta: {
       onError: (error: ApiError) => {
         const errorMessage =
+          error.response?.data?.fields?.[0].message ||
           error.response?.data?.message ||
           "Something went wrong. Please try again.";
 
@@ -146,6 +147,7 @@ export const useUpdateStorefront = () =>
 
     onError: (error: ApiError) => {
       const msg =
+        error.response?.data?.fields?.[0].message ||
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
 

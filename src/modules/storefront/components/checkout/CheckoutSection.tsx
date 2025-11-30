@@ -1,21 +1,26 @@
 // components/checkout/CheckoutSection.tsx
 import React, { useMemo, useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AddressModal, { Address } from "./AddressModal";
 import { useCart } from "../../context/CartContext";
 import { Alert } from "@mui/material";
 import ShippingAddressSidebar from "./ShippingSidebar";
-import { ShippingAddress } from "../../lib/types/orders";
+import { CreateOrderPayload, ShippingAddress } from "../../lib/types/orders";
 import { useStoreShipping } from "../../lib/api/shipping";
 import { IStoreDetails } from "../../lib/types/store";
 import { Shipping } from "../../lib/types/shipping";
+import { useCreateOrder } from "../../lib/api/orders";
+import { useVerifyDiscount } from "../../lib/api/discount";
+import { Discount } from "../../lib/types/discount";
+import { ConvertPriceRangeToLocale } from "../../lib/utils/utils";
 
 const CheckoutSection: React.FC = () => {
   const { state, dispatch } = useCart();
   const { cart } = state;
   const [showAddressError, setShowAddressError] = useState<Boolean>(false);
 
+  const { mutateAsync: createOrder, isPending } = useCreateOrder();
   const [selectedShipping, setSelectedShipping] = useState<Shipping | null>(
     null,
   );
@@ -30,7 +35,7 @@ const CheckoutSection: React.FC = () => {
   });
   const navigate = useNavigate();
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (!address) {
       setShowAddressError(true);
 
@@ -41,34 +46,133 @@ const CheckoutSection: React.FC = () => {
       return;
     }
 
-    const order = {
-      id: Date.now(), // simple unique ID
-      items: cart,
-      total,
-      shipping: address,
-      date: new Date().toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      }),
-    };
+    try {
+      const cleanedCart = cart.map(
+        ({ selectedAttributes, productDetails, ...rest }) => rest,
+      );
 
-    dispatch({ type: "SET_ORDER", payload: order });
-    dispatch({ type: "CLEAR_CART" });
-    navigate("/order-confirmation");
+      const cleanAddress = { ...address };
+
+      if (!cleanAddress.addressLine2) {
+        delete cleanAddress.addressLine2;
+      }
+
+      const orderPayload: CreateOrderPayload = {
+        userId: store.userId,
+        items: cleanedCart,
+        shippingAddress: cleanAddress,
+        ...(note ? { note: note } : {}),
+        discount: totalDiscount || 0,
+        tax: 0,
+        shippingFee: selectedShipping?.price,
+      };
+
+      const res = await createOrder(orderPayload);
+
+      const order = {
+        id: Date.now(), // simple unique ID
+        items: cart,
+        total,
+        shipping: address,
+        date: new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }),
+      };
+
+      dispatch({ type: "SET_ORDER", payload: order });
+      dispatch({ type: "CLEAR_CART" });
+      navigate(`/order-confirmation/${res._id}`);
+    } catch (error) {
+      console.warn(error);
+    }
   };
 
   const [note, setNote] = useState("");
   const [coupon, setCoupon] = useState("");
   const [address, setAddress] = useState<ShippingAddress | null>(null);
+  const [discount, setDiscount] = useState<Discount | null>(null);
   const [addrOpen, setAddrOpen] = useState(false);
 
   const subtotal = useMemo(
     () => cart.reduce((s, i) => s + i.price * i.quantity, 0),
     [cart],
   );
-  let shipping = 0; // placeholder—integrate provider later
-  let total = subtotal + (selectedShipping?.price || 0);
+  let shipping = 0;
+
+  // ✅ 2. DISCOUNT CALCULATION ENGINE
+  const { totalDiscount, discountedItems } = useMemo(() => {
+    if (!discount || !cart.length) {
+      return { totalDiscount: 0, discountedItems: [] };
+    }
+
+    let totalDiscount = 0;
+    let discountedItems: {
+      productId: string;
+      discountAmount: number;
+    }[] = [];
+
+    // ✅ CASE 1: DISCOUNT APPLIES TO ALL PRODUCTS
+    if (discount.allProducts) {
+      if (discount.discountType === "percentage") {
+        totalDiscount = (discount.discountValue / 100) * subtotal;
+      }
+
+      if (discount.discountType === "fixed") {
+        totalDiscount = Math.min(discount.discountValue, subtotal);
+      }
+
+      discountedItems = cart.map((item) => ({
+        productId: item.productId,
+        discountAmount: 0, // optional to calculate per-item if needed
+      }));
+
+      return {
+        totalDiscount,
+        discountedItems,
+      };
+    }
+
+    // ✅ CASE 2: DISCOUNT APPLIES TO SPECIFIC PRODUCTS
+    const eligibleProducts = new Set(
+      discount.products?.map((p) => p.productId) || [],
+    );
+
+    cart.forEach((item) => {
+      if (!eligibleProducts.has(item.productId)) return;
+
+      const itemTotal = item.price * item.quantity;
+      let itemDiscount = 0;
+
+      if (discount.discountType === "percentage") {
+        itemDiscount = (discount.discountValue / 100) * itemTotal;
+      }
+
+      if (discount.discountType === "fixed") {
+        // ⚠️ Fixed discounts must be split safely across multiple products
+        itemDiscount = Math.min(itemTotal, discount.discountValue);
+      }
+
+      totalDiscount += itemDiscount;
+
+      discountedItems.push({
+        productId: item.productId,
+        discountAmount: itemDiscount,
+      });
+    });
+
+    return {
+      totalDiscount,
+      discountedItems,
+    };
+  }, [discount, cart, subtotal]);
+
+  // ✅ 3. FINAL TOTAL
+  const total = useMemo(() => {
+    const shipping = selectedShipping?.price || 0;
+    return subtotal + shipping - totalDiscount;
+  }, [subtotal, selectedShipping, totalDiscount]);
 
   const updateQty = (id: string, delta: number) => {
     const existing = cart.find((i) => i.productDetails._id === id);
@@ -88,8 +192,22 @@ const CheckoutSection: React.FC = () => {
     dispatch({ type: "REMOVE_FROM_CART", payload: id });
   };
 
-  const applyCoupon = () => {
-    alert(`Coupon "${coupon}" captured (no backend yet)`);
+  const selectedLocation =
+    localStorage.getItem("selectedLocation") &&
+    JSON.parse(localStorage.getItem("selectedLocation")!);
+
+  const { mutateAsync: verifyDiscount, isPending: verifyingCoupon } =
+    useVerifyDiscount();
+
+  const applyCoupon = async () => {
+    try {
+      const result = await verifyDiscount({
+        discountName: coupon.trim(),
+        location: selectedLocation.locationName,
+      });
+
+      setDiscount(result);
+    } catch (error) {}
   };
 
   return (
@@ -298,6 +416,48 @@ const CheckoutSection: React.FC = () => {
                 ₦{selectedShipping?.price?.toLocaleString() || 0}
               </span>
             </div>
+            {discountedItems.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {/* ✅ Header */}
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-semibold text-gray-700">
+                    Discounts
+                  </h4>
+
+                  {/* ✅ Discount Tag */}
+                  {discount && (
+                    <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
+                      {discount.discountType === "percentage"
+                        ? `${discount.discountValue}%`
+                        : `${ConvertPriceRangeToLocale(
+                            String(discount.discountValue),
+                          )} off`}
+                    </span>
+                  )}
+                </div>
+
+                {/* ✅ Discounted Items */}
+                {discountedItems.map((item) => {
+                  const product = cart.find(
+                    (c) => c.productId === item.productId,
+                  );
+                  if (!product) return null;
+
+                  return (
+                    <div
+                      key={item.productId}
+                      className="flex justify-between text-sm"
+                    >
+                      <span className="text-gray-500">{product.name}</span>
+                      <span className="font-medium text-red-600">
+                        -{" "}
+                        {ConvertPriceRangeToLocale(String(item.discountAmount))}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             <div className="flex gap-2 pt-2">
               <input
@@ -308,9 +468,14 @@ const CheckoutSection: React.FC = () => {
               />
               <button
                 onClick={applyCoupon}
-                className="px-4 py-2 rounded-lg border hover:bg-gray-50"
+                disabled={verifyingCoupon}
+                className={`px-4 py-2 rounded-lg border hover:bg-gray-50 ${verifyingCoupon ? "cursor-not-allowed" : ""}`}
               >
-                Apply
+                {verifyingCoupon ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  "Apply"
+                )}
               </button>
             </div>
 
@@ -332,9 +497,20 @@ const CheckoutSection: React.FC = () => {
           <button
             disabled={cart.length === 0}
             onClick={handlePlaceOrder}
-            className="mt-4 w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg py-3 font-medium"
+            className={`mt-4 w-full flex items-center justify-center bg-purple-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg py-3 font-medium ${
+              isPending
+                ? "opacity-70 cursor-not-allowed"
+                : "hover:bg-purple-700"
+            }`}
           >
-            Proceed To Payment
+            {isPending ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                Creating Order...
+              </>
+            ) : (
+              <>Proceed To Payment</>
+            )}
           </button>
         </div>
       </div>

@@ -21,7 +21,10 @@ export const StorefrontRoutes: React.FC = () => {
           <Route path="/" element={<Home />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/order-confirmation" element={<OrderConfirmation />} />
+          <Route
+            path="/order-confirmation/:id"
+            element={<OrderConfirmation />}
+          />
           <Route path="/product/:id" element={<ProductDetails />} />
         </Route>
         <Route path="*" element={<NotFound />} />
