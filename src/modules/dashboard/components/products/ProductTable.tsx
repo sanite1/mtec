@@ -10,7 +10,7 @@ export interface SafeProduct extends Partial<Product> {
   _id?: string;
   name?: string;
   price?: number;
-  collection?: string;
+  category?: string;
   locationName?: string;
   totalStock?: number;
   priceRange?: string;
@@ -31,7 +31,7 @@ const productColumns = [
     cell: (info: any) => info.getValue() || "Untitled Product",
   },
   {
-    accessorKey: "collection",
+    accessorKey: "category",
     header: "Category",
     cell: (info: any) => info.getValue() || "N/A",
   },
@@ -156,7 +156,7 @@ const ProductTable = ({
     ? products.map((p) => ({
         _id: p._id || crypto.randomUUID(),
         name: p.name || "Untitled Product",
-        collection: p.collection || "N/A",
+        category: p.category || "N/A",
         locationName: p.locationName || "N/A",
         priceRange: p.priceRange || undefined,
         price: typeof p.price === "number" ? p.price : 0,

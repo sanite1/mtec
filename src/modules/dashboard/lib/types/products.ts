@@ -5,7 +5,7 @@ export interface Product {
   sku: string;
   description?: string;
   price: number;
-  collection?: string;
+  category?: string;
   location?: string;
   locationName?: string;
   priceRange?: string;
@@ -29,7 +29,7 @@ export interface ProductResponseData {
 }
 
 export interface ProductFilters {
-  collection?: string;
+  category?: string;
   name?: string;
   isActive?: boolean;
   page?: number;
@@ -60,7 +60,7 @@ export interface ProductDetailsResponse {
   costPrice: number;
   discountPrice: number;
   unit: string;
-  collection?: string;
+  category?: string;
   locationName?: string;
   location?: string;
   images?: string[];
@@ -111,7 +111,7 @@ export interface CreateProductPayload {
   location?: string;
   discountPrice?: number;
   totalStock?: number;
-  collection?: string;
+  category?: string;
   variants?: Array<{
     name: string;
     sku?: string;
@@ -136,7 +136,7 @@ export interface CreateProductResponse {
   costPrice?: number;
   discountPrice?: number;
   totalStock?: number;
-  collection?: string;
+  category?: string;
   locationName?: string;
   location?: string;
   variations?: any[];

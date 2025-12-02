@@ -18,7 +18,7 @@ import {
   Layers,
   Pencil,
 } from "lucide-react";
-import CreateCollectionModal from "./CreateCollectionModal";
+import CreateCategoryModal from "./CreateCategoryModal";
 import ReactQuill from "react-quill";
 import VariantBuilder, {
   CombinationFormRow,
@@ -81,7 +81,7 @@ export const productSchema = z
     name: z.string().min(2, "Product name is required"),
     sku: z.string().optional(),
     description: z.string().min(1, "Description is required"),
-    collection: z.string().optional(),
+    category: z.string().optional(),
     hasVariations: z.boolean(),
     variants: z.array(variantSchema).optional(),
     variantsOptionGroup: z.array(optionGroupSchema).optional(),
@@ -164,11 +164,11 @@ function bytesToSize(bytes: number) {
  * Main Create Product component
  */
 export default function CreateProduct() {
-  // local collections state (would come from backend in real app)
-  const [collections, setCollections] = useState<
+  // local categorys state (would come from backend in real app)
+  const [categorys, setCategorys] = useState<
     { id: string; name: string; image?: string }[]
   >([]);
-  const [collectionModalOpen, setCollectionModalOpen] = useState(false);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [variantModalOpen, setVariantModalOpen] = useState(false);
 
   const {
@@ -231,13 +231,13 @@ export default function CreateProduct() {
     setPreviews(newFiles.map((f) => URL.createObjectURL(f)));
     setValue("images", newFiles as any);
   };
-  const onCreateCollection = (col: {
+  const onCreateCategory = (col: {
     id: string;
     name: string;
     image?: string;
   }) => {
-    setCollections((prev) => [...prev, col]);
-    setValue("collection", col.name);
+    setCategorys((prev) => [...prev, col]);
+    setValue("category", col.name);
   };
   const onCreateVariant = (
     variants: CombinationFormRow[],
@@ -341,8 +341,8 @@ export default function CreateProduct() {
       delete cleaned.discountPrice;
     }
 
-    // Remove empty collection
-    if (!data.collection?.trim()) delete cleaned.collection;
+    // Remove empty category
+    if (!data.category?.trim()) delete cleaned.category;
 
     console.log("SUBMIT:", cleaned);
 
@@ -508,18 +508,18 @@ export default function CreateProduct() {
             </div>
 
             <div className="mt-4 grid md:grid-cols-2 gap-6 items-start">
-              {/* Collection */}
+              {/* Category */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Collection
+                  Category
                 </label>
                 <div className="mt-1 flex gap-2">
                   <select
-                    {...register("collection")}
+                    {...register("category")}
                     className="block w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none"
                   >
-                    <option value="">— Select collection —</option>
-                    {collections.map((c) => (
+                    <option value="">— Select category —</option>
+                    {categorys.map((c) => (
                       <option key={c.id} value={c.name}>
                         {c.name}
                       </option>
@@ -527,7 +527,7 @@ export default function CreateProduct() {
                   </select>
                   <button
                     type="button"
-                    onClick={() => setCollectionModalOpen(true)}
+                    onClick={() => setCategoryModalOpen(true)}
                     className="px-3 py-2 bg-purple-50 text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-100 transition flex items-center gap-1"
                   >
                     <FolderPlus size={16} />
@@ -949,10 +949,10 @@ export default function CreateProduct() {
         onClose={() => setLocationModalOpen(false)}
         onSelect={(loc) => onSelectLocation(loc)}
       />
-      <CreateCollectionModal
-        open={collectionModalOpen}
-        onClose={() => setCollectionModalOpen(false)}
-        onCreate={onCreateCollection}
+      <CreateCategoryModal
+        open={categoryModalOpen}
+        onClose={() => setCategoryModalOpen(false)}
+        onCreate={onCreateCategory}
       />
       <VariantBuilder
         open={variantModalOpen}

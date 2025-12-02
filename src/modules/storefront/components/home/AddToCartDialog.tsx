@@ -105,9 +105,9 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ product, onClose }) => {
             </div>
 
             {/* Category */}
-            {product.collection && (
+            {product.category && (
               <p className="text-sm text-gray-500 mb-6">
-                Category: {product.collection}
+                Category: {product.category}
               </p>
             )}
 

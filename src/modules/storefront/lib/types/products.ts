@@ -1,5 +1,5 @@
 export interface ProductFilters {
-  collection?: string;
+  category?: string;
   name?: string;
   isActive?: boolean;
   page?: number;
@@ -38,7 +38,7 @@ export interface ProductDetails {
   priceRange?: string;
   location?: string;
   unit: string;
-  collection?: string;
+  category?: string;
   images?: string[];
   variantsOptionGroup?: Array<{
     id: string;

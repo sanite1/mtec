@@ -2,16 +2,16 @@ import { ImageIcon } from "lucide-react";
 import { useState } from "react";
 
 /**
- * Collection Modal component
+ * Category Modal component
  */
-export default function CreateCollectionModal({
+export default function CreateCategoryModal({
   open,
   onClose,
   onCreate,
 }: {
   open: boolean;
   onClose: () => void;
-  onCreate: (collection: { id: string; name: string; image?: string }) => void;
+  onCreate: (category: { id: string; name: string; image?: string }) => void;
 }) {
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
@@ -28,7 +28,7 @@ export default function CreateCollectionModal({
 
   const create = () => {
     if (!name.trim()) {
-      alert("Please enter collection name");
+      alert("Please enter category name");
       return;
     }
     const id = `col_${Date.now()}`;
@@ -48,11 +48,11 @@ export default function CreateCollectionModal({
         onClick={onClose}
       />
       <div className="relative z-10 w-full max-w-3xl bg-white rounded-2xl shadow-lg p-6">
-        <h3 className="text-lg font-semibold mb-3">Create Collection</h3>
+        <h3 className="text-lg font-semibold mb-3">Create Category</h3>
 
         <div className="space-y-3">
           <label className="block text-sm font-medium text-gray-700">
-            Collection Image
+            Category Image
           </label>
           <div
             className="flex items-center gap-3 border-dashed border-2 border-gray-200 rounded-md p-3 cursor-pointer"
@@ -88,7 +88,7 @@ export default function CreateCollectionModal({
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Collection Name
+              Category Name
             </label>
             <input
               value={name}

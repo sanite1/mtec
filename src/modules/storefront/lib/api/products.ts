@@ -15,7 +15,7 @@ export const fetchUserProducts = async (
 ): Promise<ProductsResponse> => {
   const params = new URLSearchParams();
 
-  // if (filters?.collection) params.append("collection", filters.collection);
+  // if (filters?.category) params.append("category", filters.category);
   // if (filters?.name) params.append("name", filters.name);
   // if (filters?.isActive !== undefined)
   //   params.append("isActive", String(filters.isActive));

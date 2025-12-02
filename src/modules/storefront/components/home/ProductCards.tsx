@@ -27,7 +27,7 @@ const ProductCards: React.FC = () => {
 
   const categories = useMemo(() => {
     const unique = Array.from(
-      new Set(safeProducts?.map((p) => p.collection)),
+      new Set(safeProducts?.map((p) => p.category)),
     ).filter(Boolean) as string[];
     return ["All", ...unique];
   }, [safeProducts]);
@@ -35,7 +35,7 @@ const ProductCards: React.FC = () => {
   const filteredProducts =
     activeCategory === "All"
       ? safeProducts
-      : safeProducts?.filter((p) => p.collection === activeCategory);
+      : safeProducts?.filter((p) => p.category === activeCategory);
 
   if (isLoading) {
     return <div className="text-center py-10">Loading products...</div>;

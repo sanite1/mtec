@@ -35,7 +35,7 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
       const results = products?.products.filter(
         (p) =>
           p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.collection?.toLowerCase().includes(searchTerm.toLowerCase()),
+          p.category?.toLowerCase().includes(searchTerm.toLowerCase()),
       );
       setFiltered(results || []);
     }
