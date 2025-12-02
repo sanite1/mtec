@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 import { useStoreLocations } from "../../lib/api/location";
 import { IStoreDetails } from "../../lib/types/store";
 import { Location } from "../../lib/types/locations";
+import { useCart } from "../../context/CartContext";
 
 type Props = {
   open: boolean;
@@ -31,11 +32,14 @@ export default function StoreSelector({ open, onClose }: Props) {
       (loc: Location) => loc._id === selectedId?.location,
     );
   }, [selectedId, data]);
+  const { dispatch } = useCart();
 
   const handleSubmit = () => {
     if (!selectedId) return;
 
     localStorage.setItem("selectedLocation", JSON.stringify(selectedId));
+
+    dispatch({ type: "CLEAR_CART" });
     window.location.reload();
     onClose();
   };

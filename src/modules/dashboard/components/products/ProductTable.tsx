@@ -132,12 +132,14 @@ const productColumns = [
 
 const ProductTable = ({
   products,
+  total,
   isLoading,
   error,
 }: {
   products: SafeProduct[];
   isLoading: boolean;
   error: any;
+  total: number;
 }) => {
   const [selectedProducts, setSelectedProducts] = useState<SafeProduct[]>([]);
   const navigate = useNavigate();
@@ -168,7 +170,7 @@ const ProductTable = ({
       }))
     : [];
 
-  const totalItems = safeProducts.length;
+  const totalItems = total;
 
   const handleRowClick = (product: SafeProduct) => {
     navigate(`/products/${product._id}`);

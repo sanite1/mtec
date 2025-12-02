@@ -46,6 +46,7 @@ const DiscountTable = ({
           : `₦${discount.discountValue}`;
       },
     },
+    { accessorKey: "locationName", header: "Location" },
     {
       accessorKey: "startDate",
       header: "Start Date",

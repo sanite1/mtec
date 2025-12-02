@@ -13,13 +13,19 @@ export const fetchUserProducts = async (
   userId: string,
   filters?: ProductFilters,
 ): Promise<ProductsResponse> => {
+  const selectedLocation =
+    localStorage.getItem("selectedLocation") &&
+    JSON.parse(localStorage.getItem("selectedLocation")!);
+  console.log(selectedLocation);
+
   const params = new URLSearchParams();
 
-  // if (filters?.category) params.append("category", filters.category);
   // if (filters?.name) params.append("name", filters.name);
   // if (filters?.isActive !== undefined)
   //   params.append("isActive", String(filters.isActive));
   // if (filters?.page) params.append("page", String(filters.page));
+
+  params.append("location", selectedLocation.locationName);
   params.append("limit", String(100));
 
   const res = await api.get<ApiResponse<ProductsResponse>>(

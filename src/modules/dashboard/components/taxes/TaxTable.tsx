@@ -71,8 +71,8 @@ const TaxTable = ({
     },
     { accessorKey: "name", header: "Tax Name" },
     {
-      accessorKey: "description",
-      header: "Description",
+      accessorKey: "locationName",
+      header: "Location",
       cell: (info: any) => info.getValue() || "N/A",
     },
     {

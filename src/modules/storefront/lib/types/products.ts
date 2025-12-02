@@ -1,5 +1,6 @@
 export interface ProductFilters {
   category?: string;
+  location?: string;
   name?: string;
   isActive?: boolean;
   page?: number;

@@ -39,6 +39,7 @@ export default function ProductsPage() {
       <div className="">
         <ProductTable
           products={products?.products || []}
+          total={products?.total || 0}
           isLoading={isLoading}
           error={error}
         />

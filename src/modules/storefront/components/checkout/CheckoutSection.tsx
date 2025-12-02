@@ -14,6 +14,7 @@ import { useCreateOrder } from "../../lib/api/orders";
 import { useVerifyDiscount } from "../../lib/api/discount";
 import { Discount } from "../../lib/types/discount";
 import { ConvertPriceRangeToLocale } from "../../lib/utils/utils";
+import { useStoreTax } from "../../lib/api/taxes";
 
 const CheckoutSection: React.FC = () => {
   const { state, dispatch } = useCart();
@@ -29,10 +30,14 @@ const CheckoutSection: React.FC = () => {
     localStorage.getItem("store") || "null",
   );
 
-  const { data, isLoading, refetch } = useStoreShipping(store.userId, {
+  const { data, isLoading } = useStoreShipping(store.userId, {
     page: 1,
     limit: 20,
   });
+
+  const { data: tax, isLoading: loadingTax } = useStoreTax(store.userId);
+  console.log(tax);
+
   const navigate = useNavigate();
 
   const handlePlaceOrder = async () => {
@@ -62,8 +67,8 @@ const CheckoutSection: React.FC = () => {
         items: cleanedCart,
         shippingAddress: cleanAddress,
         ...(note ? { note: note } : {}),
+        ...(tax ? { tax: (subtotal * tax?.rate) / 100 } : 0),
         discount: totalDiscount || 0,
-        tax: 0,
         shippingFee: selectedShipping?.price,
       };
 
@@ -171,8 +176,11 @@ const CheckoutSection: React.FC = () => {
   // ✅ 3. FINAL TOTAL
   const total = useMemo(() => {
     const shipping = selectedShipping?.price || 0;
-    return subtotal + shipping - totalDiscount;
-  }, [subtotal, selectedShipping, totalDiscount]);
+    const taxRate = tax?.rate || 0; // e.g. 7.5
+    const taxAmount = (subtotal * taxRate) / 100;
+
+    return subtotal + shipping + taxAmount - totalDiscount;
+  }, [subtotal, selectedShipping, totalDiscount, tax?.rate]);
 
   const updateQty = (id: string, delta: number) => {
     const existing = cart.find((i) => i.productDetails._id === id);
@@ -209,6 +217,8 @@ const CheckoutSection: React.FC = () => {
       setDiscount(result);
     } catch (error) {}
   };
+
+  console.log(discountedItems);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
@@ -405,7 +415,7 @@ const CheckoutSection: React.FC = () => {
           )}
 
           {/* Totals & coupon */}
-          <div className="mt-4 space-y-3 text-sm">
+          <div className="mt-4 space-y-3 text-sm pt-3 border-t">
             <div className="flex justify-between">
               <span className="text-gray-600">Subtotal</span>
               <span className="font-medium">₦{subtotal.toLocaleString()}</span>
@@ -416,8 +426,17 @@ const CheckoutSection: React.FC = () => {
                 ₦{selectedShipping?.price?.toLocaleString() || 0}
               </span>
             </div>
+            {tax && (
+              <div className="flex justify-between">
+                <span className="text-gray-600">Tax ({tax?.rate}%)</span>
+                <span className="font-medium">
+                  ₦{((subtotal * tax?.rate) / 100).toLocaleString() || "0"}
+                </span>
+              </div>
+            )}
+
             {discountedItems.length > 0 && (
-              <div className="mt-4 space-y-2">
+              <div className="mt-4 space-y-2 pt-3 border-t">
                 {/* ✅ Header */}
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm font-semibold text-gray-700">

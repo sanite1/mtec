@@ -38,13 +38,17 @@ const ProductCards: React.FC = () => {
       : safeProducts?.filter((p) => p.category === activeCategory);
 
   if (isLoading) {
-    return <div className="text-center py-10">Loading products...</div>;
+    return (
+      <div className="text-center py-10  h-[50vh] items-center flex w-full">
+        <span className="w-full">Loading products..</span>.
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <div className="text-center py-10 text-red-500">
-        Failed to load products
+      <div className="text-center py-10 text-red-500 h-[50vh] items-center flex w-full">
+        <span className="w-full">No Products Found.</span>
       </div>
     );
   }

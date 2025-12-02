@@ -81,15 +81,16 @@ const ProductDetailsPage: React.FC = () => {
 
   if (loadingProductDetails) {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-10">
-        <h2 className="text-base">Loading...</h2>
+      <div className="text-center py-10  h-[50vh] items-center flex w-full">
+        <span className="w-full">Loading product...</span>.
       </div>
     );
   }
+
   if (!product || isError) {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-10">
-        <h2 className="text-xl font-bold text-red-500">Product not found!</h2>
+      <div className="text-center py-10 text-red-500 h-[50vh] items-center flex w-full">
+        <span className="w-full">Products Not Found.</span>
       </div>
     );
   }
