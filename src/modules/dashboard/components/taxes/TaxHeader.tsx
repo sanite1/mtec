@@ -12,15 +12,19 @@ export default function TaxHeader({ refetch }: { refetch: () => void }) {
   const { mutateAsync: createTax, isPending: creatingTax } = useCreateTax();
 
   const handleSave = async (data: TaxPayload) => {
-    await createTax(
-      { userId: user?.id, ...data },
-      {
-        onSuccess: () => {
-          setOpenCreate(false);
-          refetch();
+    try {
+      await createTax(
+        { userId: user?.id, ...data },
+        {
+          onSuccess: () => {
+            setOpenCreate(false);
+            refetch();
+          },
         },
-      },
-    );
+      );
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (

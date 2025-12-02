@@ -44,12 +44,11 @@ export default function CreateShippingSidebar({
   } = useForm<ShippingForm>({
     resolver: zodResolver(shippingSchema),
   });
+  const userId = getDecodedJwt()?.id;
+  const { mutate: createShipping, isPending } = useCreateShipping();
 
   const [LocationModalOpen, setLocationModalOpen] = useState(false);
   const [location, setLocation] = useState<Location>();
-
-  const userId = getDecodedJwt()?.id;
-  const { mutate: createShipping, isPending } = useCreateShipping();
 
   const onSelectLocation = (location: Location) => {
     setLocation(location);
@@ -62,7 +61,7 @@ export default function CreateShippingSidebar({
       price: Number(data.price),
       locationName: location?.name,
       location: location?._id,
-      userId: userId, // ✅ include userId
+      userId: userId,
     };
     createShipping(payload, {
       onSuccess: () => {
@@ -193,24 +192,22 @@ export default function CreateShippingSidebar({
             )}
           </div>
 
-          <button
-            type="button"
-            onClick={() => setLocationModalOpen(true)}
-            className="px-5 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition disabled:opacity-50"
-          >
-            Select Store Location
-          </button>
+          <div className="space-y-1">
+            {/* Label */}
+            <label className="text-sm font-medium text-gray-700">
+              Store Location
+            </label>
 
-          {location && (
-            <div>
-              <div className="flex justify-between items-center bg-gray-50 border border-gray-200 p-3 rounded-lg">
-                <div>
-                  <p className="font-medium text-gray-800">{location.name}</p>
-                  {/* <p className="text-sm text-gray-600">₦{p.price ?? 0}</p> */}
-                </div>
-              </div>
+            {/* Selector Field */}
+            <div
+              onClick={() => setLocationModalOpen(true)}
+              className="flex cursor-pointer items-center justify-between rounded-md border border-gray-300 bg-white px-4 py-3 text-sm text-gray-700 hover:border-gray-400 focus:outline-none"
+            >
+              <span>{location ? location.name : "Select a location"}</span>
+
+              <span className="text-gray-400">▾</span>
             </div>
-          )}
+          </div>
         </form>
 
         {/* Footer */}

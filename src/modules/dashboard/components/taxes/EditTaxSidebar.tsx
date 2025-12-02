@@ -1,10 +1,12 @@
 // components/taxes/EditTaxSidebar.tsx
-import React from "react";
+import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
 import { Tax, TaxPayload } from "../../lib/types/taxes";
+import StoreSelector from "../../lib/utils/StoreSelector";
+import { Location } from "../../lib/types/locations";
 
 // ----------------- Schema -----------------
 const taxSchema = z.object({
@@ -48,13 +50,29 @@ export default function EditTaxSidebar({
       applyToCheckout: tax?.applyToCheckout,
     },
   });
+  const [LocationModalOpen, setLocationModalOpen] = useState(false);
+
+  const [location, setLocation] = useState<{
+    name: string;
+    _id: string;
+  } | null>(
+    (tax && {
+      name: tax?.locationName || "",
+      _id: tax?.location || "",
+    }) ||
+      null,
+  );
+  const onSelectLocation = (location: Location) => {
+    setLocation({ name: location.name, _id: location._id });
+  };
 
   const onSubmit = (data: TaxForm) => {
     const payload = {
       name: data.name,
       description: data.description || undefined,
       rate: Number(data.rate),
-      location: "HQ",
+      locationName: location?.name || "",
+      location: location?._id || "",
       applyToCheckout: data.applyToCheckout,
     };
     onSave(payload);
@@ -152,6 +170,23 @@ export default function EditTaxSidebar({
             />
           </div>
 
+          <div className="space-y-1">
+            {/* Label */}
+            <label className="text-sm font-medium text-gray-700">
+              Store Location
+            </label>
+
+            {/* Selector Field */}
+            <div
+              onClick={() => setLocationModalOpen(true)}
+              className="flex cursor-pointer items-center justify-between rounded-md border border-gray-300 bg-white px-4 py-3 text-sm text-gray-700 hover:border-gray-400 focus:outline-none"
+            >
+              <span>{location ? location.name : "Select a location"}</span>
+
+              <span className="text-gray-400">▾</span>
+            </div>
+          </div>
+
           <div className="">
             {/* <h3 className="font-semibold mb-3">Newsletter</h3> */}
             <label className="flex items-center gap-2 mb-3">
@@ -212,6 +247,12 @@ export default function EditTaxSidebar({
             )}
             {loading ? "Saving..." : "Save Changes"}
           </button>
+
+          <StoreSelector
+            open={LocationModalOpen}
+            onClose={() => setLocationModalOpen(false)}
+            onSelect={(loc) => onSelectLocation(loc)}
+          />
         </div>
       </div>
     </div>

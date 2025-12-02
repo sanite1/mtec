@@ -104,13 +104,13 @@ export default function OrderCSummary() {
       <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
         <Link
           to="/"
-          className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+          className="px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
         >
           Continue Shopping
         </Link>
         <Link
           to="/cart"
-          className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-100 transition"
+          className="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-100 transition"
         >
           View Cart
         </Link>

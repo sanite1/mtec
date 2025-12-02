@@ -5,7 +5,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusCircle, X } from "lucide-react";
 import { Discount, DiscountPayload } from "../../lib/types/discount";
-import SelectProductsDialog from "./SelectProductsDialog";
+import SelectProductsDialog from "../../lib/utils/SelectProductsDialog";
 import { Location } from "../../lib/types/locations";
 import StoreSelector from "../../lib/utils/StoreSelector";
 import { ConvertPriceRangeToLocale } from "../../lib/utils/utils";
@@ -62,9 +62,18 @@ export default function DiscountFormSidebar({
     | undefined
   >(discount?.products);
   const [LocationModalOpen, setLocationModalOpen] = useState(false);
-  const [location, setLocation] = useState<Location>();
+  const [location, setLocation] = useState<{
+    name: string;
+    _id: string;
+  } | null>(
+    (discount && {
+      name: discount?.locationName || "",
+      _id: discount?.location || "",
+    }) ||
+      null,
+  );
   const onSelectLocation = (location: Location) => {
-    setLocation(location);
+    setLocation({ name: location.name, _id: location._id });
   };
 
   const {
@@ -295,58 +304,60 @@ export default function DiscountFormSidebar({
               )}
             />
           </div> */}
-          <section>
-            <h2 className="text-lg font-semibold text-gray-700 mb-4">
-              Products
-            </h2>
-            <div className="flex gap-4">
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-medium text-gray-700">Products</h2>
+
               <button
                 type="button"
                 onClick={() => setOpenDialog(true)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-purple-600 text-purple-600 hover:bg-purple-50"
+                className="text-sm text-purple-600 hover:text-purple-700 font-medium transition"
               >
-                <PlusCircle size={18} />
-                Select Products
+                Select
               </button>
             </div>
 
-            {selectedProducts && selectedProducts?.length > 0 && (
-              <div className="mt-4 space-y-2">
-                {selectedProducts?.map((p) => (
+            {selectedProducts && selectedProducts.length > 0 ? (
+              <div className="divide-y rounded-lg border border-gray-200 bg-gray-50">
+                {selectedProducts.map((p) => (
                   <div
                     key={p.productId}
-                    className="flex justify-between items-center bg-gray-50 border border-gray-200 p-3 rounded-lg"
+                    className="flex items-center justify-between px-4 py-3"
                   >
-                    <div>
-                      <p className="font-medium text-gray-800">{p.name}</p>
-                      <p className="text-sm text-gray-600">
+                    <div className="leading-tight">
+                      <p className="text-sm font-medium text-gray-800">
+                        {p.name}
+                      </p>
+                      <p className="text-xs text-gray-500">
                         {ConvertPriceRangeToLocale(p.price) || "0"}
                       </p>
                     </div>
                   </div>
                 ))}
               </div>
+            ) : (
+              <div className="rounded-lg border border-dashed border-gray-300 px-4 py-3 text-sm text-gray-500">
+                No products selected
+              </div>
             )}
           </section>
 
-          <button
-            type="button"
-            onClick={() => setLocationModalOpen(true)}
-            className="px-5 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition disabled:opacity-50"
-          >
-            Select Store Location
-          </button>
+          <div className="space-y-1">
+            {/* Label */}
+            <label className="text-sm font-medium text-gray-700">
+              Store Location
+            </label>
 
-          {location && (
-            <div>
-              <div className="flex justify-between items-center bg-gray-50 border border-gray-200 p-3 rounded-lg">
-                <div>
-                  <p className="font-medium text-gray-800">{location.name}</p>
-                  {/* <p className="text-sm text-gray-600">₦{p.price ?? 0}</p> */}
-                </div>
-              </div>
+            {/* Selector Field */}
+            <div
+              onClick={() => setLocationModalOpen(true)}
+              className="flex cursor-pointer items-center justify-between rounded-md border border-gray-300 bg-white px-4 py-3 text-sm text-gray-700 hover:border-gray-400 focus:outline-none"
+            >
+              <span>{location ? location.name : "Select a location"}</span>
+
+              <span className="text-gray-400">▾</span>
             </div>
-          )}
+          </div>
         </form>
 
         {/* Footer */}

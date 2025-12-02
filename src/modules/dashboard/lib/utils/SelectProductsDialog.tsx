@@ -1,9 +1,9 @@
 "use client";
 import React, { useState } from "react";
 import { Check, Loader2 } from "lucide-react";
-import { getDecodedJwt } from "../../lib/auth";
-import { useUserProducts } from "../../lib/api/products";
-import { ConvertPriceRangeToLocale } from "../../lib/utils/utils";
+import { getDecodedJwt } from "../auth";
+import { useUserProducts } from "../api/products";
+import { ConvertPriceRangeToLocale } from "./utils";
 
 interface SelectProductsDialogProps {
   open: boolean;

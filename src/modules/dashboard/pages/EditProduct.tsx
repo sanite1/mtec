@@ -29,6 +29,8 @@ import { useFetchSingleProduct, useUpdateProduct } from "../lib/api/products";
 import { useNavigate, useParams } from "react-router-dom";
 import { getDecodedJwt } from "../lib/auth";
 import { CreateProductPayload } from "../lib/types/products";
+import { Location } from "../lib/types/locations";
+import StoreSelector from "../lib/utils/StoreSelector";
 
 const variantSchema = z.object({
   name: z
@@ -92,7 +94,7 @@ export const productSchema = z
     totalStock: z.string().optional(),
 
     // Others
-    location: z.string().min(1, "Location is required"),
+    // location: z.string().min(1, "Location is required"),
     unit: z.string().min(1, "Unit is required"),
   })
   .superRefine((data, ctx) => {
@@ -190,7 +192,21 @@ export default function CreateProduct() {
   const { data: productDetails } = useFetchSingleProduct(userId, id as string);
 
   const { mutateAsync: updateProduct, isPending } = useUpdateProduct();
+  const [LocationModalOpen, setLocationModalOpen] = useState(false);
 
+  const [location, setLocation] = useState<{
+    name: string;
+    _id: string;
+  } | null>(
+    (productDetails && {
+      name: productDetails?.locationName || "",
+      _id: productDetails?.location || "",
+    }) ||
+      null,
+  );
+  const onSelectLocation = (location: Location) => {
+    setLocation({ name: location.name, _id: location._id });
+  };
   const {
     register,
     control,
@@ -238,7 +254,8 @@ export default function CreateProduct() {
           costPrice: productDetails.costPrice?.toString() || "",
           discountPrice: productDetails.discountPrice?.toString() || "",
           totalStock: productDetails.totalStock?.toString() || "",
-          location: productDetails.location || "",
+          // locationName: productDetails?.name,
+          // location: productDetails?._id,
           unit: productDetails.unit || "",
           ...(imageFiles ? { images: imageFiles } : {}),
         };
@@ -399,6 +416,8 @@ export default function CreateProduct() {
       costPrice: normalizeCurrency(data.costPrice),
       discountPrice: normalizeCurrency(data.discountPrice),
       totalStock: normalizeNumber(data.totalStock),
+      locationName: location?.name,
+      location: location?._id,
       variations: normalizedVariations,
       variantsOptionGroup: data.variantsOptionGroup,
       ...{ images: files && files.length > 0 ? files : undefined }, // only include if not empty
@@ -976,15 +995,23 @@ export default function CreateProduct() {
                 />
               )}
 
-              <div>
-                <label className="block text-sm text-gray-700">Location</label>
-                <select
-                  {...register("location")}
-                  className="mt-1 block w-full border rounded px-3 py-2"
+              <div className="">
+                {/* Label */}
+                <label className="block text-sm text-gray-700">
+                  Store Location
+                </label>
+
+                {/* Selector Field */}
+                <div
+                  onClick={() => setLocationModalOpen(true)}
+                  className="mt-1 flex cursor-pointer items-center justify-between rounded border bg-white px-3 py-2 text-sm text-gray-700 hover:border-gray-400 focus:outline-none"
                 >
-                  <option value="headquarters">Headquarters</option>
-                  {/* Could be made dynamic */}
-                </select>
+                  <span className="py-0.5">
+                    {location ? location.name : "Select a location"}
+                  </span>
+
+                  <span className="text-gray-400">▾</span>
+                </div>
               </div>
 
               <div>
@@ -1053,6 +1080,11 @@ export default function CreateProduct() {
         </form>
       </div>
 
+      <StoreSelector
+        open={LocationModalOpen}
+        onClose={() => setLocationModalOpen(false)}
+        onSelect={(loc) => onSelectLocation(loc)}
+      />
       <CreateCollectionModal
         open={collectionModalOpen}
         onClose={() => setCollectionModalOpen(false)}

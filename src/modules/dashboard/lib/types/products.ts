@@ -7,6 +7,7 @@ export interface Product {
   price: number;
   collection?: string;
   location?: string;
+  locationName?: string;
   priceRange?: string;
   variantsOptionGroup?: Array<{
     id: string;
@@ -60,8 +61,9 @@ export interface ProductDetailsResponse {
   discountPrice: number;
   unit: string;
   collection?: string;
-  images?: string[];
+  locationName?: string;
   location?: string;
+  images?: string[];
   priceRange?: string;
   variantsOptionGroup?: Array<{
     id: string;
@@ -105,6 +107,8 @@ export interface CreateProductPayload {
   description?: string;
   price?: number;
   costPrice?: number;
+  locationName?: string;
+  location?: string;
   discountPrice?: number;
   totalStock?: number;
   collection?: string;
@@ -133,6 +137,8 @@ export interface CreateProductResponse {
   discountPrice?: number;
   totalStock?: number;
   collection?: string;
+  locationName?: string;
+  location?: string;
   variations?: any[];
   variantsOptionGroup?: any[];
   images: string[];

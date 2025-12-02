@@ -9,8 +9,9 @@ import { Product } from "../../lib/types/products";
 export interface SafeProduct extends Partial<Product> {
   _id?: string;
   name?: string;
-  collection?: string;
   price?: number;
+  collection?: string;
+  locationName?: string;
   totalStock?: number;
   priceRange?: string;
   isActive?: boolean;
@@ -33,6 +34,17 @@ const productColumns = [
     accessorKey: "collection",
     header: "Category",
     cell: (info: any) => info.getValue() || "N/A",
+  },
+  {
+    accessorKey: "locationName",
+    header: "Location",
+    cell: (info: any) => {
+      const value = info.getValue();
+      const row = info.row.original as SafeProduct;
+      console.log(row);
+
+      return row.locationName;
+    },
   },
   {
     accessorKey: "price",
@@ -138,11 +150,14 @@ const ProductTable = ({
     toast.error(error?.message || "Failed to load products");
   }
 
+  console.log(products);
+
   const safeProducts = Array.isArray(products)
     ? products.map((p) => ({
         _id: p._id || crypto.randomUUID(),
         name: p.name || "Untitled Product",
         collection: p.collection || "N/A",
+        locationName: p.locationName || "N/A",
         priceRange: p.priceRange || undefined,
         price: typeof p.price === "number" ? p.price : 0,
         totalStock:

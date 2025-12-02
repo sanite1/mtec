@@ -27,6 +27,8 @@ import VariantBuilder, {
 import { useCreateProduct } from "../../lib/api/products";
 import { CreateProductPayload } from "../../lib/types/products";
 import { useNavigate } from "react-router-dom";
+import StoreSelector from "../../lib/utils/StoreSelector";
+import { Location } from "../../lib/types/locations";
 
 const variantSchema = z.object({
   name: z
@@ -90,7 +92,7 @@ export const productSchema = z
     totalStock: z.string().optional(),
 
     // Others
-    location: z.string().min(1, "Location is required"),
+    // location: z.string().min(1, "Location is required"),
     unit: z.string().min(1, "Unit is required"),
   })
   .superRefine((data, ctx) => {
@@ -142,9 +144,6 @@ export const productSchema = z
 
 type ProductForm = z.infer<typeof productSchema>;
 
-/**
- * Helpers
- */
 const formatCurrency = (value?: string) => {
   if (!value) return "";
   const digits = value.replace(/\D/g, "");
@@ -183,7 +182,7 @@ export default function CreateProduct() {
     resolver: zodResolver(productSchema),
     defaultValues: {
       hasVariations: false,
-      location: "headquarters",
+      // location: "headquarters",
       totalStock: "0",
     },
   });
@@ -199,6 +198,13 @@ export default function CreateProduct() {
   const costPriceVal = watch("costPrice") || "";
   // const discountedVal = watch("discountPrice") || "";
   const navigate = useNavigate();
+
+  const [LocationModalOpen, setLocationModalOpen] = useState(false);
+  const [location, setLocation] = useState<Location>();
+
+  const onSelectLocation = (location: Location) => {
+    setLocation(location);
+  };
 
   // variants array management
   const { fields } = useFieldArray({
@@ -303,6 +309,8 @@ export default function CreateProduct() {
       costPrice: normalizeCurrency(data.costPrice),
       discountPrice: normalizeCurrency(data.discountPrice),
       totalStock: normalizeNumber(data.totalStock),
+      locationName: location?.name,
+      location: location?._id,
       variations: normalizedVariations,
       variantsOptionGroup: data.variantsOptionGroup,
       images: files && files.length > 0 ? files : undefined, // only include if not empty
@@ -851,15 +859,23 @@ export default function CreateProduct() {
                 />
               )}
 
-              <div>
-                <label className="block text-sm text-gray-700">Location</label>
-                <select
-                  {...register("location")}
-                  className="mt-1 block w-full border rounded px-3 py-2"
+              <div className="">
+                {/* Label */}
+                <label className="block text-sm text-gray-700">
+                  Store Location
+                </label>
+
+                {/* Selector Field */}
+                <div
+                  onClick={() => setLocationModalOpen(true)}
+                  className="mt-1 flex cursor-pointer items-center justify-between rounded border bg-white px-3 py-2 text-sm text-gray-700 hover:border-gray-400 focus:outline-none"
                 >
-                  <option value="headquarters">Headquarters</option>
-                  {/* Could be made dynamic */}
-                </select>
+                  <span className="py-0.5">
+                    {location ? location.name : "Select a location"}
+                  </span>
+
+                  <span className="text-gray-400">▾</span>
+                </div>
               </div>
 
               <div>
@@ -928,6 +944,11 @@ export default function CreateProduct() {
         </form>
       </div>
 
+      <StoreSelector
+        open={LocationModalOpen}
+        onClose={() => setLocationModalOpen(false)}
+        onSelect={(loc) => onSelectLocation(loc)}
+      />
       <CreateCollectionModal
         open={collectionModalOpen}
         onClose={() => setCollectionModalOpen(false)}

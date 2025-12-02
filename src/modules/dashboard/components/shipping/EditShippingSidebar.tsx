@@ -1,11 +1,13 @@
 // components/shipping/EditShippingSidebar.tsx
-import React from "react";
+import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
 import { Shipping } from "../../lib/types/shipping";
 import { formatDate } from "../../lib/utils/formatDate";
+import StoreSelector from "../../lib/utils/StoreSelector";
+import { Location } from "../../lib/types/locations";
 
 // ----------------- Schema -----------------
 const shippingSchema = z.object({
@@ -13,6 +15,12 @@ const shippingSchema = z.object({
   dateCreated: z.string().optional(), // not editable
   locationName: z.string().min(1, "Location name is required"),
   description: z.string().optional(),
+  estimatedDeliveryDays: z
+    .string()
+    .min(1, "Estimated Delivery Days is required")
+    .refine((val) => !isNaN(Number(val)), {
+      message: "Estimated Delivery Days must be a number",
+    }),
   fee: z
     .string()
     .min(1, "Shipping fee is required")
@@ -48,15 +56,33 @@ export default function EditShippingSidebar({
       dateCreated: shipping.createdAt,
       locationName: shipping.name,
       description: shipping.description,
+      estimatedDeliveryDays: String(shipping.estimatedDeliveryDays),
       fee: shipping.price.toString(),
     },
   });
+
+  const [LocationModalOpen, setLocationModalOpen] = useState(false);
+  const [location, setLocation] = useState<{
+    name: string;
+    _id: string;
+  } | null>(
+    (shipping && {
+      name: shipping?.locationName || "",
+      _id: shipping?.location || "",
+    }) ||
+      null,
+  );
+  const onSelectLocation = (location: Location) => {
+    setLocation({ name: location.name, _id: location._id });
+  };
 
   const onSubmit = (data: ShippingForm) => {
     const payload = {
       name: data.locationName,
       description: data.description,
       price: data.fee,
+      locationName: location?.name || "",
+      location: location?._id || "",
     };
     onSave(payload);
   };
@@ -168,6 +194,51 @@ export default function EditShippingSidebar({
               <p className="text-red-500 text-sm mt-1">{errors.fee.message}</p>
             )}
           </div>
+
+          {/* Estimated Days (Delivery) */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Estimated Days (Delivery)
+            </label>
+            <Controller
+              name="estimatedDeliveryDays"
+              control={control}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  type="string"
+                  className={`w-full px-3 py-2 border rounded-md ${
+                    errors.estimatedDeliveryDays
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
+                  placeholder="Enter estimated days for delivery"
+                />
+              )}
+            />
+            {errors.estimatedDeliveryDays && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.estimatedDeliveryDays.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-1">
+            {/* Label */}
+            <label className="text-sm font-medium text-gray-700">
+              Store Location
+            </label>
+
+            {/* Selector Field */}
+            <div
+              onClick={() => setLocationModalOpen(true)}
+              className="flex cursor-pointer items-center justify-between rounded-md border border-gray-300 bg-white px-4 py-3 text-sm text-gray-700 hover:border-gray-400 focus:outline-none"
+            >
+              <span>{location ? location.name : "Select a location"}</span>
+
+              <span className="text-gray-400">▾</span>
+            </div>
+          </div>
         </form>
 
         {/* Footer */}
@@ -211,6 +282,12 @@ export default function EditShippingSidebar({
             )}
             {loading ? "Saving..." : "Save Changes"}
           </button>
+
+          <StoreSelector
+            open={LocationModalOpen}
+            onClose={() => setLocationModalOpen(false)}
+            onSelect={(loc) => onSelectLocation(loc)}
+          />
         </div>
       </div>
     </div>

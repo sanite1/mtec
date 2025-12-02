@@ -6,6 +6,7 @@ export interface Tax {
   description?: string;
   rate: number;
   location?: string;
+  locationName?: string;
   applyToCheckout: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -17,6 +18,7 @@ export interface TaxPayload {
   description?: string;
   rate: number | string; // can be string when form-controlled
   location?: string;
+  locationName?: string;
   applyToCheckout: boolean;
 }
 
