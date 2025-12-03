@@ -187,7 +187,9 @@ const ProductDetailsPage: React.FC = () => {
                 </span>
               )}
             {product.variantsOptionGroup && (
-              <span className="text-purple-600 text-2xl font-semibold">
+              <span
+                className={`text-[${store.storeColor}] text-2xl font-semibold`}
+              >
                 {product.variantsOptionGroup &&
                 product.variantsOptionGroup.length > 0 &&
                 Object.keys(selectedAttributes).length <
@@ -203,7 +205,9 @@ const ProductDetailsPage: React.FC = () => {
               </span>
             )}
             {product.price && (
-              <span className="text-purple-600 text-2xl font-semibold">
+              <span
+                className={`text-[${store.storeColor}] text-2xl font-semibold`}
+              >
                 ₦
                 {product.discountPrice
                   ? product.discountPrice.toLocaleString()
@@ -233,7 +237,7 @@ const ProductDetailsPage: React.FC = () => {
                       }
                       className={`px-4 py-1 text-sm rounded border transition ${
                         selectedAttributes[attr.name] === val.value
-                          ? "bg-purple-600 text-white border-purple-600"
+                          ? `bg-[${store.storeColor}] text-white border-[${store.storeColor}]`
                           : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
                       }`}
                     >
@@ -277,7 +281,7 @@ const ProductDetailsPage: React.FC = () => {
                 Object.keys(selectedAttributes).length <
                   product.variantsOptionGroup.length
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-purple-600 hover:bg-purple-700 text-white"
+                  : `bg-[${store.storeColor}] hover:bg-[${store.storeColor}] text-white`
               }`}
           >
             <ShoppingCart className="w-5 h-5" />

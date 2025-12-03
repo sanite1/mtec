@@ -7,6 +7,7 @@ import { useCreateStore } from "../../lib/api/store";
 import { IStoreUpdate } from "../../lib/types/store";
 import { getDecodedJwt } from "../../lib/auth";
 import { useNavigate } from "react-router-dom";
+import { isLightColor } from "../../lib/utils/utils";
 
 const storeSchema = z.object({
   storeLogo: z.file().optional(),
@@ -50,7 +51,10 @@ export function formatNameToSlug(name: string): string {
 
 export default function StoreDetailsForm() {
   const [preview, setPreview] = useState<string | null>(null);
+  const [color, setColor] = useState("#000000");
 
+  // ✅ Validate hex properly
+  const isValidHex = (value: string) => /^#([0-9A-Fa-f]{3}){1,2}$/.test(value);
   const {
     register,
     handleSubmit,
@@ -77,6 +81,8 @@ export default function StoreDetailsForm() {
         storeDescription: data.storeDescription,
         slug: formatNameToSlug(data.storeName),
         storeLink: `${formatNameToSlug(data.storeName)}.bitec.store`,
+        storeColor: color,
+        isLightColor: isLightColor(color),
 
         businessEmail: data.businessEmail,
         businessPhone: data.businessPhone,
@@ -230,6 +236,51 @@ export default function StoreDetailsForm() {
               {errors.storeDescription && (
                 <p className="text-red-500 text-sm">
                   {errors.storeDescription.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2 w-full max-w-sm">
+              <label className="text-sm font-medium text-gray-700">
+                Select Color
+              </label>
+
+              <div className="flex items-center gap-3">
+                {/* ✅ Color Picker */}
+                <input
+                  type="color"
+                  value={isValidHex(color) ? color : "#000000"}
+                  onChange={(e) => setColor(e.target.value)}
+                  className="h-10 w-10 cursor-pointer rounded border border-gray-300"
+                />
+
+                {/* ✅ Manual Hex Input */}
+                <input
+                  type="text"
+                  value={color}
+                  onChange={(e) => setColor(e.target.value)}
+                  placeholder="#000000"
+                  maxLength={7}
+                  className={`h-10 px-3 rounded-md border text-sm focus:outline-none ${
+                    isValidHex(color)
+                      ? "border-gray-300 focus:ring-2 focus:ring-purple-500"
+                      : "border-red-400"
+                  }`}
+                />
+
+                {/* ✅ Live Color Preview */}
+                <div
+                  className="h-10 w-10 rounded border border-gray-300"
+                  style={{
+                    backgroundColor: isValidHex(color) ? color : "#ffffff",
+                  }}
+                />
+              </div>
+
+              {/* ✅ Validation message */}
+              {!isValidHex(color) && color.length > 0 && (
+                <p className="text-xs text-red-500">
+                  Enter a valid hex color (e.g. #FF5733)
                 </p>
               )}
             </div>

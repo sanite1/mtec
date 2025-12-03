@@ -3,12 +3,17 @@ import { CheckCircle } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { useOrderById } from "../../lib/api/orders";
+import { IStoreDetails } from "../../lib/types/store";
 
 export default function OrderCSummary() {
   const { state } = useCart();
   const order = state.order;
   const { id } = useParams();
   const { data, isError, isLoading } = useOrderById(id as string);
+
+  const store: IStoreDetails = JSON.parse(
+    localStorage.getItem("store") || "null",
+  );
   if (isLoading) {
     return (
       <div className="max-w-2xl mx-auto px-6 py-16 text-center h-[100vh] items-center flex justify-center ">
@@ -25,7 +30,7 @@ export default function OrderCSummary() {
           </p>
           <Link
             to="/"
-            className="mt-6 inline-block px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+            className={`mt-6 inline-block px-6 py-3 bg-[${store.storeColor}] text-white rounded-lg hover:bg-[${store.storeColor}] transition`}
           >
             Go Shopping
           </Link>
@@ -36,7 +41,9 @@ export default function OrderCSummary() {
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-16 text-center">
-      <CheckCircle className="w-20 h-20 text-purple-600 mx-auto mb-6" />
+      <CheckCircle
+        className={`w-20 h-20 text-[${store.storeColor}] mx-auto mb-6`}
+      />
 
       <h1 className="text-3xl font-semibold mb-2 text-gray-800">
         Thank you for your order!
@@ -76,7 +83,7 @@ export default function OrderCSummary() {
                   )}
               </div>
               {item.price && (
-                <p className="font-semibold text-purple-600">
+                <p className={`font-semibold text-[${store.storeColor}]`}>
                   ₦{(item.price * item.quantity).toLocaleString()}
                 </p>
               )}
@@ -85,7 +92,7 @@ export default function OrderCSummary() {
         </div>
         <div className="flex justify-between mt-2 font-semibold text-lg">
           <span>Total:</span>
-          <span className="text-purple-600">
+          <span className={`text-[${store.storeColor}]`}>
             ₦{order.total.toLocaleString()} NGN
           </span>
         </div>
@@ -104,7 +111,7 @@ export default function OrderCSummary() {
       <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
         <Link
           to="/"
-          className="px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+          className={`px-3 py-1 bg-[${store.storeColor}] text-white rounded-lg hover:bg-[${store.storeColor}] transition`}
         >
           Continue Shopping
         </Link>

@@ -1,5 +1,6 @@
 // components/checkout/AddressModal.tsx
 import React, { useEffect } from "react";
+import { IStoreDetails } from "../../lib/types/store";
 
 export interface Address {
   firstName: string;
@@ -45,6 +46,9 @@ const AddressModal: React.FC<AddressModalProps> = ({
     e.preventDefault();
     onSave(form);
   };
+  const store: IStoreDetails = JSON.parse(
+    localStorage.getItem("store") || "null",
+  );
 
   return (
     <div
@@ -129,7 +133,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded bg-purple-600 text-white hover:bg-purple-700"
+              className={`px-4 py-2 rounded bg-[${store.storeColor}] text-white hover:bg-[${store.storeColor}]`}
             >
               Save
             </button>

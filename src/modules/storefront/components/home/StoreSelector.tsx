@@ -118,7 +118,7 @@ export default function StoreSelector({ open, onClose }: Props) {
                       location: loc._id,
                     });
                   }}
-                  className="w-full appearance-none border rounded-lg px-4 py-3 pr-10 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
+                  className={`w-full appearance-none border rounded-lg px-4 py-3 pr-10 bg-white focus:ring-2 focus:ring-[${store.storeColor}] focus:border-[${store.storeColor}] outline-none transition`}
                 >
                   <option value="">Select location…</option>
 
@@ -162,7 +162,7 @@ export default function StoreSelector({ open, onClose }: Props) {
             onClick={handleSubmit}
             className={`px-5 py-2 text-sm rounded-lg font-medium text-white transition ${
               selectedId
-                ? "bg-purple-600 hover:bg-purple-700"
+                ? `bg-[${store.storeColor}] hover:bg-[${store.storeColor}]`
                 : "bg-gray-400 cursor-not-allowed"
             }`}
           >

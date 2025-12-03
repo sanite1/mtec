@@ -69,11 +69,11 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
         {/* Logo */}
         <Link to={"/"}>
           <div className="flex items-center space-x-2">
-            {/* <p className="text-3xl font-bold text-purple-700">MTEC</p> */}
+            {/* <p className={`text-3xl font-bold text-[${store.storeColor}]`}>MTEC</p> */}
             <img
               src={store.logoUrl}
               alt="Logo"
-              className="h-12 font-bold text-purple-700"
+              className={`h-12 font-bold text-[${store.storeColor}]`}
             />
           </div>
         </Link>
@@ -86,7 +86,7 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
               placeholder="Search products..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-full border border-gray-300 pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className={`w-full rounded-full border border-gray-300 pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-[${store.storeColor}]`}
             />
             <Search className="absolute right-3 top-2.5 text-gray-500" />
           </div>
@@ -141,11 +141,13 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
           {/* Auth Links */}
           <div className="hidden md:flex items-center space-x-4 text-sm font-medium">
             <Link to={`/login`}>
-              <p className="hover:text-purple-600">Login</p>
+              <p className={`hover:text-[${store.storeColor}]`}>Login</p>
             </Link>
 
             <Link to={`/register`}>
-              <p className="px-3 py-1 rounded bg-purple-600 text-white hover:bg-purple-700">
+              <p
+                className={`px-3 py-1 rounded bg-[${store.storeColor}] text-white hover:bg-[${store.storeColor}]`}
+              >
                 Register
               </p>
             </Link>
@@ -189,7 +191,7 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
               placeholder="Search products..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-full border border-gray-300 pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className={`w-full rounded-full border border-gray-300 pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-[${store.storeColor}]`}
               autoFocus
             />
             <Search className="absolute right-3 top-2.5 text-gray-500" />

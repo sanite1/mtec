@@ -13,7 +13,7 @@ import { Shipping } from "../../lib/types/shipping";
 import { useCreateOrder } from "../../lib/api/orders";
 import { useVerifyDiscount } from "../../lib/api/discount";
 import { Discount } from "../../lib/types/discount";
-import { ConvertPriceRangeToLocale } from "../../lib/utils/utils";
+import { ConvertPriceRangeToLocale, lightenHex } from "../../lib/utils/utils";
 import { useStoreTax } from "../../lib/api/taxes";
 
 const CheckoutSection: React.FC = () => {
@@ -242,7 +242,7 @@ const CheckoutSection: React.FC = () => {
                   <p className="font-medium">{address.fullName}</p>
                   <button
                     onClick={() => setAddrOpen(true)}
-                    className="text-purple-600 hover:underline"
+                    className={`text-[${store.storeColor}] hover:underline`}
                   >
                     Edit
                   </button>
@@ -260,7 +260,7 @@ const CheckoutSection: React.FC = () => {
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Note (Optional)"
-              className="w-full rounded-xl border px-4 py-3 min-h-[90px] outline-none focus:ring-2 focus:ring-purple-500"
+              className={`w-full rounded-xl border px-4 py-3 min-h-[90px] outline-none focus:ring-2 focus:ring-[${store.storeColor}]`}
             />
           </section>
 
@@ -294,9 +294,14 @@ const CheckoutSection: React.FC = () => {
                     }}
                     className={`w-full text-left border rounded-lg px-4 py-4 transition flex items-start justify-between gap-4 ${
                       isSelected
-                        ? "border-purple-600 bg-purple-50 "
+                        ? `border-[${store.storeColor}] `
                         : "hover:bg-gray-50 border-gray-300"
                     }`}
+                    style={{
+                      backgroundColor: store.isLightColor
+                        ? undefined
+                        : lightenHex(store.storeColor, 90),
+                    }}
                   >
                     <div className="flex-1">
                       <p className="font-medium text-gray-900">{method.name}</p>
@@ -323,7 +328,9 @@ const CheckoutSection: React.FC = () => {
                       </p>
 
                       {isSelected && (
-                        <p className="text-xs text-purple-600 mt-1 font-medium">
+                        <p
+                          className={`text-xs text-[${store.storeColor}] mt-1 font-medium`}
+                        >
                           Selected
                         </p>
                       )}
@@ -406,7 +413,9 @@ const CheckoutSection: React.FC = () => {
                   </div>
 
                   {/* line total */}
-                  <p className="sm:w-1/3 w-full text-right font-semibold text-lime-600">
+                  <p
+                    className={`sm:w-1/3 w-full text-right font-semibold text-[${store.storeColor}]`}
+                  >
                     ₦{(item.price * item.quantity).toLocaleString()}
                   </p>
                 </div>
@@ -483,7 +492,7 @@ const CheckoutSection: React.FC = () => {
                 value={coupon}
                 onChange={(e) => setCoupon(e.target.value)}
                 placeholder="Enter coupon code"
-                className="flex-1 rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-purple-500 text-base"
+                className={`flex-1 rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-[${store.storeColor}] text-base`}
               />
               <button
                 onClick={applyCoupon}
@@ -516,10 +525,10 @@ const CheckoutSection: React.FC = () => {
           <button
             disabled={cart.length === 0}
             onClick={handlePlaceOrder}
-            className={`mt-4 w-full flex items-center justify-center bg-purple-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg py-3 font-medium ${
+            className={`mt-4 w-full flex items-center justify-center bg-[${store.storeColor}] disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg py-3 font-medium ${
               isPending
                 ? "opacity-70 cursor-not-allowed"
-                : "hover:bg-purple-700"
+                : `hover:bg-[${store.storeColor}]`
             }`}
           >
             {isPending ? (

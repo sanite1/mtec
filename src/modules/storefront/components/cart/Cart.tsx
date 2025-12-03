@@ -2,11 +2,15 @@
 import { Trash2 } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import { Link } from "react-router-dom";
+import { IStoreDetails } from "../../lib/types/store";
 
 export default function Cart() {
   const { state, dispatch } = useCart();
   const { cart } = state;
 
+  const store: IStoreDetails = JSON.parse(
+    localStorage.getItem("store") || "null",
+  );
   const updateQuantity = (id: string, delta: number) => {
     const updatedItem = cart.find((item) => item.productId === id);
     if (!updatedItem) return;
@@ -32,7 +36,9 @@ export default function Cart() {
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-12 mt-10">
-      <h1 className="text-3xl font-semibold text-purple-600 mb-8">Your cart</h1>
+      <h1 className={`text-3xl font-semibold text-[${store.storeColor}] mb-8`}>
+        Your cart
+      </h1>
 
       {cart.length === 0 ? (
         <p className="text-gray-600">Your cart is empty.</p>
@@ -57,7 +63,7 @@ export default function Cart() {
                   />
                   <div>
                     <h3 className="font-medium text-gray-700">{item.name}</h3>
-                    <p className="text-purple-600 font-semibold">
+                    <p className={`text-[${store.storeColor}] font-semibold`}>
                       ₦{item.price.toLocaleString()}.00
                     </p>
 
@@ -106,7 +112,9 @@ export default function Cart() {
                 </div>
 
                 {/* Item Total */}
-                <p className="text-purple-600 font-semibold w-28 text-right">
+                <p
+                  className={`text-[${store.storeColor}] font-semibold w-28 text-right`}
+                >
                   ₦{(item.price * item.quantity).toLocaleString()}
                   .00
                 </p>
@@ -118,7 +126,9 @@ export default function Cart() {
           <div className="mt-8 flex flex-col items-end">
             <p className="text-gray-600 mb-2">
               Estimated total{" "}
-              <span className="text-purple-600 font-semibold text-lg">
+              <span
+                className={`text-[${store.storeColor}] font-semibold text-lg`}
+              >
                 ₦{total.toLocaleString()} NGN
               </span>
             </p>
@@ -128,7 +138,9 @@ export default function Cart() {
               calculated at checkout
             </p>
             <Link to={"/checkout"}>
-              <button className="bg-purple-600 text-white px-8 py-3 rounded-md font-medium hover:bg-purple-700 transition">
+              <button
+                className={`bg-[${store.storeColor}] text-white px-8 py-3 rounded-md font-medium hover:bg-[${store.storeColor}] transition`}
+              >
                 Checkout
               </button>
             </Link>

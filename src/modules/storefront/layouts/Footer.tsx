@@ -1,6 +1,7 @@
 import React from "react";
 import { Mail, Phone, MapPin, Send, PhoneCall } from "lucide-react";
 import { IStoreDetails } from "../lib/types/store";
+import { lightenHex } from "../lib/utils/utils";
 
 interface FooterLink {
   label: string;
@@ -25,21 +26,37 @@ const Footer: React.FC<FooterProps> = ({
   phone,
   address,
   links = [],
-  bgColor = "bg-gray-900",
+  bgColor = "bg-gray-900 text-white",
   whatsappLink = "https://wa.me/2349012345678",
 }) => {
   const store: IStoreDetails = JSON.parse(
     localStorage.getItem("store") || "null",
   );
+  console.log(`bg-[${lightenHex(store.storeColor, 45)}]`);
+  console.log(`bg-[${store.storeColor}]`);
+
   return (
-    <footer className={`${bgColor} text-gray-200 py-12 pb-0 relative`}>
+    <footer
+      className={`py-12 pb-0 relative ${
+        store.isLightColor ? "bg-gray-900 text-white" : "text-black"
+      }`}
+      style={{
+        backgroundColor: store.isLightColor
+          ? undefined
+          : lightenHex(store.storeColor, 65),
+      }}
+    >
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-10">
         {/* Logo & Description */}
         <div>
           {store.logoUrl ? (
             <img src={store.logoUrl} alt="Logo" className="h-12 w-auto mb-4" />
           ) : (
-            <p className="text-2xl font-bold text-purple-500 mb-4">MTEC</p>
+            <p
+              className={`text-2xl font-bold text-[${store.storeColor}] mb-4 capitalize`}
+            >
+              {store.storeName}
+            </p>
           )}
           {store.storeDescription && (
             <p className="text-sm leading-relaxed">{store.storeDescription}</p>
@@ -48,18 +65,18 @@ const Footer: React.FC<FooterProps> = ({
 
         {/* Contact Info */}
         <div>
-          <h4 className="text-white font-semibold mb-4">Contact Us</h4>
+          <h4 className="font-semibold mb-4">Contact Us</h4>
           <ul className="space-y-3 text-sm">
             <li className="flex items-center space-x-2">
-              <Mail className="w-4 h-4 text-purple-400" />
+              <Mail className={`w-4 h-4 text-[${store.storeColor}]`} />
               <span>{store.businessEmail}</span>
             </li>
             <li className="flex items-center space-x-2">
-              <Phone className="w-4 h-4 text-purple-400" />
+              <Phone className={`w-4 h-4 text-[${store.storeColor}]`} />
               <span>{store.businessPhone}</span>
             </li>
             <li className="flex items-center space-x-2">
-              <MapPin className="w-4 h-4 text-purple-400" />
+              <MapPin className={`w-4 h-4 text-[${store.storeColor}]`} />
               <span>{`${store.streetAddress}, ${store.state}, ${store.zipCode}, ${store.country}`}</span>
             </li>
           </ul>
@@ -67,7 +84,7 @@ const Footer: React.FC<FooterProps> = ({
 
         {/* Newsletter Signup */}
         <div>
-          <h4 className="text-white font-semibold mb-4">Newsletter</h4>
+          <h4 className="font-semibold mb-4">Newsletter</h4>
           <p className="text-sm mb-3">Subscribe to get our latest updates.</p>
           <form
             className="flex items-center bg-gray-800 rounded-lg overflow-hidden"
@@ -84,7 +101,7 @@ const Footer: React.FC<FooterProps> = ({
             />
             <button
               type="submit"
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 transition"
+              className={`px-4 py-2 bg-[${store.storeColor}] hover:bg-[${store.storeColor}] transition`}
             >
               <Send className="w-4 h-4" />
             </button>
@@ -100,16 +117,29 @@ const Footer: React.FC<FooterProps> = ({
               <li key={i}>
                 <a
                   href={link.href}
-                  className="hover:text-purple-400 transition"
+                  className={`hover:text-[${store.storeColor}] transition`}
                 >
                   {link.label}
                 </a>
               </li>
             ))}
           </ul> */}
-          <div className="inline-block px-4 py-2 rounded-md bg-gray-800 text-sm font-medium">
+          <div
+            className="inline-block px-4 py-2 rounded-md text-sm font-medium"
+            style={{
+              backgroundColor: store.storeColor,
+              color: store.isLightColor ? "#000000" : "#ffffff",
+            }}
+          >
             Powered by{" "}
-            <span className="text-purple-500 font-semibold">MTEC</span>
+            <span
+              className="font-semibold"
+              style={{
+                color: store.isLightColor ? store.storeColor : "#ffffff",
+              }}
+            >
+              MTEC
+            </span>
           </div>
         </div>
       )}

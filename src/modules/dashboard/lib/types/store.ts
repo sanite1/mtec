@@ -10,6 +10,8 @@ export interface IStoreDetails {
   website?: string;
   storeName: string;
   slug: string;
+  storeColor: string;
+  isLightColor: boolean;
   storeLink: string;
   businessName: string;
   businessSector: string;
@@ -31,6 +33,8 @@ export interface IStoreCreate {
   slug: string;
   storeLink: string;
   website?: string;
+  storeColor: string;
+  isLightColor: boolean;
   storeName: string;
   businessName: string;
   businessSector: string;
@@ -47,6 +51,8 @@ export interface IStoreUpdate {
   streetAddress: string;
   businessEmail: string;
   businessPhone: string;
+  storeColor: string;
+  isLightColor: boolean;
   slug: string;
   storeLink: string;
   website?: string;

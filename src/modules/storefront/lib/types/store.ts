@@ -6,6 +6,8 @@ export interface IStoreDetails {
   zipCode: string;
   streetAddress: string;
   businessEmail: string;
+  storeColor: string;
+  isLightColor: boolean;
   businessPhone: string;
   website?: string;
   storeName: string;

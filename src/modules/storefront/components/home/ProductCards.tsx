@@ -63,7 +63,7 @@ const ProductCards: React.FC = () => {
             onClick={() => setActiveCategory(cat)}
             className={`px-4 py-2 rounded-full border transition-all inline-block ${
               activeCategory === cat
-                ? "bg-purple-600 text-white border-purple-600 shadow-md"
+                ? `bg-[${store.storeColor}] text-white border-[${store.storeColor}] shadow-md`
                 : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
             }`}
           >

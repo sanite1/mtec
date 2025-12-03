@@ -5,6 +5,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
 import { ShippingAddress } from "../../lib/types/orders";
+import { IStoreDetails } from "../../lib/types/store";
 
 // ✅ Schema
 const shippingSchema = z.object({
@@ -60,6 +61,10 @@ export default function ShippingAddressSidebar({
     onSave(data);
     // onClose();
   };
+
+  const store: IStoreDetails = JSON.parse(
+    localStorage.getItem("store") || "null",
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex">
@@ -241,10 +246,10 @@ export default function ShippingAddressSidebar({
             type="submit"
             form="bank-details-form"
             disabled={isPending}
-            className={`px-4 py-2 rounded-lg bg-purple-600 text-white flex items-center justify-center gap-2 transition ${
+            className={`px-4 py-2 rounded-lg bg-[${store.storeColor}] text-white flex items-center justify-center gap-2 transition ${
               isPending
                 ? "opacity-75 cursor-not-allowed"
-                : "hover:bg-purple-700"
+                : `hover:bg-[${store.storeColor}]`
             }`}
           >
             {isPending && (
