@@ -87,7 +87,7 @@ export default function OnboardingPage() {
 
   const { data, isLoading } = useOnboardingProgress(user?.id);
 
-  const { mutateAsync: updateStep } = useUpdateOnboardingStep(user?.id);
+  // const { mutateAsync: updateStep } = useUpdateOnboardingStep(user?.id);
 
   if (isLoading) return <OnboardingSkeleton />;
 
@@ -153,9 +153,9 @@ export default function OnboardingPage() {
             if (isPreview) {
               window.open(step.link, "_blank");
             } else if (isTrial) {
-              updateStep({ key: step.key, completed: true });
+              // updateStep({ key: step.key, completed: true });
             } else if (!isCompleted) {
-              updateStep({ key: step.key, completed: true });
+              // updateStep({ key: step.key, completed: true });
               navigate(step.link);
             }
           };
