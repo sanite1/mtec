@@ -23,7 +23,7 @@ export const fetchUserProducts = async (
   const params = new URLSearchParams();
 
   if (filters?.category) params.append("category", filters.category);
-  if (filters?.name) params.append("name", filters.name);
+  if (filters?.search) params.append("search", filters.search);
   if (filters?.isActive !== undefined)
     params.append("isActive", String(filters.isActive));
   if (filters?.page) params.append("page", String(filters.page));

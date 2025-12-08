@@ -22,7 +22,7 @@ import TableSkeleton from "./table-skeleton";
 import Pagination from "./pagination";
 import { Search } from "lucide-react";
 
-interface TableParamProps {
+export interface TableParamProps {
   page: number;
   perPage: number;
   search?: string;

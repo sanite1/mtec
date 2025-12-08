@@ -30,7 +30,7 @@ export interface ProductResponseData {
 
 export interface ProductFilters {
   category?: string;
-  name?: string;
+  search?: string;
   isActive?: boolean;
   page?: number;
   limit?: number;

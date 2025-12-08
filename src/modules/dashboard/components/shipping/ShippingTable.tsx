@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { DataTable } from "../../utils/data-table";
+import { DataTable, TableParamProps } from "../../utils/data-table";
 import { Edit, Trash } from "lucide-react";
 import EmptyState from "../../utils/EmptyState";
 import box from "../../assets/boxEmpty.png";
@@ -8,6 +8,7 @@ import EditShippingSidebar from "./EditShippingSidebar";
 import { Shipping } from "../../lib/types/shipping";
 import { getDecodedJwt } from "../../lib/auth";
 import {
+  fetchStoreShipping,
   useDeleteShipping,
   useStoreShipping,
   useUpdateShipping,
@@ -84,6 +85,21 @@ const ShippingTable = () => {
     },
   ];
 
+  const fetchTableShipping = async (params: TableParamProps) => {
+    const response = await fetchStoreShipping(userId, {
+      page: params.page,
+      limit: params.perPage,
+      search: params.search,
+    });
+
+    return {
+      data: {
+        data: response.shipping, // array of products
+        meta: { total: response.total },
+      },
+    };
+  };
+
   const emptyState = (
     <EmptyState
       image={box}
@@ -134,6 +150,7 @@ const ShippingTable = () => {
         data={shippingData}
         totalItems={data?.total || 0}
         isLoading={isLoading}
+        fetchData={fetchTableShipping}
         tableKey="shipping"
         onRowClick={(shipping) => console.log("Clicked shipping:", shipping)}
         setSelected={setSelected}

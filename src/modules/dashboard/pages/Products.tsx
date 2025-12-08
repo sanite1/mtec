@@ -12,9 +12,9 @@ export default function ProductsPage() {
   const { data: products, isLoading, error } = useUserProducts(userId); // example hook
 
   // compute summaries dynamically
-  const totalProducts = products?.products.length || 0;
-  const activeProducts =
-    products?.products.filter((p) => p.isActive).length || 0;
+  const totalProducts = products?.total || 0;
+  const activeProducts = products?.total || 0;
+  // products?.products.filter((p) => p.isActive).length || 0;
   const inactiveProducts = totalProducts - activeProducts;
   const totalRetailValue = products?.products.reduce(
     (sum, p) => sum + (p.price || 0),

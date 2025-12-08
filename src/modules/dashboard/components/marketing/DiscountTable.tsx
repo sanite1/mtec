@@ -1,6 +1,6 @@
 // components/discount/DiscountTable.tsx
 import React, { useState } from "react";
-import { DataTable } from "../../utils/data-table";
+import { DataTable, TableParamProps } from "../../utils/data-table";
 import { Edit, Trash } from "lucide-react";
 import EmptyState from "../../utils/EmptyState";
 import gift from "../../assets/boxEmpty.png";
@@ -11,8 +11,13 @@ import {
   DiscountPayload,
   DiscountResponseData,
 } from "../../lib/types/discount";
-import { useDeleteDiscount, useUpdateDiscount } from "../../lib/api/discount";
+import {
+  fetchDiscounts,
+  useDeleteDiscount,
+  useUpdateDiscount,
+} from "../../lib/api/discount";
 import { formatDate } from "../../lib/utils/formatDate";
+import { getDecodedJwt } from "../../lib/auth";
 
 // ----------------- Component -----------------
 const DiscountTable = ({
@@ -122,6 +127,24 @@ const DiscountTable = ({
     },
   ];
 
+  const user = getDecodedJwt();
+  const userId = user?._id || user?.id;
+
+  const fetchTableDiscount = async (params: TableParamProps) => {
+    const response = await fetchDiscounts(userId, {
+      page: params.page,
+      limit: params.perPage,
+      search: params.search,
+    });
+
+    return {
+      data: {
+        data: response.discounts, // array of products
+        meta: { total: response.total },
+      },
+    };
+  };
+
   // 🔹 Delete Handler
   const handleDelete = async (discount: Discount) => {
     try {
@@ -169,6 +192,7 @@ const DiscountTable = ({
       <DataTable<Discount, unknown>
         data={data?.discounts}
         isLoading={isLoading}
+        fetchData={fetchTableDiscount}
         columns={discountColumns}
         // fetchData={() => fetchDiscounts(user?.id)}
         totalItems={data?.total}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { DataTable } from "../../utils/data-table";
+import { DataTable, TableParamProps } from "../../utils/data-table";
 import { Edit, Trash } from "lucide-react";
 import EmptyState from "../../utils/EmptyState";
 import mapPin from "../../assets/boxEmpty.png";
@@ -9,9 +9,14 @@ import {
   LocationPayload,
   LocationResponseData,
 } from "../../lib/types/locations";
-import { useDeleteLocation, useUpdateLocation } from "../../lib/api/locations";
+import {
+  fetchStoreLocations,
+  useDeleteLocation,
+  useUpdateLocation,
+} from "../../lib/api/locations";
 import { formatDate } from "../../lib/utils/formatDate";
 import EditLocationSidebar from "./LocationFormSidebar";
+import { getDecodedJwt } from "../../lib/auth";
 
 const LocationTable = ({
   data,
@@ -115,6 +120,24 @@ const LocationTable = ({
     },
   ];
 
+  const user = getDecodedJwt();
+  const userId = user?._id || user?.id;
+
+  const fetchTableLocations = async (params: TableParamProps) => {
+    const response = await fetchStoreLocations(userId, {
+      page: params.page,
+      limit: params.perPage,
+      search: params.search,
+    });
+
+    return {
+      data: {
+        data: response.locations, // array of products
+        meta: { total: response.total },
+      },
+    };
+  };
+
   const emptyState = (
     <EmptyState
       image={mapPin}
@@ -129,6 +152,7 @@ const LocationTable = ({
         columns={locationColumns}
         data={locations}
         isLoading={isLoading}
+        fetchData={fetchTableLocations}
         totalItems={totalItems}
         tableKey="locations"
         onRowClick={(loc) => console.log("Clicked location:", loc)}

@@ -1,13 +1,18 @@
 import React, { useState } from "react";
-import { DataTable } from "../../utils/data-table";
+import { DataTable, TableParamProps } from "../../utils/data-table";
 import { Edit, Trash } from "lucide-react";
 import EmptyState from "../../utils/EmptyState";
 import receipt from "../../assets/boxEmpty.png";
 import DeleteTaxModal from "./DeleteTaxModal";
 import EditTaxSidebar from "./EditTaxSidebar";
 import { Tax, TaxPayload, TaxResponseData } from "../../lib/types/taxes";
-import { useDeleteTax, useUpdateTax } from "../../lib/api/taxes";
+import {
+  fetchStoreTaxes,
+  useDeleteTax,
+  useUpdateTax,
+} from "../../lib/api/taxes";
 import { formatDate } from "../../lib/utils/formatDate";
+import { getDecodedJwt } from "../../lib/auth";
 
 const TaxTable = ({
   data,
@@ -127,6 +132,24 @@ const TaxTable = ({
     },
   ];
 
+  const user = getDecodedJwt();
+  const userId = user?._id || user?.id;
+
+  const fetchTableTaxes = async (params: TableParamProps) => {
+    const response = await fetchStoreTaxes(userId, {
+      page: params.page,
+      limit: params.perPage,
+      search: params.search,
+    });
+
+    return {
+      data: {
+        data: response.taxes, // array of products
+        meta: { total: response.total },
+      },
+    };
+  };
+
   const emptyState = (
     <EmptyState
       image={receipt}
@@ -140,6 +163,7 @@ const TaxTable = ({
       <DataTable<Tax, unknown>
         columns={taxColumns}
         data={taxes}
+        fetchData={fetchTableTaxes}
         isLoading={isLoading}
         totalItems={totalItems}
         tableKey="taxes"

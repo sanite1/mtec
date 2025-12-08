@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { DataTable } from "../../utils/data-table";
+import { DataTable, TableParamProps } from "../../utils/data-table";
 import { toast } from "sonner";
 import { getDecodedJwt } from "../../lib/auth";
 import { Order } from "../../lib/types/orders";
-import { useUserOrders } from "../../lib/api/orders";
+import { fetchUserOrders, useUserOrders } from "../../lib/api/orders";
 import OrderDetailsSidebar from "./OrderSidebar";
 
 // ✅ Helper for currency formatting
@@ -129,6 +129,20 @@ const OrdersTable = ({ refetchSummary }: OrderTableProps) => {
     refetchSummary();
   };
 
+  const fetchTableOrders = async (params: TableParamProps) => {
+    const response = await fetchUserOrders(userId, {
+      page: params.page,
+      limit: params.perPage,
+      search: params.search,
+    });
+
+    return {
+      data: {
+        data: response.orders, // array of products
+        meta: { total: response.total },
+      },
+    };
+  };
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="mb-3">
@@ -142,6 +156,7 @@ const OrdersTable = ({ refetchSummary }: OrderTableProps) => {
           isLoading={isLoading}
           totalItems={totalItems}
           tableKey="orders"
+          fetchData={fetchTableOrders}
           onRowClick={handleRowClick}
           setSelected={setSelectedOrders}
           hasTab={true}

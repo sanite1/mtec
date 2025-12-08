@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { DataTable } from "../../utils/data-table";
+import { DataTable, TableParamProps } from "../../utils/data-table";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 // import { getDecodedJwt } from "../../lib/auth";
 import { Product } from "../../lib/types/products";
+import { fetchUserProducts } from "../../lib/api/products";
+import { getDecodedJwt } from "../../lib/auth";
 
 // ✅ Safe product type with optional fallbacks
 export interface SafeProduct extends Partial<Product> {
@@ -145,14 +147,12 @@ const ProductTable = ({
   const navigate = useNavigate();
 
   // 🔹 Get logged-in user ID
-  // const user = getDecodedJwt();
-  // const userId = user?.id;
+  const user = getDecodedJwt();
+  const userId = user?.id;
 
   if (error) {
     toast.error(error?.message || "Failed to load products");
   }
-
-  console.log(products);
 
   const safeProducts = Array.isArray(products)
     ? products.map((p) => ({
@@ -176,6 +176,21 @@ const ProductTable = ({
     navigate(`/products/${product._id}`);
   };
 
+  const fetchTableProducts = async (params: TableParamProps) => {
+    const response = await fetchUserProducts(userId, {
+      page: params.page,
+      limit: params.perPage,
+      search: params.search,
+    });
+
+    return {
+      data: {
+        data: response.products, // array of products
+        meta: { total: response.total },
+      },
+    };
+  };
+
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="mb-3">
@@ -187,6 +202,7 @@ const ProductTable = ({
           columns={productColumns}
           data={safeProducts}
           isLoading={isLoading}
+          fetchData={fetchTableProducts}
           totalItems={totalItems}
           tableKey="products"
           onRowClick={handleRowClick}

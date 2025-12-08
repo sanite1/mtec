@@ -1,12 +1,16 @@
 // components/customers/CustomersTable.tsx
 import React, { useEffect, useState } from "react";
-import { DataTable } from "../../utils/data-table";
+import { DataTable, TableParamProps } from "../../utils/data-table";
 import person from "../../assets/personEmpty.png";
 import EmptyState from "../../utils/EmptyState";
 import { Edit, Trash } from "lucide-react";
 import DeleteModal from "./DeleteCustomerModal";
 import EditSidebar from "./EditSidebar";
-import { useDeleteCustomer, useStoreCustomers } from "../../lib/api/customer";
+import {
+  fetchStoreCustomers,
+  useDeleteCustomer,
+  useStoreCustomers,
+} from "../../lib/api/customer";
 import { getDecodedJwt } from "../../lib/auth";
 import { Customer } from "../../lib/types/customer";
 import { formatDate } from "../../lib/utils/formatDate";
@@ -147,6 +151,21 @@ const CustomersTable = ({ refetch }: { refetch: () => void }) => {
     />
   );
 
+  const fetchTableCustumers = async (params: TableParamProps) => {
+    const response = await fetchStoreCustomers(userId, {
+      page: params.page,
+      limit: params.perPage,
+      search: params.search,
+    });
+
+    return {
+      data: {
+        data: response.customers, // array of products
+        meta: { total: response.total },
+      },
+    };
+  };
+
   return (
     <div className="bg-white rounded-lg shadow p-4">
       <DataTable<Customer, unknown>
@@ -155,6 +174,7 @@ const CustomersTable = ({ refetch }: { refetch: () => void }) => {
         isLoading={isLoading}
         totalItems={data?.total ?? 0}
         tableKey="customers"
+        fetchData={fetchTableCustumers}
         onRowClick={handleRowClick}
         setSelected={setSelected}
         hasTab={true}
