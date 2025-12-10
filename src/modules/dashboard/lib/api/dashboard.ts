@@ -5,8 +5,10 @@ import api from "../../../../lib/network/api";
 import { getDecodedJwt } from "../auth";
 import {
   DashboardStatsResponseData,
+  ITodo,
   SalesOverviewResponse,
   SalesRangeFilter,
+  TopSellingProducts,
 } from "../types/dashboard";
 
 // Fetch dashboard stats for dashboard
@@ -27,6 +29,29 @@ export const useDashboardStats = (userId: string) => {
     meta: {
       onError: (error: ApiError) => {
         toast.error(error?.message || "Failed to fetch dashboard statistics");
+      },
+    },
+  });
+};
+
+// Fetch dashboard top products for dashboard
+export const fetchTopSellingProducts = async (userId: string) => {
+  const res = await api.get<ApiResponse<TopSellingProducts[]>>(
+    `/dashboard/top-products/${userId}`,
+  );
+  return res.data;
+};
+
+// Hook to fetch dashboard top products
+export const useFetchTopSellingProducts = (userId: string) => {
+  return useQuery<TopSellingProducts[], ApiError>({
+    queryKey: ["top-products", userId],
+    queryFn: () => fetchTopSellingProducts(userId),
+    enabled: !!userId,
+    retry: 1,
+    meta: {
+      onError: (error: ApiError) => {
+        toast.error(error?.message || "Failed to fetch top products");
       },
     },
   });
@@ -53,6 +78,30 @@ export const useDashboardSalesOverview = (
     queryKey: ["dashboardSalesOverview", userId, filter], // ✅ filter now part of cache
     queryFn: () => fetchDashboardSalesOverview(userId, filter),
     enabled: !!userId && !!filter,
+    retry: 1,
+    meta: {
+      onError: (error: ApiError) => {
+        toast.error(
+          error?.message || "Failed to fetch dashboard sales overview",
+        );
+      },
+    },
+  });
+};
+
+// Fetch todos
+export const fetchTodos = async (userId: string) => {
+  const res = await api.get<ApiResponse<ITodo[]>>(`/todos/${userId}`);
+
+  return res.data;
+};
+
+// Hook to fetchtodos
+export const useFetchTodos = (userId: string) => {
+  return useQuery<ITodo[], ApiError>({
+    queryKey: ["todos", userId], // ✅ filter now part of cache
+    queryFn: () => fetchTodos(userId),
+    enabled: !!userId,
     retry: 1,
     meta: {
       onError: (error: ApiError) => {

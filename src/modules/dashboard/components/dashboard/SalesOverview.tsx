@@ -7,6 +7,8 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
+  BarChart,
+  Bar,
 } from "recharts";
 import { SalesRangeFilter } from "../../lib/types/dashboard";
 import { useDashboardSalesOverview } from "../../lib/api/dashboard";
@@ -73,20 +75,20 @@ export default function SalesOverview() {
       {!isLoading && chartData.length > 0 && (
         <div className="h-[300px] w-full mt-6">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData}>
+            <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip
                 formatter={(value) => ConvertPriceRangeToLocale(String(value))}
               />
-              <Line
-                type="monotone"
+              <Bar
                 dataKey="value"
-                strokeWidth={3}
-                dot={{ r: 4 }}
-              />
-            </LineChart>
+                barSize={40}
+                radius={[6, 6, 0, 0]}
+                fill="#8B5CF6" // purple
+              />{" "}
+            </BarChart>
           </ResponsiveContainer>
         </div>
       )}
