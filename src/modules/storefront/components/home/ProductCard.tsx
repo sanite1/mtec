@@ -90,6 +90,10 @@ const ProductCard: React.FC<{ product: ProductDetails }> = ({ product }) => {
             <button
               // onClick={() => setShowDialog(true)}
               className={`w-full py-2 bg-[${store.storeColor}] text-white rounded hover:bg-[${store.storeColor}]`}
+              style={{
+                backgroundColor: store.storeColor,
+                color: store.isLightColor ? "#000000" : "#ffffff",
+              }}
             >
               Select Options
             </button>
@@ -98,6 +102,10 @@ const ProductCard: React.FC<{ product: ProductDetails }> = ({ product }) => {
           <button
             onClick={handleAddToCart}
             className={`w-full py-2 bg-[${store.storeColor}] text-white rounded hover:bg-[${store.storeColor}]`}
+            style={{
+              backgroundColor: store.storeColor,
+              color: store.isLightColor ? "#000000" : "#ffffff",
+            }}
           >
             Add to Cart
           </button>

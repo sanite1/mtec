@@ -66,6 +66,15 @@ const ProductCards: React.FC = () => {
                 ? `bg-[${store.storeColor}] text-white border-[${store.storeColor}] shadow-md`
                 : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
             }`}
+            style={
+              activeCategory === cat
+                ? {
+                    backgroundColor: store.storeColor,
+                    borderColor: store.storeColor,
+                    color: store.isLightColor ? "#000" : "#fff",
+                  }
+                : {}
+            }
           >
             {cat}
           </button>

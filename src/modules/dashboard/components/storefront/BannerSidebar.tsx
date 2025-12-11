@@ -5,23 +5,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X, ImageIcon, Trash } from "lucide-react";
 import { BannerPayload } from "../../lib/types/storefront";
-
-async function convertUrlToFile(url: string, filename?: string): Promise<File> {
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch image: ${url}`);
-  }
-
-  const blob = await response.blob();
-
-  const finalName =
-    filename || url.split("/").pop() || `image-${Date.now()}.jpg`;
-
-  return new File([blob], finalName, {
-    type: blob.type || "image/jpeg",
-  });
-}
+import { convertUrlToFile } from "../../lib/utils/utils";
 
 // ----------------- Schema -----------------
 const bannerSchema = z.object({

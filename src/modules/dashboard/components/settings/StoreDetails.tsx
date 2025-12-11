@@ -1,13 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Upload } from "lucide-react";
-import { useCreateStore } from "../../lib/api/store";
-import { IStoreCreate, IStoreUpdate } from "../../lib/types/store";
+import {
+  useCreateStore,
+  useFetchStoreById,
+  useUpdateStore,
+} from "../../lib/api/store";
+import { IStoreUpdate } from "../../lib/types/store";
 import { getDecodedJwt } from "../../lib/auth";
 import { useNavigate } from "react-router-dom";
-import { isLightColor } from "../../lib/utils/utils";
+import { convertUrlToFile, isLightColor } from "../../lib/utils/utils";
 
 const storeSchema = z.object({
   storeLogo: z.file().optional(),
@@ -49,7 +53,7 @@ export function formatNameToSlug(name: string): string {
     .trim(); // remove leading/trailing spaces
 }
 
-export default function StoreDetailsForm() {
+export default function StoreDetailsSettings() {
   const [preview, setPreview] = useState<string | null>(null);
   const [color, setColor] = useState("#000000");
 
@@ -60,18 +64,19 @@ export default function StoreDetailsForm() {
     handleSubmit,
     formState: { errors },
     setValue,
+    reset,
   } = useForm<StoreFormData>({
     resolver: zodResolver(storeSchema),
   });
 
   const user = getDecodedJwt();
   const navigate = useNavigate();
-  const { mutateAsync: createStore, isPending } = useCreateStore(); // or whatever your hook is named
+  const { mutateAsync: updateStore, isPending } = useUpdateStore();
+  const { data: storeDetails, isLoading } = useFetchStoreById(user?.id);
 
   const onSubmit = async (data: StoreFormData) => {
     try {
-      const payload: IStoreCreate = {
-        userId: user?.id,
+      const payload: IStoreUpdate = {
         logoUrl: data.storeLogo || undefined,
 
         storeName: data.storeName,
@@ -94,19 +99,53 @@ export default function StoreDetailsForm() {
         streetAddress: data.address,
       };
 
-      await createStore(payload, {
-        onSuccess: () => {
-          navigate("/onboarding");
-        },
-      });
+      await updateStore({ storeId: storeDetails?._id, payload });
     } catch (error) {
-      console.error("Store creation failed:", error);
+      console.error("Store update failed:", error);
     }
   };
 
+  useEffect(() => {
+    if (storeDetails) {
+      if (storeDetails.storeColor) {
+        setColor(storeDetails.storeColor);
+      }
+      reset({
+        storeLogo: undefined, // files can’t be prefilled, leave as undefined
+        storeName: storeDetails.storeName ?? "",
+        businessName: storeDetails.businessName ?? "",
+        businessSector: storeDetails.businessSector ?? "",
+        storeTagline: storeDetails.tagline ?? "",
+        storeDescription: storeDetails.storeDescription ?? "",
+        address: storeDetails.streetAddress ?? "",
+        country: storeDetails.country ?? "",
+        state: storeDetails.state ?? "",
+        zipCode: storeDetails.zipCode ?? "",
+        businessEmail: storeDetails.businessEmail ?? "",
+        businessPhone: storeDetails.businessPhone ?? "",
+        website: storeDetails.website ?? "",
+      });
+
+      const loadImg = async () => {
+        const imageFile = storeDetails.logoUrl
+          ? await convertUrlToFile(storeDetails.logoUrl)
+          : undefined;
+        let imgFile: File | undefined;
+        imgFile = imageFile || undefined;
+
+        imageFile && setPreview(URL.createObjectURL(imageFile));
+
+        setValue("storeLogo", imgFile);
+      };
+      loadImg();
+    }
+  }, [storeDetails, reset]);
+
+  //   let imgFile = watch("image") as File | null;
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center py-6">
-      <div className="w-full max-w-5xl bg-white shadow-xl rounded-xl p-10 border border-gray-200">
+    <div className="min-h-screen flex items-center justify-center py-6">
+      <div className="w-full max-w-4xl ">
         <h2 className="text-3xl font-extrabold text-gray-900 mb-8 text-center">
           Store Details Setup
         </h2>

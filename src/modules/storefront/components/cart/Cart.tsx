@@ -114,6 +114,9 @@ export default function Cart() {
                 {/* Item Total */}
                 <p
                   className={`text-[${store.storeColor}] font-semibold w-28 text-right`}
+                  style={{
+                    color: store.storeColor,
+                  }}
                 >
                   ₦{(item.price * item.quantity).toLocaleString()}
                   .00
@@ -140,6 +143,10 @@ export default function Cart() {
             <Link to={"/checkout"}>
               <button
                 className={`bg-[${store.storeColor}] text-white px-8 py-3 rounded-md font-medium hover:bg-[${store.storeColor}] transition`}
+                style={{
+                  backgroundColor: store.storeColor,
+                  color: store.isLightColor ? "#000000" : "#ffffff",
+                }}
               >
                 Checkout
               </button>

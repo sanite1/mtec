@@ -141,12 +141,23 @@ const Navbar: React.FC<NavbarProps> = ({ logo }) => {
           {/* Auth Links */}
           <div className="hidden md:flex items-center space-x-4 text-sm font-medium">
             <Link to={`/login`}>
-              <p className={`hover:text-[${store.storeColor}]`}>Login</p>
+              <p
+                className=""
+                style={{
+                  color: store.storeColor,
+                }}
+              >
+                Login
+              </p>
             </Link>
 
             <Link to={`/register`}>
               <p
                 className={`px-3 py-1 rounded bg-[${store.storeColor}] text-white hover:bg-[${store.storeColor}]`}
+                style={{
+                  backgroundColor: store.storeColor,
+                  color: store.isLightColor ? "#000000" : "#ffffff",
+                }}
               >
                 Register
               </p>

@@ -32,18 +32,13 @@ const Footer: React.FC<FooterProps> = ({
   const store: IStoreDetails = JSON.parse(
     localStorage.getItem("store") || "null",
   );
-  console.log(`bg-[${lightenHex(store.storeColor, 45)}]`);
-  console.log(`bg-[${store.storeColor}]`);
 
   return (
     <footer
-      className={`py-12 pb-0 relative ${
-        store.isLightColor ? "bg-gray-900 text-white" : "text-black"
-      }`}
+      className={`py-12 pb-0 relative`}
       style={{
-        backgroundColor: store.isLightColor
-          ? undefined
-          : lightenHex(store.storeColor, 65),
+        backgroundColor: "#000000",
+        color: false ? "#000000" : "#ffffff",
       }}
     >
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-10">
@@ -102,6 +97,10 @@ const Footer: React.FC<FooterProps> = ({
             <button
               type="submit"
               className={`px-4 py-2 bg-[${store.storeColor}] hover:bg-[${store.storeColor}] transition`}
+              style={{
+                backgroundColor: store.storeColor,
+                color: store.isLightColor ? "#000000" : "#ffffff",
+              }}
             >
               <Send className="w-4 h-4" />
             </button>

@@ -134,6 +134,10 @@ const AddressModal: React.FC<AddressModalProps> = ({
             <button
               type="submit"
               className={`px-4 py-2 rounded bg-[${store.storeColor}] text-white hover:bg-[${store.storeColor}]`}
+              style={{
+                backgroundColor: store.storeColor,
+                color: store.isLightColor ? "#000000" : "#ffffff",
+              }}
             >
               Save
             </button>

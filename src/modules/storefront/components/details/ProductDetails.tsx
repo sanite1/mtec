@@ -189,6 +189,9 @@ const ProductDetailsPage: React.FC = () => {
             {product.variantsOptionGroup && (
               <span
                 className={`text-[${store.storeColor}] text-2xl font-semibold`}
+                style={{
+                  color: store.storeColor,
+                }}
               >
                 {product.variantsOptionGroup &&
                 product.variantsOptionGroup.length > 0 &&
@@ -207,6 +210,9 @@ const ProductDetailsPage: React.FC = () => {
             {product.price && (
               <span
                 className={`text-[${store.storeColor}] text-2xl font-semibold`}
+                style={{
+                  color: store.storeColor,
+                }}
               >
                 ₦
                 {product.discountPrice
@@ -240,6 +246,15 @@ const ProductDetailsPage: React.FC = () => {
                           ? `bg-[${store.storeColor}] text-white border-[${store.storeColor}]`
                           : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
                       }`}
+                      style={
+                        selectedAttributes[attr.name] === val.value
+                          ? {
+                              backgroundColor: store.storeColor,
+                              borderColor: store.storeColor,
+                              color: store.isLightColor ? "#000" : "#fff",
+                            }
+                          : {}
+                      }
                     >
                       {val.value}
                     </button>
@@ -283,6 +298,18 @@ const ProductDetailsPage: React.FC = () => {
                   ? "bg-gray-400 cursor-not-allowed"
                   : `bg-[${store.storeColor}] hover:bg-[${store.storeColor}] text-white`
               }`}
+            style={
+              product.variantsOptionGroup &&
+              product.variantsOptionGroup.length > 0 &&
+              Object.keys(selectedAttributes).length <
+                product.variantsOptionGroup.length
+                ? {}
+                : {
+                    backgroundColor: store.storeColor,
+                    borderColor: store.storeColor,
+                    color: store.isLightColor ? "#000" : "#fff",
+                  }
+            }
           >
             <ShoppingCart className="w-5 h-5" />
             Add to Cart

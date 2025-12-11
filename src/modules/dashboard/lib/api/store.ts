@@ -1,7 +1,7 @@
 import { ApiResponse, ApiError } from "../../../../lib/network/axios";
 import api from "../../../../lib/network/api";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { IStoreCreate, IStoreDetails } from "../types/store";
+import { IStoreCreate, IStoreDetails, IStoreUpdate } from "../types/store";
 import { getDecodedJwt } from "../auth";
 import { toast } from "sonner";
 import { removeEmptyFields } from "../utils/utils";
@@ -65,22 +65,33 @@ export function useCreateStore() {
 // -------------------- UPDATE STORE --------------------
 export async function updateStore(
   storeId: string,
-  payload: Partial<IStoreDetails>,
+  payload: Partial<IStoreUpdate>,
 ): Promise<ApiResponse<IStoreDetails>> {
   const formData = new FormData();
   const user = getDecodedJwt();
 
-  Object.entries(payload).forEach(([key, value]) => {
+  const refinedPayload = removeEmptyFields(payload);
+  if (payload.logoUrl) {
+    refinedPayload.logoUrl = payload.logoUrl;
+  }
+  Object.entries(refinedPayload).forEach(([key, value]) => {
     if (value === undefined || value === null) return;
 
-    if (typeof value === "object" && !(value instanceof File)) {
-      formData.append(key, JSON.stringify(value));
-    } else {
-      formData.append(key, String(value));
+    // ✅ If it's a File, append directly
+    if (value instanceof File) {
+      formData.append(key, value);
+      return;
     }
-  });
 
-  formData.append("userId", user?.id);
+    // ✅ If it's an object, JSON stringify
+    if (typeof value === "object") {
+      formData.append(key, JSON.stringify(value));
+      return;
+    }
+
+    // ✅ Normal string/number
+    formData.append(key, String(value));
+  });
 
   const response = await api.patch<ApiResponse<IStoreDetails>>(
     `/store/${storeId}`,

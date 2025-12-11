@@ -1,16 +1,23 @@
 // components/settings/SettingsPage.tsx
 import React, { useState } from "react";
-import { Package, Boxes } from "lucide-react";
+import { Package, Boxes, Store } from "lucide-react";
 import InventorySettings from "../components/settings/Inventory";
 import ProductSettings from "../components/settings/Product";
+import StoreDetailsSettings from "../components/settings/StoreDetails";
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<"inventory" | "products">(
-    "inventory",
-  );
+  const [activeTab, setActiveTab] = useState<
+    "inventory" | "products" | "store"
+  >("store");
 
   const renderContent = () => {
     switch (activeTab) {
+      case "store":
+        return (
+          <div className="p-6 bg-white rounded-md shadow">
+            <StoreDetailsSettings />
+          </div>
+        );
       case "inventory":
         return (
           <div className="p-6 bg-white rounded-md shadow">
@@ -72,6 +79,17 @@ export default function SettingsPage() {
 
       {/* Tabs */}
       <div className="border-b border-gray-200 flex gap-6">
+        <button
+          onClick={() => setActiveTab("store")}
+          className={`flex items-center gap-2 pb-2 text-sm font-medium ${
+            activeTab === "store"
+              ? "text-purple-600 border-b-2 border-purple-600"
+              : "text-gray-600 hover:text-gray-800"
+          }`}
+        >
+          <Store size={16} />
+          Store Details
+        </button>
         <button
           onClick={() => setActiveTab("inventory")}
           className={`flex items-center gap-2 pb-2 text-sm font-medium ${

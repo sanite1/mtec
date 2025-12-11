@@ -31,6 +31,10 @@ export default function OrderCSummary() {
           <Link
             to="/"
             className={`mt-6 inline-block px-6 py-3 bg-[${store.storeColor}] text-white rounded-lg hover:bg-[${store.storeColor}] transition`}
+            style={{
+              backgroundColor: store.storeColor,
+              color: store.isLightColor ? "#000000" : "#ffffff",
+            }}
           >
             Go Shopping
           </Link>
@@ -43,6 +47,9 @@ export default function OrderCSummary() {
     <div className="max-w-3xl mx-auto px-6 py-16 text-center">
       <CheckCircle
         className={`w-20 h-20 text-[${store.storeColor}] mx-auto mb-6`}
+        style={{
+          color: store.storeColor,
+        }}
       />
 
       <h1 className="text-3xl font-semibold mb-2 text-gray-800">
@@ -83,7 +90,12 @@ export default function OrderCSummary() {
                   )}
               </div>
               {item.price && (
-                <p className={`font-semibold text-[${store.storeColor}]`}>
+                <p
+                  className={`font-semibold text-[${store.storeColor}]`}
+                  style={{
+                    color: store.storeColor,
+                  }}
+                >
                   ₦{(item.price * item.quantity).toLocaleString()}
                 </p>
               )}
@@ -92,7 +104,12 @@ export default function OrderCSummary() {
         </div>
         <div className="flex justify-between mt-2 font-semibold text-lg">
           <span>Total:</span>
-          <span className={`text-[${store.storeColor}]`}>
+          <span
+            className={`text-[${store.storeColor}]`}
+            style={{
+              color: store.storeColor,
+            }}
+          >
             ₦{order.total.toLocaleString()} NGN
           </span>
         </div>
@@ -112,12 +129,20 @@ export default function OrderCSummary() {
         <Link
           to="/"
           className={`px-3 py-1 bg-[${store.storeColor}] text-white rounded-lg hover:bg-[${store.storeColor}] transition`}
+          style={{
+            backgroundColor: store.storeColor,
+            color: store.isLightColor ? "#000000" : "#ffffff",
+          }}
         >
           Continue Shopping
         </Link>
         <Link
           to="/cart"
           className="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-100 transition"
+          style={{
+            backgroundColor: store.storeColor,
+            color: store.isLightColor ? "#000000" : "#ffffff",
+          }}
         >
           View Cart
         </Link>

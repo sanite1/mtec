@@ -251,6 +251,10 @@ export default function ShippingAddressSidebar({
                 ? "opacity-75 cursor-not-allowed"
                 : `hover:bg-[${store.storeColor}]`
             }`}
+            style={{
+              backgroundColor: store.storeColor,
+              color: store.isLightColor ? "#000000" : "#ffffff",
+            }}
           >
             {isPending && (
               <svg

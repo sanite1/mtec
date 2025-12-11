@@ -243,6 +243,9 @@ const CheckoutSection: React.FC = () => {
                   <button
                     onClick={() => setAddrOpen(true)}
                     className={`text-[${store.storeColor}] hover:underline`}
+                    style={{
+                      color: store.storeColor,
+                    }}
                   >
                     Edit
                   </button>
@@ -297,11 +300,15 @@ const CheckoutSection: React.FC = () => {
                         ? `border-[${store.storeColor}] `
                         : "hover:bg-gray-50 border-gray-300"
                     }`}
-                    style={{
-                      backgroundColor: store.isLightColor
-                        ? undefined
-                        : lightenHex(store.storeColor, 90),
-                    }}
+                    style={
+                      isSelected
+                        ? {
+                            backgroundColor: store.isLightColor
+                              ? undefined
+                              : lightenHex(store.storeColor, 90),
+                          }
+                        : {}
+                    }
                   >
                     <div className="flex-1">
                       <p className="font-medium text-gray-900">{method.name}</p>
@@ -330,6 +337,9 @@ const CheckoutSection: React.FC = () => {
                       {isSelected && (
                         <p
                           className={`text-xs text-[${store.storeColor}] mt-1 font-medium`}
+                          style={{
+                            color: store.storeColor,
+                          }}
                         >
                           Selected
                         </p>
@@ -415,6 +425,9 @@ const CheckoutSection: React.FC = () => {
                   {/* line total */}
                   <p
                     className={`sm:w-1/3 w-full text-right font-semibold text-[${store.storeColor}]`}
+                    style={{
+                      color: store.storeColor,
+                    }}
                   >
                     ₦{(item.price * item.quantity).toLocaleString()}
                   </p>
@@ -530,6 +543,10 @@ const CheckoutSection: React.FC = () => {
                 ? "opacity-70 cursor-not-allowed"
                 : `hover:bg-[${store.storeColor}]`
             }`}
+            style={{
+              backgroundColor: store.storeColor,
+              color: store.isLightColor ? "#000000" : "#ffffff",
+            }}
           >
             {isPending ? (
               <>

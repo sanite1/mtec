@@ -68,3 +68,23 @@ export const isLightColor = (hex: string) => {
 
   return brightness > 155; // true = light, false = dark
 };
+
+export const convertUrlToFile = async (
+  url: string,
+  filename?: string,
+): Promise<File> => {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch image: ${url}`);
+  }
+
+  const blob = await response.blob();
+
+  const finalName =
+    filename || url.split("/").pop() || `image-${Date.now()}.jpg`;
+
+  return new File([blob], finalName, {
+    type: blob.type || "image/jpeg",
+  });
+};

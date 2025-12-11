@@ -2,6 +2,7 @@ export interface IStoreDetails {
   userId: string; // Owner of the store
   logoUrl?: string; // File upload URL
   country: string;
+  _id: string;
   state: string;
   zipCode: string;
   streetAddress: string;
@@ -43,7 +44,6 @@ export interface IStoreCreate {
 }
 
 export interface IStoreUpdate {
-  userId: string; // Owner of the store
   logoUrl?: File; // File upload URL
   country: string;
   state: string;
