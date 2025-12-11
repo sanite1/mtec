@@ -390,3 +390,28 @@ export const useUnsubscribe = () => {
     },
   });
 };
+
+export async function deleteUser(id: string): Promise<ApiResponse> {
+  const response = await api.delete<ApiResponse>(`/user/${id}`);
+  return response;
+}
+
+export function useDeleteUser() {
+  return useMutation<ApiResponse, ApiError, string>({
+    mutationKey: ["delete-user"],
+    mutationFn: (id) => deleteUser(id),
+    onSuccess: (response) => {
+      toast.success(response.message);
+    },
+    onError: (error: ApiError) => {
+      const errorMessage =
+        error.response?.data?.fields?.[0].message ||
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+      toast("Request Failed", {
+        description: errorMessage,
+      });
+    },
+  });
+}

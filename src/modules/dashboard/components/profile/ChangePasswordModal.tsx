@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useUpdatePassword } from "../../lib/api/authOnboarding";
+import { Eye, EyeOff } from "lucide-react";
+import { getDecodedJwt } from "../../lib/auth";
 
 interface ChangePasswordModalProps {
   onClose: () => void;
-  onSave: (oldPass: string, newPass: string, confirmPass: string) => void;
 }
 
 const passwordSchema = z
@@ -25,7 +27,6 @@ type PasswordFormData = z.infer<typeof passwordSchema>;
 
 export default function ChangePasswordModal({
   onClose,
-  onSave,
 }: ChangePasswordModalProps) {
   const {
     register,
@@ -35,9 +36,27 @@ export default function ChangePasswordModal({
     resolver: zodResolver(passwordSchema),
   });
 
-  const onSubmit = (data: PasswordFormData) => {
-    onSave(data.oldPassword, data.newPassword, data.confirmPassword);
-    onClose();
+  const { mutateAsync: updatePassword, isPending, error } = useUpdatePassword();
+
+  // Eye toggle states
+  const [showOld, setShowOld] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const user = getDecodedJwt();
+  const onSubmit = async (data: PasswordFormData) => {
+    try {
+      await updatePassword({
+        id: user?.id,
+        oldPassword: data.oldPassword,
+        newPassword: data.newPassword,
+        confirmNewPassword: data.confirmPassword,
+      });
+
+      onClose();
+    } catch (err) {
+      console.error("Password update failed", err);
+    }
   };
 
   return (
@@ -46,7 +65,7 @@ export default function ChangePasswordModal({
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
-      ></div>
+      />
 
       {/* Modal Content */}
       <div className="relative bg-white w-full max-w-md rounded-xl shadow-lg p-6 z-10 mx-4">
@@ -55,15 +74,30 @@ export default function ChangePasswordModal({
           Please enter your old password and a new password.
         </p>
 
+        {/* API Error */}
+        {error && (
+          <p className="text-sm text-red-600 mt-3">
+            {error.message || "Failed to update password"}
+          </p>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-4">
           {/* Old Password */}
-          <div>
+          <div className="relative">
             <input
-              type="password"
+              type={showOld ? "text" : "password"}
               placeholder="Old Password"
               {...register("oldPassword")}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full border rounded-lg px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
+
+            <div
+              className="absolute right-3 top-2.5 cursor-pointer text-gray-500"
+              onClick={() => setShowOld((prev) => !prev)}
+            >
+              {showOld ? <EyeOff size={18} /> : <Eye size={18} />}
+            </div>
+
             {errors.oldPassword && (
               <p className="text-xs text-red-500 mt-1">
                 {errors.oldPassword.message}
@@ -72,13 +106,21 @@ export default function ChangePasswordModal({
           </div>
 
           {/* New Password */}
-          <div>
+          <div className="relative">
             <input
-              type="password"
+              type={showNew ? "text" : "password"}
               placeholder="New Password"
               {...register("newPassword")}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full border rounded-lg px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
+
+            <div
+              className="absolute right-3 top-2.5 cursor-pointer text-gray-500"
+              onClick={() => setShowNew((prev) => !prev)}
+            >
+              {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
+            </div>
+
             {errors.newPassword && (
               <p className="text-xs text-red-500 mt-1">
                 {errors.newPassword.message}
@@ -87,13 +129,21 @@ export default function ChangePasswordModal({
           </div>
 
           {/* Confirm Password */}
-          <div>
+          <div className="relative">
             <input
-              type="password"
+              type={showConfirm ? "text" : "password"}
               placeholder="Confirm New Password"
               {...register("confirmPassword")}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full border rounded-lg px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
+
+            <div
+              className="absolute right-3 top-2.5 cursor-pointer text-gray-500"
+              onClick={() => setShowConfirm((prev) => !prev)}
+            >
+              {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+            </div>
+
             {errors.confirmPassword && (
               <p className="text-xs text-red-500 mt-1">
                 {errors.confirmPassword.message}
@@ -110,11 +160,13 @@ export default function ChangePasswordModal({
             >
               Cancel
             </button>
+
             <button
               type="submit"
-              className="px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition"
+              disabled={isPending}
+              className="px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition disabled:opacity-60"
             >
-              Save
+              {isPending ? "Saving..." : "Save"}
             </button>
           </div>
         </form>

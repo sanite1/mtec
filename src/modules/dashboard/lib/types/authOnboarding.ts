@@ -41,35 +41,25 @@ export interface forgotPasswordPayload {
 
 // ✅ Update User
 export interface UpdateUserPayload {
-  fullName?: string;
+  firstname?: string;
+  lastname?: string;
+  middlename?: string;
+  dob?: string;
   phone?: string;
   email?: string;
-  country?: string;
-  state?: string;
-  city?: string;
-  address?: string;
-  role?: string;
-  bio?: string;
-  languages?: string[];
-  certifications?: string[];
   profilePicture?: File | string;
 }
 
 // ✅ User Data (shared)
 export interface UserData {
-  id: string;
-  fullName: string;
+  _id: string;
+  firstname: string;
+  middlename: string;
+  lastname: string;
   email: string;
   phone?: string;
-  country?: string;
-  state?: string;
-  city?: string;
-  address?: string;
-  role?: string;
-  bio?: string;
+  dob?: string;
   profilePicture?: string;
-  languages?: string[];
-  certifications?: string[];
   isVerified: boolean;
   createdAt: string;
   updatedAt: string;
