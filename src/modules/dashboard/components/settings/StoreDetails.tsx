@@ -8,7 +8,7 @@ import {
   useFetchStoreById,
   useUpdateStore,
 } from "../../lib/api/store";
-import { IStoreUpdate } from "../../lib/types/store";
+import { IStoreDetails, IStoreUpdate } from "../../lib/types/store";
 import { getDecodedJwt } from "../../lib/auth";
 import { useNavigate } from "react-router-dom";
 import { convertUrlToFile, isLightColor } from "../../lib/utils/utils";
@@ -53,7 +53,11 @@ export function formatNameToSlug(name: string): string {
     .trim(); // remove leading/trailing spaces
 }
 
-export default function StoreDetailsSettings() {
+export default function StoreDetailsSettings({
+  storeDetails,
+}: {
+  storeDetails: IStoreDetails;
+}) {
   const [preview, setPreview] = useState<string | null>(null);
   const [color, setColor] = useState("#000000");
 
@@ -72,7 +76,7 @@ export default function StoreDetailsSettings() {
   const user = getDecodedJwt();
   const navigate = useNavigate();
   const { mutateAsync: updateStore, isPending } = useUpdateStore();
-  const { data: storeDetails, isLoading } = useFetchStoreById(user?.id);
+  // const { data: storeDetails, isLoading } = useFetchStoreById(user?.id);
 
   const onSubmit = async (data: StoreFormData) => {
     try {

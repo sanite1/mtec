@@ -104,7 +104,13 @@ export async function updateStore(
 
 export function useUpdateStore() {
   return useMutation({
-    mutationFn: ({ storeId, payload }: any) => updateStore(storeId, payload),
+    mutationFn: ({
+      storeId,
+      payload,
+    }: {
+      storeId: string;
+      payload: Partial<IStoreUpdate>;
+    }) => updateStore(storeId, payload),
     onSuccess: () => {
       toast.success("Store Details Updated Successfully");
     },

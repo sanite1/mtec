@@ -4,30 +4,47 @@ import { Package, Boxes, Store } from "lucide-react";
 import InventorySettings from "../components/settings/Inventory";
 import ProductSettings from "../components/settings/Product";
 import StoreDetailsSettings from "../components/settings/StoreDetails";
+import { useFetchStoreById } from "../lib/api/store";
+import { getDecodedJwt } from "../lib/auth";
+import { IStoreDetails } from "../lib/types/store";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<
     "inventory" | "products" | "store"
   >("store");
 
+  const user = getDecodedJwt();
+  const {
+    data: storeDetails,
+    isLoading,
+    refetch,
+  } = useFetchStoreById(user?.id);
   const renderContent = () => {
     switch (activeTab) {
       case "store":
         return (
           <div className="p-6 bg-white rounded-md shadow">
-            <StoreDetailsSettings />
+            <StoreDetailsSettings
+              storeDetails={storeDetails as IStoreDetails}
+            />
           </div>
         );
       case "inventory":
         return (
           <div className="p-6 bg-white rounded-md shadow">
-            <InventorySettings />
+            <InventorySettings
+              storeDetails={storeDetails as IStoreDetails}
+              refetch={refetch}
+            />
           </div>
         );
       case "products":
         return (
           <div className="p-6 bg-white rounded-md shadow">
-            <ProductSettings />
+            <ProductSettings
+              storeDetails={storeDetails as IStoreDetails}
+              refetch={refetch}
+            />
           </div>
         );
       //   case "orders":

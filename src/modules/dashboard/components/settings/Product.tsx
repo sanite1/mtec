@@ -5,6 +5,8 @@ import { Save } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { IStoreDetails } from "../../lib/types/store";
+import { useUpdateStore } from "../../lib/api/store";
 
 // ----------------- Schema -----------------
 const productSettingsSchema = z.object({
@@ -16,7 +18,13 @@ const productSettingsSchema = z.object({
 type ProductSettingsForm = z.infer<typeof productSettingsSchema>;
 
 // ----------------- Component -----------------
-const ProductSettings: React.FC = () => {
+const ProductSettings = ({
+  storeDetails,
+  refetch,
+}: {
+  storeDetails: IStoreDetails;
+  refetch: () => void;
+}) => {
   const {
     control,
     handleSubmit,
@@ -25,16 +33,24 @@ const ProductSettings: React.FC = () => {
   } = useForm<ProductSettingsForm>({
     resolver: zodResolver(productSettingsSchema),
     defaultValues: {
-      productNoteEnabled: false,
-      productNoteTitle: "",
-      productNotePlaceholder: "",
+      productNoteEnabled: storeDetails.productNoteEnabled,
+      productNoteTitle: storeDetails.productNoteTitle,
+      productNotePlaceholder: storeDetails.productNotePlaceholder,
     },
   });
 
   const productNoteEnabled = watch("productNoteEnabled");
 
-  const onSubmit = (data: ProductSettingsForm) => {
-    console.log("Product Settings Submitted:", data);
+  const { mutateAsync: updateStore, isPending } = useUpdateStore();
+
+  const onSubmit = async (data: ProductSettingsForm) => {
+    try {
+      console.log("Inventory Settings:", storeDetails?._id, data);
+      await updateStore({ storeId: storeDetails?._id, payload: data });
+      refetch();
+    } catch (error) {
+      console.error("Store update failed:", error);
+    }
   };
 
   return (
@@ -146,9 +162,36 @@ const ProductSettings: React.FC = () => {
         <div className="mt-8 flex justify-end">
           <button
             type="submit"
-            className="w-full sm:w-auto px-6 py-3 bg-purple-600 text-white rounded-lg flex items-center justify-center gap-2 hover:bg-purple-700 transition"
+            className={`w-full sm:w-auto px-3 py-2 bg-purple-600 text-white rounded-lg flex items-center justify-center gap-2 hover:bg-purple-700 transition ${
+              isPending
+                ? "opacity-75 cursor-not-allowed"
+                : "hover:bg-purple-700"
+            }`}
           >
-            <Save size={18} /> Save Changes
+            {isPending && (
+              <svg
+                className="animate-spin h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
+            )}
+            <Save size={18} />
+            {isPending ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </form>
