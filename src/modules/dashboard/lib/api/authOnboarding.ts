@@ -392,7 +392,7 @@ export const useUnsubscribe = () => {
 };
 
 export async function deleteUser(id: string): Promise<ApiResponse> {
-  const response = await api.delete<ApiResponse>(`/user/${id}`);
+  const response = await api.delete<ApiResponse>(`/users/${id}`);
   return response;
 }
 

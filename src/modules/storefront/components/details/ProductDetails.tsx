@@ -50,8 +50,6 @@ export function findMatchingVariation(
   // ✅ Convert to "Blue / Large" format
   const formattedNames = permutations.map((p) => p.join(" / "));
 
-  // console.log("Trying combinations:", formattedNames);
-
   // ✅ Find matching variation
   return variations.find((variation) =>
     formattedNames.includes(variation.name),
@@ -131,20 +129,8 @@ const ProductDetailsPage: React.FC = () => {
       },
     });
 
-    console.log("cart");
-    console.log(cart);
-
     toast.success(`${product.name} added to cart! 🛒`);
   };
-
-  // console.log("selectedAttributes");
-  // console.log(selectedAttributes);
-
-  // console.log("product.variations");
-  // console.log(product.variations);
-
-  // console.log("findMatchingVariation");
-  // console.log(findMatchingVariation(selectedAttributes, product.variations));
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">

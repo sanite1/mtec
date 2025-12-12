@@ -10,7 +10,6 @@ export const fetchStoreTaxes = async (userId: string): Promise<Tax> => {
   const selectedLocation =
     localStorage.getItem("selectedLocation") &&
     JSON.parse(localStorage.getItem("selectedLocation")!);
-  console.log(selectedLocation);
 
   params.append("location", selectedLocation.locationName);
 

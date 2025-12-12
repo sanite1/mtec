@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { DataTable, TableParamProps } from "../../utils/data-table";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import box from "../../assets/boxEmpty.png";
 // import { getDecodedJwt } from "../../lib/auth";
 import { Product } from "../../lib/types/products";
 import { fetchUserProducts } from "../../lib/api/products";
 import { getDecodedJwt } from "../../lib/auth";
+import EmptyState from "../../utils/EmptyState";
 
 // ✅ Safe product type with optional fallbacks
 export interface SafeProduct extends Partial<Product> {
@@ -191,6 +193,13 @@ const ProductTable = ({
     };
   };
 
+  const emptyState = (
+    <EmptyState
+      image={box}
+      message="No products found"
+      subtext="When you create product, they’ll appear here."
+    />
+  );
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="mb-3">
@@ -208,6 +217,7 @@ const ProductTable = ({
           onRowClick={handleRowClick}
           setSelected={setSelectedProducts}
           hasTab={true}
+          emptyState={emptyState}
           hasAllTab={true}
           tabInfo={[
             {

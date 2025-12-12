@@ -11,7 +11,6 @@ export const fetchStoreShipping = async (
   const selectedLocation =
     localStorage.getItem("selectedLocation") &&
     JSON.parse(localStorage.getItem("selectedLocation")!);
-  console.log(selectedLocation);
 
   if (filters?.search) params.append("search", filters.search);
   if (filters?.page) params.append("page", String(filters.page));

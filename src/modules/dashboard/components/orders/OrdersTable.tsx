@@ -5,6 +5,8 @@ import { getDecodedJwt } from "../../lib/auth";
 import { Order } from "../../lib/types/orders";
 import { fetchUserOrders, useUserOrders } from "../../lib/api/orders";
 import OrderDetailsSidebar from "./OrderSidebar";
+import EmptyState from "../../utils/EmptyState";
+import box from "../../assets/boxEmpty.png";
 
 // ✅ Helper for currency formatting
 const safeCurrency = (value?: number) => {
@@ -143,6 +145,13 @@ const OrdersTable = ({ refetchSummary }: OrderTableProps) => {
       },
     };
   };
+  const emptyState = (
+    <EmptyState
+      image={box}
+      message="No orders found"
+      subtext="When you create order, they’ll appear here."
+    />
+  );
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="mb-3">
@@ -161,6 +170,7 @@ const OrdersTable = ({ refetchSummary }: OrderTableProps) => {
           setSelected={setSelectedOrders}
           hasTab={true}
           hasAllTab={true}
+          emptyState={emptyState}
           tabInfo={[
             {
               name: "Pending",

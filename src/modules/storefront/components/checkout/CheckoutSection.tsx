@@ -36,7 +36,6 @@ const CheckoutSection: React.FC = () => {
   });
 
   const { data: tax, isLoading: loadingTax } = useStoreTax(store.userId);
-  console.log(tax);
 
   const navigate = useNavigate();
 

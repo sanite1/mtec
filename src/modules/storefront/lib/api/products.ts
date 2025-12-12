@@ -16,7 +16,6 @@ export const fetchUserProducts = async (
   const selectedLocation =
     localStorage.getItem("selectedLocation") &&
     JSON.parse(localStorage.getItem("selectedLocation")!);
-  console.log(selectedLocation);
 
   const params = new URLSearchParams();
 

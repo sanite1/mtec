@@ -82,7 +82,6 @@ export default function BannerSidebar({
       banner: { title: data.title, subtext: data.subtext },
       bannerImage: data.image,
     };
-    console.log(payload);
     onSave(payload);
   };
 

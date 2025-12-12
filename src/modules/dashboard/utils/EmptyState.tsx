@@ -8,7 +8,7 @@ interface EmptyStateProps {
 
 const EmptyState: React.FC<EmptyStateProps> = ({ image, message, subtext }) => {
   return (
-    <div className="flex flex-col items-center justify-center text-center py-10">
+    <div className="flex flex-col items-center justify-center text-center py-1">
       <img
         src={image}
         alt="Empty State"

@@ -408,7 +408,6 @@ export default function DiscountFormSidebar({
           onClose={() => setOpenDialog(false)}
           onSave={(selected) => {
             setSelectedProducts(selected);
-            console.log(selected);
 
             setValue(
               "products",

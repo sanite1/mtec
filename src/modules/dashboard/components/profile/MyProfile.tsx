@@ -109,7 +109,7 @@ export default function ProfilePage() {
               {/* <Calendar className="h-4 w-4 text-gray-500" /> */}
               <span className="text-sm text-gray-500">Date of Birth</span>
             </div>
-            <p className="font-medium">{formatDate(dob ?? "") || "—"}</p>
+            <p className="font-medium">{(dob && formatDate(dob)) || "—"}</p>
           </div>
         </div>
 

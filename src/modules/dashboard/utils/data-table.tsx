@@ -77,8 +77,11 @@ export function DataTable<TData, TValue>({
     hasAllTab ? "all" : tabInfo ? tabInfo[0].name : "",
   );
   const emptyStateComponent =
-    tabInfo && tabInfo?.length > 0
-      ? tabInfo.find((tab) => tab.name === activeTab)?.emptyState
+    hasTab && tabInfo
+      ? activeTab === "all"
+        ? emptyState // ⭐ All tab should use main empty state
+        : tabInfo.find((tab) => tab.name === activeTab)?.emptyState ||
+          emptyState
       : emptyState;
 
   // For URL parameters in React (without Next.js)

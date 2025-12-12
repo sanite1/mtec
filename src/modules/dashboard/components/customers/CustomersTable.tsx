@@ -176,10 +176,10 @@ const CustomersTable = ({ refetch }: { refetch: () => void }) => {
         tableKey="customers"
         fetchData={fetchTableCustumers}
         onRowClick={handleRowClick}
+        emptyState={emptyState}
         setSelected={setSelected}
         hasTab={true}
         hasAllTab={true}
-        emptyState={emptyState}
         tabInfo={[
           {
             name: "Newsletter Subscribers",
@@ -187,9 +187,9 @@ const CustomersTable = ({ refetch }: { refetch: () => void }) => {
             data: customers.filter((c) => c.newsletterSubscribed === true),
             tableKey: "newsletter-subscribers",
             onRowClick: handleRowClick,
-            emptyState: (
-              <EmptyState image={person} message="No newsletter subscribers." />
-            ),
+            // emptyState: (
+            //   <EmptyState image={person} message="No newsletter subscribers." />
+            // ),
           },
         ]}
       />
@@ -210,7 +210,6 @@ const CustomersTable = ({ refetch }: { refetch: () => void }) => {
           customer={editTarget}
           onClose={() => setEditTarget(null)}
           onSave={(updated) => {
-            console.log("Updated:", updated);
             refetch();
             setEditTarget(null);
           }}
