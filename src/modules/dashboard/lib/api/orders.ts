@@ -228,3 +228,45 @@ export const useUpdatePaymentStatus = () => {
     },
   });
 };
+
+// api/orders.ts
+export const updateShippingStatus = async (
+  id: string,
+  shippingStatus: string,
+) => {
+  const res = await api.patch<ApiResponse<Order>>(`/order/${id}/shipping`, {
+    shippingStatus,
+  });
+  return res.data;
+};
+
+// hook
+export const useUpdateShippingStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      shippingStatus,
+    }: {
+      id: string;
+      shippingStatus: string;
+    }) => updateShippingStatus(id, shippingStatus),
+    onSuccess: (data) => {
+      toast.success(`${data.orderNumber} Payment Status Updated`, {
+        description: `Successfully updated the payment status to ${data.shippingStatus}`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["userPaymentsStatus"] });
+    },
+    onError: (error: ApiError) => {
+      const errorMessage =
+        error.response?.data?.fields?.[0].message ||
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+      toast.error("Request Failed", {
+        description: errorMessage,
+      });
+    },
+  });
+};

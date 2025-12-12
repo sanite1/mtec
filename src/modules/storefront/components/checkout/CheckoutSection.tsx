@@ -64,6 +64,7 @@ const CheckoutSection: React.FC = () => {
       const orderPayload: CreateOrderPayload = {
         userId: store.userId,
         items: cleanedCart,
+        channel: "website",
         shippingAddress: cleanAddress,
         ...(note ? { note: note } : {}),
         ...(tax ? { tax: (subtotal * tax?.rate) / 100 } : 0),

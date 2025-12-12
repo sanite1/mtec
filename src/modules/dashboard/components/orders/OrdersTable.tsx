@@ -7,6 +7,8 @@ import { fetchUserOrders, useUserOrders } from "../../lib/api/orders";
 import OrderDetailsSidebar from "./OrderSidebar";
 import EmptyState from "../../utils/EmptyState";
 import box from "../../assets/boxEmpty.png";
+import { useNavigate } from "react-router-dom";
+import { Edit } from "lucide-react";
 
 // ✅ Helper for currency formatting
 const safeCurrency = (value?: number) => {
@@ -17,83 +19,6 @@ const safeCurrency = (value?: number) => {
   })}`;
 };
 
-// ✅ Table columns
-const orderColumns = [
-  {
-    accessorKey: "orderNumber",
-    header: "Order #",
-    cell: (info: any) => info.getValue() || "N/A",
-  },
-  {
-    accessorKey: "shippingAddress",
-    header: "Customer",
-    cell: (info: any) => {
-      const customerName = info.getValue().fullName;
-      return customerName || "Guest";
-    },
-  },
-  {
-    accessorKey: "createdAt",
-    header: "Date",
-    cell: (info: any) =>
-      info.getValue()
-        ? new Date(info.getValue()).toLocaleDateString("en-GB")
-        : "—",
-  },
-  {
-    accessorKey: "total",
-    header: "Total",
-    cell: (info: any) => safeCurrency(info.getValue()),
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: (info: any) => {
-      const status = info.getValue();
-      let statusClass = "";
-
-      if (status === "completed") statusClass = "bg-green-100 text-green-800";
-      if (status === "pending") statusClass = "bg-yellow-100 text-yellow-800";
-      if (status === "cancelled") statusClass = "bg-red-100 text-red-800";
-
-      return (
-        <span
-          className={`px-2 py-1 rounded-full text-sm font-semibold ${statusClass}`}
-        >
-          {status
-            ? status.charAt(0).toUpperCase() + status.slice(1)
-            : "Unknown"}
-        </span>
-      );
-    },
-  },
-  {
-    accessorKey: "paymentStatus",
-    header: "Payment",
-    cell: (info: any) => {
-      const paymentStatus = info.getValue();
-      let statusClass = "";
-
-      if (paymentStatus === "paid")
-        statusClass = "bg-green-50 text-green-700 border border-green-200";
-      else if (paymentStatus === "unpaid")
-        statusClass = "bg-yellow-50 text-yellow-700 border border-yellow-200";
-      else if (paymentStatus === "refunded")
-        statusClass = "bg-gray-100 text-gray-700 border border-gray-200";
-
-      return (
-        <span
-          className={`px-2 py-1 rounded-full text-sm font-semibold ${statusClass}`}
-        >
-          {paymentStatus
-            ? paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)
-            : "Unknown"}
-        </span>
-      );
-    },
-  },
-];
-
 interface OrderTableProps {
   refetchSummary: () => void;
 }
@@ -101,7 +26,98 @@ interface OrderTableProps {
 const OrdersTable = ({ refetchSummary }: OrderTableProps) => {
   const [selectedOrders, setSelectedOrders] = useState<Order[]>([]);
   // const navigate = useNavigate();
+  // ✅ Table columns
+  const orderColumns = [
+    {
+      accessorKey: "orderNumber",
+      header: "Order #",
+      cell: (info: any) => info.getValue() || "N/A",
+    },
+    {
+      accessorKey: "shippingAddress",
+      header: "Customer",
+      cell: (info: any) => {
+        const customerName = info.getValue().fullName;
+        return customerName || "Guest";
+      },
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Date",
+      cell: (info: any) =>
+        info.getValue()
+          ? new Date(info.getValue()).toLocaleDateString("en-GB")
+          : "—",
+    },
+    {
+      accessorKey: "total",
+      header: "Total",
+      cell: (info: any) => safeCurrency(info.getValue()),
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: (info: any) => {
+        const status = info.getValue();
+        let statusClass = "";
 
+        if (status === "completed") statusClass = "bg-green-100 text-green-800";
+        if (status === "pending") statusClass = "bg-yellow-100 text-yellow-800";
+        if (status === "cancelled") statusClass = "bg-red-100 text-red-800";
+
+        return (
+          <span
+            className={`px-2 py-1 rounded-full text-sm font-semibold ${statusClass}`}
+          >
+            {status
+              ? status.charAt(0).toUpperCase() + status.slice(1)
+              : "Unknown"}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "paymentStatus",
+      header: "Payment",
+      cell: (info: any) => {
+        const paymentStatus = info.getValue();
+        let statusClass = "";
+
+        if (paymentStatus === "paid")
+          statusClass = "bg-green-50 text-green-700 border border-green-200";
+        else if (paymentStatus === "unpaid")
+          statusClass = "bg-yellow-50 text-yellow-700 border border-yellow-200";
+        else if (paymentStatus === "refunded")
+          statusClass = "bg-gray-100 text-gray-700 border border-gray-200";
+
+        return (
+          <span
+            className={`px-2 py-1 rounded-full text-sm font-semibold ${statusClass}`}
+          >
+            {paymentStatus
+              ? paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)
+              : "Unknown"}
+          </span>
+        );
+      },
+    },
+    {
+      id: "actions",
+      cell: ({ row }: any) => {
+        const order = row.original as Order;
+        return (
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSelectedOrder(order)}
+              className="p-2 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition"
+            >
+              <Edit size={16} />
+            </button>
+          </div>
+        );
+      },
+    },
+  ];
   // 🔹 Get userId from JWT
   const user = getDecodedJwt();
   const userId = user?.id;
@@ -119,11 +135,12 @@ const OrdersTable = ({ refetchSummary }: OrderTableProps) => {
   const safeOrders: Order[] = data?.orders || [];
 
   const totalItems = data?.total || 0;
+  const navigate = useNavigate();
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const handleRowClick = (order: Order) => {
-    setSelectedOrder(order); // open sidebar with order details
+    navigate(`/orders/${order._id}`);
   };
 
   const handleCloseSidebar = () => {

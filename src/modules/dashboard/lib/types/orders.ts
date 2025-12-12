@@ -9,10 +9,14 @@ export interface OrderFilters {
 
 // Order item (inside "items" array)
 export interface OrderProductItem {
-  productId: string;
+  productId: {
+    name: string;
+    images: string[];
+  };
   variationId?: string;
-  name: string;
   sku: string;
+  images: string[];
+  name: string;
   price: number;
   quantity: number;
   subtotal: number;
@@ -37,8 +41,15 @@ export interface Order {
   orderNumber: string;
   userId: string;
   customerId: string;
+  channel?: string;
   status: "pending" | "completed" | "cancelled";
   paymentStatus: "paid" | "unpaid" | "refunded";
+  shippingStatus:
+    | "pending"
+    | "processing"
+    | "delivered"
+    | "shipped"
+    | "cancelled";
   paymentMethod: "bank_transfer" | "card" | "cash" | string;
   items: OrderProductItem[];
   subtotal: number;
@@ -80,6 +91,7 @@ export interface OrderItem {
 export interface CreateOrderPayload {
   userId?: string; // auto from JWT if not passed
   customerId?: string;
+  channel?: string;
   items: OrderItem[];
   shippingAddress: ShippingAddress;
   note?: string;

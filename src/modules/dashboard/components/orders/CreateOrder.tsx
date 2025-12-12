@@ -103,6 +103,7 @@ export default function CreateOrderPage() {
       const payload = {
         ...cleanedData,
         shippingAddress,
+        channel: "physical",
         items: selectedProducts.map((p) => ({
           productId: p.productId,
           variationId: p.variationId,

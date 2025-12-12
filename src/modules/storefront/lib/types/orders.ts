@@ -80,6 +80,7 @@ export interface OrderItem {
 export interface CreateOrderPayload {
   userId?: string; // auto from JWT if not passed
   customerId?: string;
+  channel?: string;
   items: OrderItem[];
   shippingAddress: ShippingAddress;
   note?: string;

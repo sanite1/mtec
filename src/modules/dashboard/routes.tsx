@@ -38,6 +38,7 @@ import Location from "./pages/Location";
 import Storefront from "./pages/Storefront";
 import CustomizeStorefront from "./pages/StoreCustomization";
 import "react-quill/dist/quill.snow.css";
+import OrderDetailsPage from "./pages/OrderDetails";
 
 export const DashboardRoutes: React.FC = () => {
   return (
@@ -60,6 +61,7 @@ export const DashboardRoutes: React.FC = () => {
           <Route path="/products/:id" element={<ProductDetailsPage />} />
           <Route path="/products/:id/edit" element={<EditProduct />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/orders/:id" element={<OrderDetailsPage />} />
           <Route path="/orders/create" element={<CreateOrder />} />
           <Route path="/customers" element={<Customers />} />
           <Route path="/customers/create" element={<CreateCustomer />} />
