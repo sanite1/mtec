@@ -15,6 +15,7 @@ import { useVerifyDiscount } from "../../lib/api/discount";
 import { Discount } from "../../lib/types/discount";
 import { ConvertPriceRangeToLocale, lightenHex } from "../../lib/utils/utils";
 import { useStoreTax } from "../../lib/api/taxes";
+import { useInitializePayment } from "../../lib/api/payment";
 
 const CheckoutSection: React.FC = () => {
   const { state, dispatch } = useCart();
@@ -39,58 +40,69 @@ const CheckoutSection: React.FC = () => {
 
   const navigate = useNavigate();
 
+  const { mutateAsync: initializePayment } = useInitializePayment();
+
   const handlePlaceOrder = async () => {
     if (!address) {
       setShowAddressError(true);
-
-      setTimeout(() => {
-        setShowAddressError(false);
-      }, 5000);
-
+      setTimeout(() => setShowAddressError(false), 5000);
       return;
     }
 
     try {
+      // 1️⃣ Clean cart
       const cleanedCart = cart.map(
         ({ selectedAttributes, productDetails, ...rest }) => rest,
       );
 
       const cleanAddress = { ...address };
-
       if (!cleanAddress.addressLine2) {
         delete cleanAddress.addressLine2;
       }
 
+      // 2️⃣ Create order payload
       const orderPayload: CreateOrderPayload = {
         userId: store.userId,
         items: cleanedCart,
         channel: "website",
         shippingAddress: cleanAddress,
-        ...(note ? { note: note } : {}),
-        ...(tax ? { tax: (subtotal * tax?.rate) / 100 } : 0),
+        ...(note ? { note } : {}),
+        ...(tax ? { tax: (subtotal * tax.rate) / 100 } : {}),
         discount: totalDiscount || 0,
         shippingFee: selectedShipping?.price,
       };
 
-      const res = await createOrder(orderPayload);
+      // 3️⃣ CREATE ORDER
+      const order = await createOrder(orderPayload);
 
-      const order = {
-        id: Date.now(), // simple unique ID
-        items: cart,
-        total,
-        shipping: address,
-        date: new Date().toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        }),
-      };
+      // 4️⃣ IF WEBSITE → INIT PAYMENT
+      if (order.channel === "website") {
+        const payment = await initializePayment(order._id);
+        console.log(payment);
 
-      dispatch({ type: "SET_ORDER", payload: order });
-      dispatch({ type: "CLEAR_CART" });
-      navigate(`/order-confirmation/${res._id}`);
+        const orderCart = {
+          id: Date.now(), // simple unique ID
+          items: cart,
+          total,
+          shipping: address,
+          date: new Date().toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+        };
+
+        dispatch({ type: "SET_ORDER", payload: orderCart });
+        dispatch({ type: "CLEAR_CART" });
+        // 🔥 Redirect to Paystack
+        window.location.href = payment.authorizationUrl;
+        return;
+      }
+
+      // 5️⃣ Non-website fallback (POS, admin, etc.)
+      navigate(`/order-confirmation/${order._id}`);
     } catch (error) {
-      console.warn(error);
+      console.error("Order placement failed:", error);
     }
   };
 

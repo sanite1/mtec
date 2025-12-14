@@ -37,6 +37,7 @@ export interface Order {
   orderNumber: string;
   userId: string;
   customerId: string;
+  channel: string;
   status: "pending" | "completed" | "cancelled";
   paymentStatus: "paid" | "unpaid" | "refunded";
   paymentMethod: "bank_transfer" | "card" | "cash" | string;
