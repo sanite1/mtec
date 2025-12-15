@@ -7,6 +7,7 @@ import {
   RefreshCw,
   Settings,
   BanknoteArrowUpIcon,
+  CreditCard,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import BankDetailsSidebar from "./BankDetailsSidebar";
@@ -26,6 +27,7 @@ interface TransactionsSummaryProps {
   successfulPayments: number;
   pendingPayments: number;
   refunds: number;
+  offlineTransactions: number;
 }
 
 export default function TransactionsSummary({
@@ -33,6 +35,7 @@ export default function TransactionsSummary({
   successfulPayments,
   pendingPayments,
   refunds,
+  offlineTransactions,
 }: TransactionsSummaryProps) {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -131,7 +134,7 @@ export default function TransactionsSummary({
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
         {/* Total Transactions */}
         <div className="rounded-xl bg-gradient-to-r from-purple-50 to-purple-100 p-3 md:p-5 shadow hover:shadow-md transition">
           <div className="relative flex items-center justify-between">
@@ -147,30 +150,30 @@ export default function TransactionsSummary({
           </div>
         </div>
 
-        {/* Successful Payments */}
+        {/* Available Balance */}
         <div className="rounded-xl bg-gradient-to-r from-green-50 to-green-100 p-3 md:p-5 shadow hover:shadow-md transition">
           <div className="relative flex items-center justify-between">
             <div className="z-10">
               <p className="text-sm text-green-600 font-medium">
-                Successful Payments
+                Available Balance
               </p>
               <p className="mt-1 text-md md:text-xl font-bold text-green-900">
-                {successfulPayments}
+                ₦{successfulPayments.toLocaleString()}
               </p>
             </div>
             <CheckCircle className="absolute md:relative flex-shrink-0 right-0 text-green-500 opacity-80" />
           </div>
         </div>
 
-        {/* Pending Payments */}
+        {/* Pending Balance */}
         <div className="rounded-xl bg-gradient-to-r from-yellow-50 to-yellow-100 p-3 md:p-5 shadow hover:shadow-md transition">
           <div className="relative flex items-center justify-between">
             <div className="z-10">
               <p className="text-sm text-yellow-600 font-medium">
-                Pending Payments
+                Pending Balance
               </p>
               <p className="mt-1 text-md md:text-xl font-bold text-yellow-900">
-                {pendingPayments}
+                ₦{pendingPayments.toLocaleString()}
               </p>
             </div>
             <Clock className="absolute md:relative flex-shrink-0 right-0 text-yellow-500 opacity-80" />
@@ -183,10 +186,25 @@ export default function TransactionsSummary({
             <div className="z-10">
               <p className="text-sm text-red-600 font-medium">Refunds</p>
               <p className="mt-1 text-md md:text-xl font-bold text-red-900">
-                {refunds}
+                ₦{refunds.toLocaleString()}
               </p>
             </div>
             <RefreshCw className="absolute md:relative flex-shrink-0 right-0 text-red-500 opacity-80" />
+          </div>
+        </div>
+
+        {/* Offline Transactions */}
+        <div className="rounded-xl bg-gradient-to-r from-blue-50 to-blue-100 p-3 md:p-5 shadow hover:shadow-md transition">
+          <div className="relative flex items-center justify-between">
+            <div className="z-10">
+              <p className="text-sm text-blue-600 font-medium">
+                Offline Transactions
+              </p>
+              <p className="mt-1 text-md md:text-xl font-bold text-blue-900">
+                ₦{offlineTransactions.toLocaleString()}
+              </p>
+            </div>
+            <CreditCard className="absolute md:relative flex-shrink-0 right-0 text-blue-500 opacity-80" />
           </div>
         </div>
       </div>

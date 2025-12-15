@@ -1,98 +1,65 @@
 // components/payments/TransactionsTable.tsx
 import React, { useState } from "react";
-import { DataTable } from "../../utils/data-table";
+import { DataTable, TableParamProps } from "../../utils/data-table";
+import { toast } from "sonner";
+import { getDecodedJwt } from "../../lib/auth";
 import EmptyState from "../../utils/EmptyState";
 import { CreditCard } from "lucide-react";
+import { fetchUserPayments, useUserPayments } from "../../lib/api/payment";
+import {
+  formatDate,
+  formatDateTime,
+  formatDateTimeMessages,
+} from "../../lib/utils/formatDate";
+import { format } from "date-fns";
 
-export interface Transaction {
-  id: string;
-  amount: number;
-  status: "success" | "pending" | "failed" | "refunded";
-  method: string;
-  date: string;
-  customer: string;
-}
+interface TransactionsTableProps {}
 
-// Mock transactions data
-const mockTransactions: Transaction[] = [
-  {
-    id: "T-001",
-    amount: 12000,
-    status: "success",
-    method: "Bank Transfer",
-    date: "2025-09-10",
-    customer: "John Doe",
-  },
-  {
-    id: "T-002",
-    amount: 5500,
-    status: "pending",
-    method: "Card",
-    date: "2025-09-12",
-    customer: "Jane Smith",
-  },
-  {
-    id: "T-003",
-    amount: 7800,
-    status: "failed",
-    method: "USSD",
-    date: "2025-09-14",
-    customer: "Michael Johnson",
-  },
-  {
-    id: "T-004",
-    amount: 2000,
-    status: "refunded",
-    method: "Card",
-    date: "2025-09-15",
-    customer: "Sarah Lee",
-  },
-];
+const TransactionsTable: React.FC<TransactionsTableProps> = () => {
+  const [selectedPayments, setSelectedPayments] = useState<any[]>([]);
+  const [selectedPayment, setSelectedPayment] = useState<any | null>(null);
 
-const fetchTransactions = async (params: any) => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const { page = 1, perPage = 10, search, status } = params;
-  let filtered = mockTransactions;
+  // 🔹 Get userId from JWT
+  const user = getDecodedJwt();
+  const userId = user?.id;
 
-  if (search) {
-    filtered = filtered.filter(
-      (t) =>
-        t.customer.toLowerCase().includes(search.toLowerCase()) ||
-        t.id.toLowerCase().includes(search.toLowerCase()),
-    );
+  // 🔹 Fetch payments
+  const { data, isLoading, error, refetch } = useUserPayments(userId, {
+    page: 1,
+    limit: 10,
+  });
+
+  if (error) {
+    toast.error(error?.message || "Failed to load payments");
   }
 
-  if (status) {
-    filtered = filtered.filter((t) => t.status === status);
-  }
+  const payments = data?.payments || [];
+  const totalItems = data?.total || 0;
 
-  const start = (page - 1) * perPage;
-  const paginated = filtered.slice(start, start + perPage);
-
-  return {
-    data: paginated,
-    meta: {
-      total: filtered.length,
-      page,
-      perPage,
+  // ✅ Table columns
+  const paymentColumns = [
+    { accessorKey: "orderNumber", header: "Order #" },
+    {
+      accessorKey: "channel",
+      header: "Channel",
+      cell: (info: any) => (
+        <span className="capitalize">{info.getValue()}</span>
+      ),
     },
-  };
-};
-
-const TransactionsTable = () => {
-  const [selected, setSelected] = useState<Transaction[]>([]);
-  const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
-  const [editTarget, setEditTarget] = useState<any | null>(null);
-
-  const transactionColumns = [
-    { accessorKey: "id", header: "Transaction ID" },
     {
       accessorKey: "amount",
       header: "Amount",
       cell: (info: any) => (
         <span className="font-semibold">
-          ₦{info.getValue().toLocaleString()}
+          ₦{Number(info.getValue()).toLocaleString("en-NG")}
         </span>
+      ),
+    },
+    {
+      accessorKey: "method",
+      header: "Method",
+      cell: (info: any) => (
+        <span className="capitalize">{info.getValue()}</span>
       ),
     },
     {
@@ -101,144 +68,136 @@ const TransactionsTable = () => {
       cell: (info: any) => {
         const status = info.getValue();
         const colors: Record<string, string> = {
-          success: "bg-green-100 text-green-800",
-          pending: "bg-yellow-100 text-yellow-800",
-          failed: "bg-red-100 text-red-800",
-          refunded: "bg-blue-100 text-blue-800",
+          paid: "bg-green-50 text-green-700 border border-green-200",
+          pending: "bg-yellow-50 text-yellow-700 border border-yellow-200",
+          failed: "bg-red-50 text-red-700 border border-red-200",
+          refunded: "bg-gray-100 text-gray-700 border border-gray-200",
         };
         return (
           <span
             className={`px-2 py-1 rounded-full text-sm font-semibold ${colors[status]}`}
           >
-            {status.charAt(0).toUpperCase() + status.slice(1)}
+            {status?.charAt(0).toUpperCase() + status?.slice(1)}
           </span>
         );
       },
     },
-    { accessorKey: "method", header: "Method" },
-    { accessorKey: "date", header: "Date" },
-    { accessorKey: "customer", header: "Customer" },
-    // {
-    //   id: "actions",
-    //   cell: ({ row }: any) => {
-    //     const transaction = row.original;
-    //     return (
-    //       <div className="flex gap-2">
-    //         <button
-    //           onClick={() => setEditTarget(transaction)}
-    //           className="p-2 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition"
-    //         >
-    //           <Edit size={16} />
-    //         </button>
-    //         <button
-    //           onClick={() => setDeleteTarget(transaction)}
-    //           className="p-2 rounded-md bg-red-100 text-red-700 hover:bg-red-200 transition"
-    //         >
-    //           <Trash size={16} />
-    //         </button>
-    //       </div>
-    //     );
-    //   },
-    // },
+    {
+      accessorKey: "paidAt",
+      header: "Paid At",
+      cell: (info: any) =>
+        info.getValue()
+          ? format(new Date(info.getValue()), "dd MMM yyyy, hh:mm a")
+          : "—",
+    },
   ];
 
   const emptyState = (
     <EmptyState
       image={CreditCard}
-      message="No transactions found"
-      subtext="When transactions occur, they’ll appear here."
+      message="No payments found"
+      subtext="When payments occur, they’ll appear here."
     />
   );
 
+  // 🔹 Fetch function for DataTable
+  const fetchTablePayments = async (params: TableParamProps) => {
+    const response = await fetchUserPayments(userId, {
+      page: params.page,
+      limit: params.perPage,
+      search: params.search,
+      // status: params.status, // optional status filter
+    });
+
+    return {
+      data: response.payments,
+      meta: { total: response.total },
+    };
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow p-4">
-      <DataTable<Transaction, unknown>
-        columns={transactionColumns}
-        fetchData={fetchTransactions}
-        totalItems={mockTransactions.length}
-        tableKey="transactions"
-        onRowClick={(t) => console.log("Transaction clicked:", t)}
-        setSelected={setSelected}
-        hasTab={true}
-        hasAllTab={true}
-        emptyState={emptyState}
-        tabInfo={[
-          {
-            name: "All Transactions",
-            columns: transactionColumns,
-            fetchData: (params) => fetchTransactions(params),
-            tableKey: "all-transactions",
-            onRowClick: (t) => console.log("Transaction clicked:", t),
-            emptyState: emptyState,
-          },
-          {
-            name: "Successful",
-            columns: transactionColumns,
-            fetchData: (params) =>
-              fetchTransactions({ ...params, status: "success" }),
-            tableKey: "successful-transactions",
-            onRowClick: (t) => console.log("Transaction clicked:", t),
-            emptyState: (
-              <EmptyState
-                image={CreditCard}
-                message="No successful transactions."
-              />
-            ),
-          },
-          {
-            name: "Pending",
-            columns: transactionColumns,
-            fetchData: (params) =>
-              fetchTransactions({ ...params, status: "pending" }),
-            tableKey: "pending-transactions",
-            onRowClick: (t) => console.log("Transaction clicked:", t),
-            emptyState: (
-              <EmptyState
-                image={CreditCard}
-                message="No pending transactions."
-              />
-            ),
-          },
-        ]}
-      />
+    <div className="bg-gray-50 min-h-screen">
+      <div className="mb-3">
+        <p className="text-gray-600">Manage your customer payments</p>
+      </div>
 
-      {/* Delete / Edit handlers */}
-      {deleteTarget && (
-        <div className="mt-4 p-3 bg-red-50 rounded-lg">
-          <p className="text-red-800">
-            Confirm deletion for transaction: {deleteTarget.id}
-          </p>
-          <button
-            onClick={() => {
-              console.log("Deleting:", deleteTarget);
-              setDeleteTarget(null);
-            }}
-            className="mt-2 px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
-          >
-            Confirm Delete
-          </button>
-        </div>
-      )}
+      <div className="bg-white rounded-lg shadow p-4">
+        <DataTable
+          columns={paymentColumns}
+          data={payments}
+          isLoading={isLoading}
+          totalItems={totalItems}
+          tableKey="payments"
+          fetchData={fetchTablePayments}
+          setSelected={setSelectedPayments}
+          onRowClick={(p) => setSelectedPayment(p)}
+          hasTab={true}
+          hasAllTab={true}
+          emptyState={emptyState}
+          tabInfo={[
+            {
+              name: "Paid",
+              columns: paymentColumns,
+              fetchData: (params) => fetchTablePayments({ ...params }),
+              tableKey: "paid-payments",
+              onRowClick: (p) => setSelectedPayment(p),
+              emptyState: (
+                <EmptyState
+                  image={CreditCard}
+                  message="No paid payments found"
+                />
+              ),
+            },
+            {
+              name: "Pending",
+              columns: paymentColumns,
+              fetchData: (params) => fetchTablePayments({ ...params }),
+              tableKey: "pending-payments",
+              onRowClick: (p) => setSelectedPayment(p),
+              emptyState: (
+                <EmptyState
+                  image={CreditCard}
+                  message="No pending payments found"
+                />
+              ),
+            },
+            {
+              name: "Refunded",
+              columns: paymentColumns,
+              fetchData: (params) => fetchTablePayments({ ...params }),
+              tableKey: "refunded-payments",
+              onRowClick: (p) => setSelectedPayment(p),
+              emptyState: (
+                <EmptyState
+                  image={CreditCard}
+                  message="No refunded payments found"
+                />
+              ),
+            },
+          ]}
+        />
 
-      {editTarget && (
+        {selectedPayments.length > 0 && (
+          <div className="mt-4 p-3 bg-purple-50 rounded-lg">
+            <p className="text-purple-800">
+              {selectedPayments.length} payment
+              {selectedPayments.length > 1 ? "s" : ""} selected
+            </p>
+          </div>
+        )}
+      </div>
+
+      {selectedPayment && (
         <div className="mt-4 p-3 bg-blue-50 rounded-lg">
           <p className="text-blue-800">
-            Edit transaction: {editTarget.id} (not implemented yet)
+            Payment details for order: {selectedPayment.orderNumber}
           </p>
           <button
-            onClick={() => setEditTarget(null)}
+            onClick={() => setSelectedPayment(null)}
             className="mt-2 px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
           >
             Close
           </button>
-        </div>
-      )}
-
-      {selected.length > 0 && (
-        <div className="mt-4 p-3 bg-purple-50 rounded-lg">
-          <p className="text-purple-800">
-            {selected.length} transaction(s) selected
-          </p>
         </div>
       )}
     </div>
