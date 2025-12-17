@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { getDecodedJwt } from "../../lib/auth";
 import { useUpdateUser, useUserDetails } from "../../lib/api/authOnboarding";
+import { toDateInputValue } from "../../lib/utils/utils";
 
 // Zod Validation Schema
 const profileSchema = z.object({
@@ -51,7 +52,7 @@ export default function EditProfilePage() {
         firstName: userDetails.firstname ?? "",
         middleName: userDetails.middlename ?? "",
         lastName: userDetails.lastname ?? "",
-        dob: userDetails.dob ?? "",
+        dob: toDateInputValue(userDetails.dob),
         phone: userDetails.phone ?? "",
         // email: userDetails.email ?? "",
       });

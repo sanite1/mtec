@@ -39,6 +39,7 @@ import Storefront from "./pages/Storefront";
 import CustomizeStorefront from "./pages/StoreCustomization";
 import "react-quill/dist/quill.snow.css";
 import OrderDetailsPage from "./pages/OrderDetails";
+import Kyc from "./pages/Kyc";
 
 export const DashboardRoutes: React.FC = () => {
   return (
@@ -83,6 +84,7 @@ export const DashboardRoutes: React.FC = () => {
           <Route path="/settings" element={<Settings />} />
           <Route path="/location" element={<Location />} />
           <Route path="/storefront" element={<Storefront />} />
+          <Route path="/kyc" element={<Kyc />} />
           <Route
             path="/storefront/customization/:id"
             element={<CustomizeStorefront />}

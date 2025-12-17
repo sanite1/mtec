@@ -88,3 +88,8 @@ export const convertUrlToFile = async (
     type: blob.type || "image/jpeg",
   });
 };
+
+export const toDateInputValue = (date?: string | Date) => {
+  if (!date) return "";
+  return new Date(date).toISOString().split("T")[0];
+};
