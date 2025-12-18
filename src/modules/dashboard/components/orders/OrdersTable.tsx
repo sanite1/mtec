@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { DataTable, TableParamProps } from "../../utils/data-table";
 import { toast } from "sonner";
 import { getDecodedJwt } from "../../lib/auth";
@@ -10,7 +10,7 @@ import box from "../../assets/boxEmpty.png";
 import { useNavigate } from "react-router-dom";
 import { Edit } from "lucide-react";
 
-// ✅ Helper for currency formatting
+// ---------------- Currency Helper ----------------
 const safeCurrency = (value?: number) => {
   if (typeof value !== "number" || isNaN(value)) return "₦0.00";
   return `₦${value.toLocaleString("en-NG", {
@@ -25,8 +25,14 @@ interface OrderTableProps {
 
 const OrdersTable = ({ refetchSummary }: OrderTableProps) => {
   const [selectedOrders, setSelectedOrders] = useState<Order[]>([]);
-  // const navigate = useNavigate();
-  // ✅ Table columns
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const navigate = useNavigate();
+
+  // ---------------- User ----------------
+  const user = getDecodedJwt();
+  const userId = user?.id;
+
+  // ---------------- Columns ----------------
   const orderColumns = [
     {
       accessorKey: "orderNumber",
@@ -36,10 +42,7 @@ const OrdersTable = ({ refetchSummary }: OrderTableProps) => {
     {
       accessorKey: "shippingAddress",
       header: "Customer",
-      cell: (info: any) => {
-        const customerName = info.getValue().fullName;
-        return customerName || "Guest";
-      },
+      cell: (info: any) => info.getValue()?.fullName || "Guest",
     },
     {
       accessorKey: "createdAt",
@@ -59,15 +62,17 @@ const OrdersTable = ({ refetchSummary }: OrderTableProps) => {
       header: "Status",
       cell: (info: any) => {
         const status = info.getValue();
-        let statusClass = "";
-
-        if (status === "completed") statusClass = "bg-green-100 text-green-800";
-        if (status === "pending") statusClass = "bg-yellow-100 text-yellow-800";
-        if (status === "cancelled") statusClass = "bg-red-100 text-red-800";
+        const styles: Record<string, string> = {
+          completed: "bg-green-100 text-green-800",
+          pending: "bg-yellow-100 text-yellow-800",
+          cancelled: "bg-red-100 text-red-800",
+        };
 
         return (
           <span
-            className={`px-2 py-1 rounded-full text-sm font-semibold ${statusClass}`}
+            className={`px-2 py-1 rounded-full text-sm font-semibold ${
+              styles[status] ?? ""
+            }`}
           >
             {status
               ? status.charAt(0).toUpperCase() + status.slice(1)
@@ -81,18 +86,17 @@ const OrdersTable = ({ refetchSummary }: OrderTableProps) => {
       header: "Payment",
       cell: (info: any) => {
         const paymentStatus = info.getValue();
-        let statusClass = "";
-
-        if (paymentStatus === "paid")
-          statusClass = "bg-green-50 text-green-700 border border-green-200";
-        else if (paymentStatus === "unpaid")
-          statusClass = "bg-yellow-50 text-yellow-700 border border-yellow-200";
-        else if (paymentStatus === "refunded")
-          statusClass = "bg-gray-100 text-gray-700 border border-gray-200";
+        const styles: Record<string, string> = {
+          paid: "bg-green-50 text-green-700 border border-green-200",
+          unpaid: "bg-yellow-50 text-yellow-700 border border-yellow-200",
+          refunded: "bg-gray-100 text-gray-700 border border-gray-200",
+        };
 
         return (
           <span
-            className={`px-2 py-1 rounded-full text-sm font-semibold ${statusClass}`}
+            className={`px-2 py-1 rounded-full text-sm font-semibold ${
+              styles[paymentStatus] ?? ""
+            }`}
           >
             {paymentStatus
               ? paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)
@@ -103,26 +107,18 @@ const OrdersTable = ({ refetchSummary }: OrderTableProps) => {
     },
     {
       id: "actions",
-      cell: ({ row }: any) => {
-        const order = row.original as Order;
-        return (
-          <div className="flex gap-2">
-            <button
-              onClick={() => setSelectedOrder(order)}
-              className="p-2 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition"
-            >
-              <Edit size={16} />
-            </button>
-          </div>
-        );
-      },
+      cell: ({ row }: any) => (
+        <button
+          onClick={() => setSelectedOrder(row.original)}
+          className="p-2 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200"
+        >
+          <Edit size={16} />
+        </button>
+      ),
     },
   ];
-  // 🔹 Get userId from JWT
-  const user = getDecodedJwt();
-  const userId = user?.id;
 
-  // 🔹 Fetch orders via hook
+  // ---------------- Initial Load (All) ----------------
   const { data, isLoading, error, refetch } = useUserOrders(userId, {
     page: 1,
     limit: 10,
@@ -132,13 +128,10 @@ const OrdersTable = ({ refetchSummary }: OrderTableProps) => {
     toast.error(error?.message || "Failed to load orders");
   }
 
-  const safeOrders: Order[] = data?.orders || [];
-
+  const safeOrders = data?.orders || [];
   const totalItems = data?.total || 0;
-  const navigate = useNavigate();
 
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-
+  // ---------------- Row Click ----------------
   const handleRowClick = (order: Order) => {
     navigate(`/orders/${order._id}`);
   };
@@ -148,27 +141,63 @@ const OrdersTable = ({ refetchSummary }: OrderTableProps) => {
     refetchSummary();
   };
 
-  const fetchTableOrders = async (params: TableParamProps) => {
-    const response = await fetchUserOrders(userId, {
-      page: params.page,
-      limit: params.perPage,
-      search: params.search,
-    });
+  // ---------------- Fetch Helpers (LIKE PRODUCT HISTORY) ----------------
+  const createFetchHandler =
+    (status?: string) => async (params: TableParamProps) => {
+      const response = await fetchUserOrders(userId, {
+        page: params.page,
+        limit: params.perPage,
+        search: params.search,
+        status,
+      });
 
-    return {
-      data: {
-        data: response.orders, // array of products
-        meta: { total: response.total },
-      },
+      return {
+        data: {
+          data: response.orders,
+          meta: { total: response.total },
+        },
+      };
     };
-  };
+
+  const fetchAllOrders = createFetchHandler();
+  const fetchPendingOrders = createFetchHandler("pending");
+  const fetchCompletedOrders = createFetchHandler("completed");
+  const fetchCancelledOrders = createFetchHandler("cancelled");
+
+  // ---------------- Tabs ----------------
+  const tabs = useMemo(
+    () => [
+      {
+        name: "Pending",
+        tableKey: "pending-orders",
+        fetchData: fetchPendingOrders,
+        emptyState: "No pending orders found.",
+      },
+      {
+        name: "Completed",
+        tableKey: "completed-orders",
+        fetchData: fetchCompletedOrders,
+        emptyState: "No completed orders found.",
+      },
+      {
+        name: "Cancelled",
+        tableKey: "cancelled-orders",
+        fetchData: fetchCancelledOrders,
+        emptyState: "No cancelled orders found.",
+      },
+    ],
+    [],
+  );
+
   const emptyState = (
     <EmptyState
       image={box}
       message="No orders found"
-      subtext="When you create order, they’ll appear here."
+      subtext="When you receive orders, they’ll appear here."
     />
   );
+
+  // ---------------- Render ----------------
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="mb-3">
@@ -182,38 +211,17 @@ const OrdersTable = ({ refetchSummary }: OrderTableProps) => {
           isLoading={isLoading}
           totalItems={totalItems}
           tableKey="orders"
-          fetchData={fetchTableOrders}
+          fetchData={fetchAllOrders}
           onRowClick={handleRowClick}
           setSelected={setSelectedOrders}
-          hasTab={true}
-          hasAllTab={true}
+          hasTab
+          hasAllTab
           emptyState={emptyState}
-          tabInfo={[
-            {
-              name: "Pending",
-              columns: orderColumns,
-              data: safeOrders.filter((o) => o.status === "pending"),
-              tableKey: "pending-orders",
-              onRowClick: handleRowClick,
-              emptyState: "No pending orders found.",
-            },
-            {
-              name: "Completed",
-              columns: orderColumns,
-              data: safeOrders.filter((o) => o.status === "completed"),
-              tableKey: "completed-orders",
-              onRowClick: handleRowClick,
-              emptyState: "No completed orders found.",
-            },
-            {
-              name: "Cancelled",
-              columns: orderColumns,
-              data: safeOrders.filter((o) => o.status === "cancelled"),
-              tableKey: "cancelled-orders",
-              onRowClick: handleRowClick,
-              emptyState: "No cancelled orders found.",
-            },
-          ]}
+          tabInfo={tabs.map((tab) => ({
+            ...tab,
+            columns: orderColumns,
+            onRowClick: handleRowClick,
+          }))}
         />
 
         {selectedOrders.length > 0 && (
@@ -225,12 +233,11 @@ const OrdersTable = ({ refetchSummary }: OrderTableProps) => {
           </div>
         )}
       </div>
+
       {selectedOrder && (
         <OrderDetailsSidebar
           order={selectedOrder}
           onClose={handleCloseSidebar}
-          // onEditPaymentStatus={handleEditPaymentStatus}
-          // onEditOrderStatus={handleEditOrderStatus}
           refetch={refetch}
         />
       )}

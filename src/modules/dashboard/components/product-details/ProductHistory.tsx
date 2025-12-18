@@ -1,102 +1,134 @@
 import React, { useState, useMemo } from "react";
-import { DataTable } from "../../utils/data-table";
+import { DataTable, TableParamProps } from "../../utils/data-table";
 import { IProductHistory } from "../../lib/types/products";
 import { formatDate } from "../../lib/utils/formatDate";
+import { fetchProductHistory } from "../../lib/api/products";
+import { useParams } from "react-router-dom";
 
 // ---------------- Columns ----------------
 const historyColumns = [
   {
     accessorKey: "createdAt",
     header: "Date",
-    cell: (info: any) => {
-      const val = info.getValue();
-      return formatDate(val);
-    },
+    cell: (info: any) => formatDate(info.getValue()),
   },
   {
     accessorKey: "source",
     header: "Source",
-    cell: (info: any) => {
-      const val = info.getValue();
-      return val.toUpperCase();
-    },
+    cell: (info: any) => info.getValue()?.toUpperCase(),
   },
   {
     accessorKey: "activity",
     header: "Activity",
     cell: (info: any) => {
       const value = info.getValue();
-      let color = "";
-      if (value === "sold") color = "bg-blue-100 text-blue-800";
-      if (value === "added") color = "bg-green-100 text-green-800";
-      if (value === "returned") color = "bg-yellow-100 text-yellow-800";
-      if (value === "removed") color = "bg-red-100 text-red-800";
+      const colors: Record<string, string> = {
+        sold: "bg-blue-100 text-blue-800",
+        added: "bg-green-100 text-green-800",
+        returned: "bg-yellow-100 text-yellow-800",
+        removed: "bg-red-100 text-red-800",
+      };
+
       return (
         <span
-          className={`px-2 py-1 rounded-full text-xs font-semibold ${color}`}
+          className={`px-2 py-1 rounded-full text-xs font-semibold ${
+            colors[value] ?? ""
+          }`}
         >
-          {value.charAt(0).toUpperCase() + value.slice(1)}
+          {value?.charAt(0).toUpperCase() + value?.slice(1)}
         </span>
       );
     },
   },
-  {
-    accessorKey: "qtyBefore",
-    header: "Qty Before",
-  },
+  { accessorKey: "qtyBefore", header: "Qty Before" },
   {
     accessorKey: "qtyChange",
     header: "Change",
     cell: (info: any) => {
       const val = info.getValue();
+      const activity = info.row.original.activity?.toLowerCase();
 
-      const row = info.row.original;
-      const activity = row.activity?.toLowerCase();
+      const isPositive = activity === "added" || activity === "returned";
+
       return (
-        <span
-          className={
-            activity === "added" || activity === "returned"
-              ? "text-green-600"
-              : "text-red-600"
-          }
-        >
-          {activity === "added" || activity === "returned" ? `+${val}` : val}
+        <span className={isPositive ? "text-green-600" : "text-red-600"}>
+          {isPositive ? `+${val}` : val}
         </span>
       );
     },
   },
-  {
-    accessorKey: "qtyAfter",
-    header: "Qty After",
-  },
+  { accessorKey: "qtyAfter", header: "Qty After" },
 ];
 
 // ---------------- Component ----------------
-const ProductHistory = ({
-  history,
-  isLoading,
-  error,
-}: {
+interface Props {
   history: IProductHistory[];
   isLoading: boolean;
   error: any;
-}) => {
-  const [selectedRows, setSelectedRows] = useState<IProductHistory[]>([]);
+  total: number;
+}
 
-  // Group by activity type
-  const groupedHistory = useMemo(() => {
-    return {
-      all: history || [],
-      sold: history?.filter((h) => h.activity === "sold") || [],
-      added: history?.filter((h) => h.activity === "added") || [],
-      removed: history?.filter((h) => h.activity === "removed") || [],
-      returned: history?.filter((h) => h.activity === "returned") || [],
-    };
-  }, [history]);
+const ProductHistory = ({ history, isLoading, error, total }: Props) => {
+  const { id } = useParams();
+  const [selectedRows, setSelectedRows] = useState<IProductHistory[]>([]);
 
   const handleRowClick = (entry: IProductHistory) => {
     console.log("History entry clicked:", entry);
   };
+
+  // ---------------- Fetch Helpers ----------------
+  const createFetchHandler =
+    (activity?: string) => async (params: TableParamProps) => {
+      const response = await fetchProductHistory(id as string, {
+        page: params.page,
+        limit: params.perPage,
+        activity,
+      });
+
+      return {
+        data: {
+          data: response.history,
+          meta: { total: response.total },
+        },
+      };
+    };
+
+  const fetchAllHistory = createFetchHandler();
+  const fetchSoldHistory = createFetchHandler("sold");
+  const fetchAddedHistory = createFetchHandler("added");
+  const fetchRemovedHistory = createFetchHandler("removed");
+  const fetchReturnedHistory = createFetchHandler("returned");
+
+  // ---------------- Tabs ----------------
+  const tabs = useMemo(
+    () => [
+      {
+        name: "Sold",
+        tableKey: "sold-history",
+        fetchData: fetchSoldHistory,
+        emptyState: "No sold history entries.",
+      },
+      {
+        name: "Added",
+        tableKey: "added-history",
+        fetchData: fetchAddedHistory,
+        emptyState: "No added stock entries.",
+      },
+      {
+        name: "Removed",
+        tableKey: "removed-history",
+        fetchData: fetchRemovedHistory,
+        emptyState: "No removed stock entries.",
+      },
+      {
+        name: "Returned",
+        tableKey: "returned-history",
+        fetchData: fetchReturnedHistory,
+        emptyState: "No returned stock entries.",
+      },
+    ],
+    [],
+  );
 
   if (error) {
     return (
@@ -118,48 +150,20 @@ const ProductHistory = ({
       <div className="bg-white rounded-lg shadow p-4">
         <DataTable<IProductHistory, unknown>
           columns={historyColumns}
-          data={groupedHistory.all}
+          data={history}
           isLoading={isLoading}
-          totalItems={groupedHistory.all.length}
+          totalItems={total}
           tableKey="product-history"
           onRowClick={handleRowClick}
           setSelected={setSelectedRows}
-          hasTab={true}
-          hasAllTab={true}
-          tabInfo={[
-            {
-              name: "Sold",
-              columns: historyColumns,
-              data: groupedHistory.sold,
-              tableKey: "sold-history",
-              onRowClick: handleRowClick,
-              emptyState: "No sold history entries.",
-            },
-            {
-              name: "Added",
-              columns: historyColumns,
-              data: groupedHistory.added,
-              tableKey: "added-history",
-              onRowClick: handleRowClick,
-              emptyState: "No added stock entries.",
-            },
-            {
-              name: "Removed",
-              columns: historyColumns,
-              data: groupedHistory.removed,
-              tableKey: "removed-history",
-              onRowClick: handleRowClick,
-              emptyState: "No removed stock entries.",
-            },
-            {
-              name: "Returned",
-              columns: historyColumns,
-              data: groupedHistory.returned,
-              tableKey: "returned-history",
-              onRowClick: handleRowClick,
-              emptyState: "No returned stock entries.",
-            },
-          ]}
+          fetchData={fetchAllHistory}
+          hasTab
+          hasAllTab
+          tabInfo={tabs.map((tab) => ({
+            ...tab,
+            columns: historyColumns,
+            onRowClick: handleRowClick,
+          }))}
         />
 
         {selectedRows.length > 0 && (

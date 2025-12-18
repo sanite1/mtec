@@ -84,6 +84,8 @@ export const fetchProductHistory = async (
 
   if (filters?.page) params.append("page", String(filters.page));
   if (filters?.limit) params.append("limit", String(filters.limit));
+  // if (filters?.search) params.append("search", String(filters.search));
+  if (filters?.activity) params.append("activity", String(filters.activity));
 
   const res = await api.get<ApiResponse<ProductHistoryResponse>>(
     `/product/${productId}/history?${params.toString()}`,

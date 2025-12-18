@@ -98,6 +98,8 @@ export interface ProductHistoryResponse {
 export interface ProductHistoryFilters {
   page?: number;
   limit?: number;
+  search?: string;
+  activity?: string;
 }
 
 // --- types/product.ts ---

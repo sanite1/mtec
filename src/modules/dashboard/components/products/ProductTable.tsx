@@ -216,35 +216,36 @@ const ProductTable = ({
           tableKey="products"
           onRowClick={handleRowClick}
           setSelected={setSelectedProducts}
-          hasTab={true}
+          // hasTab={true}
           emptyState={emptyState}
-          hasAllTab={true}
-          tabInfo={[
-            {
-              name: "Active",
-              columns: productColumns,
-              data: safeProducts.filter((p) => p.isActive === true),
-              tableKey: "active-products",
-              onRowClick: handleRowClick,
-              emptyState: "No active products found.",
-            },
-            {
-              name: "Inactive",
-              columns: productColumns,
-              data: safeProducts.filter((p) => p.isActive === false),
-              tableKey: "inactive-products",
-              onRowClick: handleRowClick,
-              emptyState: "All products are active!",
-            },
-            {
-              name: "Out of Stock",
-              columns: productColumns,
-              data: safeProducts.filter((p) => (p.totalStock ?? 0) < 1),
-              tableKey: "out-of-stock-products",
-              onRowClick: handleRowClick,
-              emptyState: "All products are in stock!",
-            },
-          ]}
+          // hasAllTab={true}
+          // tabInfo={[
+          //   {
+          //     name: "Active",
+          //     columns: productColumns,
+          //     data: safeProducts.filter((p) => p.isActive === true),
+          //     tableKey: "active-products",
+          //     onRowClick: handleRowClick,
+          //     emptyState: "No active products found.",
+          //     fetchData=fetchTableProducts
+          //   },
+          //   {
+          //     name: "Inactive",
+          //     columns: productColumns,
+          //     data: safeProducts.filter((p) => p.isActive === false),
+          //     tableKey: "inactive-products",
+          //     onRowClick: handleRowClick,
+          //     emptyState: "All products are active!",
+          //   },
+          //   {
+          //     name: "Out of Stock",
+          //     columns: productColumns,
+          //     data: safeProducts.filter((p) => (p.totalStock ?? 0) < 1),
+          //     tableKey: "out-of-stock-products",
+          //     onRowClick: handleRowClick,
+          //     emptyState: "All products are in stock!",
+          //   },
+          // ]}
         />
 
         {selectedProducts?.length > 0 && (

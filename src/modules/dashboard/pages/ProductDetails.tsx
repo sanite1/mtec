@@ -121,6 +121,7 @@ export default function ProductDetailsPage() {
       <ProductHistory
         history={history?.history || []}
         isLoading={loadingHistory}
+        total={history?.total || 0}
         error={historyError}
       />
     </div>

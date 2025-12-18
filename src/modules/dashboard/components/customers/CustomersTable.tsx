@@ -1,5 +1,5 @@
 // components/customers/CustomersTable.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { DataTable, TableParamProps } from "../../utils/data-table";
 import person from "../../assets/personEmpty.png";
 import EmptyState from "../../utils/EmptyState";
@@ -21,6 +21,7 @@ const CustomersTable = ({ refetch }: { refetch: () => void }) => {
   const userId = user?.id;
   const [searchParams] = useSearchParams();
 
+  // ---------------- Filters ----------------
   const [filters, setFilters] = useState({
     page: 1,
     limit: 5,
@@ -28,76 +29,62 @@ const CustomersTable = ({ refetch }: { refetch: () => void }) => {
     newsletter: undefined as boolean | undefined,
   });
 
-  // 🧠 Sync filters with URL search params
+  // ---------------- Sync URL → Filters ----------------
   useEffect(() => {
-    const pageParam = Number(searchParams.get("page")) || 1;
-    const limitParam = Number(searchParams.get("perpage")) || 5;
-    const searchParam = searchParams.get("search") || "";
+    const page = Number(searchParams.get("page")) || 1;
+    const limit = Number(searchParams.get("perpage")) || 5;
+    const search = searchParams.get("search") || "";
     const newsletterParam = searchParams.get("newsletter");
 
-    setFilters((prev) => ({
-      ...prev,
-      page: pageParam,
-      limit: limitParam,
-      search: searchParam,
+    setFilters({
+      page,
+      limit,
+      search,
       newsletter:
         newsletterParam === "true"
           ? true
           : newsletterParam === "false"
             ? false
             : undefined,
-    }));
+    });
   }, [searchParams]);
 
+  // ---------------- Initial Load (All) ----------------
   const { data, isLoading } = useStoreCustomers(userId, filters);
-
-  // ✅ Transform API response → Table format
   const customers: Customer[] = data?.customers ?? [];
 
+  // ---------------- State ----------------
   const [selected, setSelected] = useState<Customer[]>([]);
   const [deleteTarget, setDeleteTarget] = useState<Customer | null>(null);
   const [editTarget, setEditTarget] = useState<Customer | null>(null);
 
-  const handleRowClick = (customer: Customer) => {
-    console.log("Customer clicked:", customer);
-  };
-
+  // ---------------- Delete ----------------
   const { mutateAsync: deleteCustomer, isPending } = useDeleteCustomer();
 
   const handleDelete = async (customerId: string) => {
-    try {
-      await deleteCustomer(
-        { customerId, userId },
-        {
-          onSuccess: () => {
-            setDeleteTarget(null);
-            refetch();
-          },
+    await deleteCustomer(
+      { customerId, userId },
+      {
+        onSuccess: () => {
+          setDeleteTarget(null);
+          refetch();
         },
-      );
-    } catch (error) {
-      console.error(error);
-    }
+      },
+    );
   };
 
+  // ---------------- Columns ----------------
   const customerColumns = [
-    // { accessorKey: "id", header: "ID" },
     {
       accessorKey: "createdAt",
       header: "Joined Date",
-      cell: (info: any) => {
-        const date = info.getValue();
-
-        return formatDate(date);
-      },
+      cell: (info: any) => formatDate(info.getValue()),
     },
     {
       accessorKey: "name",
       header: "Name",
-      cell: ({ row }: any) => {
-        const cus = row.original;
-        return `${cus.firstName} ${cus.lastName}`;
-      },
+      cell: ({ row }: any) =>
+        `${row.original.firstName} ${row.original.lastName}`,
     },
     { accessorKey: "email", header: "Email" },
     { accessorKey: "phone", header: "Phone" },
@@ -121,28 +108,72 @@ const CustomersTable = ({ refetch }: { refetch: () => void }) => {
     },
     {
       id: "actions",
-      cell: ({ row }: any) => {
-        const customer = row.original;
-        return (
-          <div className="flex gap-2">
-            <button
-              onClick={() => setEditTarget(customer)}
-              className="p-2 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition"
-            >
-              <Edit size={16} />
-            </button>
-            <button
-              onClick={() => setDeleteTarget(customer)}
-              className="p-2 rounded-md bg-red-100 text-red-700 hover:bg-red-200 transition"
-            >
-              <Trash size={16} />
-            </button>
-          </div>
-        );
-      },
+      cell: ({ row }: any) => (
+        <div className="flex gap-2">
+          <button
+            onClick={() => setEditTarget(row.original)}
+            className="p-2 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200"
+          >
+            <Edit size={16} />
+          </button>
+          <button
+            onClick={() => setDeleteTarget(row.original)}
+            className="p-2 rounded-md bg-red-100 text-red-700 hover:bg-red-200"
+          >
+            <Trash size={16} />
+          </button>
+        </div>
+      ),
     },
   ];
 
+  // ---------------- Fetch Helpers (LIKE PRODUCT HISTORY) ----------------
+  const createFetchHandler =
+    (subscribed?: "true" | "false") => async (params: TableParamProps) => {
+      const response = await fetchStoreCustomers(userId, {
+        page: params.page,
+        limit: params.perPage,
+        search: params.search,
+        subscribed:
+          subscribed === "true"
+            ? true
+            : subscribed === "false"
+              ? false
+              : undefined,
+      });
+
+      return {
+        data: {
+          data: response.customers,
+          meta: { total: response.total },
+        },
+      };
+    };
+
+  const fetchAllCustomers = createFetchHandler();
+  const fetchSubscribedCustomers = createFetchHandler("true");
+  const fetchUnsubscribedCustomers = createFetchHandler("false");
+
+  // ---------------- Tabs ----------------
+  const tabs = useMemo(
+    () => [
+      {
+        name: "Subscribed",
+        tableKey: "subscribed-customers",
+        fetchData: fetchSubscribedCustomers,
+        emptyState: "No subscribed customers found.",
+      },
+      {
+        name: "Not Subscribed",
+        tableKey: "unsubscribed-customers",
+        fetchData: fetchUnsubscribedCustomers,
+        emptyState: "No unsubscribed customers found.",
+      },
+    ],
+    [],
+  );
+
+  // ---------------- Empty State ----------------
   const emptyState = (
     <EmptyState
       image={person}
@@ -151,21 +182,7 @@ const CustomersTable = ({ refetch }: { refetch: () => void }) => {
     />
   );
 
-  const fetchTableCustumers = async (params: TableParamProps) => {
-    const response = await fetchStoreCustomers(userId, {
-      page: params.page,
-      limit: params.perPage,
-      search: params.search,
-    });
-
-    return {
-      data: {
-        data: response.customers, // array of products
-        meta: { total: response.total },
-      },
-    };
-  };
-
+  // ---------------- Render ----------------
   return (
     <div className="bg-white rounded-lg shadow p-4">
       <DataTable<Customer, unknown>
@@ -174,48 +191,40 @@ const CustomersTable = ({ refetch }: { refetch: () => void }) => {
         isLoading={isLoading}
         totalItems={data?.total ?? 0}
         tableKey="customers"
-        fetchData={fetchTableCustumers}
-        onRowClick={handleRowClick}
-        emptyState={emptyState}
+        fetchData={fetchAllCustomers}
         setSelected={setSelected}
-        hasTab={true}
-        hasAllTab={true}
-        tabInfo={[
-          {
-            name: "Newsletter Subscribers",
-            columns: customerColumns,
-            data: customers.filter((c) => c.newsletterSubscribed === true),
-            tableKey: "newsletter-subscribers",
-            onRowClick: handleRowClick,
-            // emptyState: (
-            //   <EmptyState image={person} message="No newsletter subscribers." />
-            // ),
-          },
-        ]}
+        hasTab
+        hasAllTab
+        emptyState={emptyState}
+        tabInfo={tabs.map((tab) => ({
+          ...tab,
+          columns: customerColumns,
+        }))}
       />
 
+      {/* Delete */}
       {deleteTarget && (
         <DeleteModal
           customerName={deleteTarget.firstName}
-          onClose={() => setDeleteTarget(null)}
           loading={isPending}
-          onConfirm={() => {
-            handleDelete(deleteTarget._id);
-          }}
+          onClose={() => setDeleteTarget(null)}
+          onConfirm={() => handleDelete(deleteTarget._id)}
         />
       )}
 
+      {/* Edit */}
       {editTarget && (
         <EditSidebar
           customer={editTarget}
           onClose={() => setEditTarget(null)}
-          onSave={(updated) => {
+          onSave={() => {
             refetch();
             setEditTarget(null);
           }}
         />
       )}
 
+      {/* Selected */}
       {selected.length > 0 && (
         <div className="mt-4 p-3 bg-blue-50 rounded-lg">
           <p className="text-blue-800">

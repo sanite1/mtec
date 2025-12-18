@@ -9,7 +9,7 @@ export interface CustomerFilters {
   search?: string;
   page?: number;
   limit?: number;
-  newsletter?: boolean;
+  subscribed?: boolean;
   startDate?: string;
   endDate?: string;
 }

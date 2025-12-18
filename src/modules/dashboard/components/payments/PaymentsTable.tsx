@@ -1,30 +1,23 @@
-// components/payments/TransactionsTable.tsx
-import React, { useState } from "react";
+/// components/payments/TransactionsTable.tsx
+import React, { useState, useMemo } from "react";
 import { DataTable, TableParamProps } from "../../utils/data-table";
 import { toast } from "sonner";
 import { getDecodedJwt } from "../../lib/auth";
 import EmptyState from "../../utils/EmptyState";
 import { CreditCard } from "lucide-react";
 import { fetchUserPayments, useUserPayments } from "../../lib/api/payment";
-import {
-  formatDate,
-  formatDateTime,
-  formatDateTimeMessages,
-} from "../../lib/utils/formatDate";
 import { format } from "date-fns";
 
-interface TransactionsTableProps {}
-
-const TransactionsTable: React.FC<TransactionsTableProps> = () => {
+const TransactionsTable: React.FC = () => {
   const [selectedPayments, setSelectedPayments] = useState<any[]>([]);
   const [selectedPayment, setSelectedPayment] = useState<any | null>(null);
 
-  // 🔹 Get userId from JWT
+  // ---------------- User ----------------
   const user = getDecodedJwt();
   const userId = user?.id;
 
-  // 🔹 Fetch payments
-  const { data, isLoading, error, refetch } = useUserPayments(userId, {
+  // ---------------- Initial Fetch (All) ----------------
+  const { data, isLoading, error } = useUserPayments(userId, {
     page: 1,
     limit: 10,
   });
@@ -36,7 +29,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = () => {
   const payments = data?.payments || [];
   const totalItems = data?.total || 0;
 
-  // ✅ Table columns
+  // ---------------- Columns ----------------
   const paymentColumns = [
     { accessorKey: "orderNumber", header: "Order #" },
     {
@@ -73,9 +66,12 @@ const TransactionsTable: React.FC<TransactionsTableProps> = () => {
           failed: "bg-red-50 text-red-700 border border-red-200",
           refunded: "bg-gray-100 text-gray-700 border border-gray-200",
         };
+
         return (
           <span
-            className={`px-2 py-1 rounded-full text-sm font-semibold ${colors[status]}`}
+            className={`px-2 py-1 rounded-full text-sm font-semibold ${
+              colors[status] ?? ""
+            }`}
           >
             {status?.charAt(0).toUpperCase() + status?.slice(1)}
           </span>
@@ -92,6 +88,54 @@ const TransactionsTable: React.FC<TransactionsTableProps> = () => {
     },
   ];
 
+  // ---------------- Fetch Helpers (LIKE PRODUCT HISTORY) ----------------
+  const createFetchHandler =
+    (status?: string) => async (params: TableParamProps) => {
+      const response = await fetchUserPayments(userId, {
+        page: params.page,
+        limit: params.perPage,
+        search: params.search,
+        status,
+      });
+
+      return {
+        data: {
+          data: response.payments,
+          meta: { total: response.total },
+        },
+      };
+    };
+
+  const fetchAllPayments = createFetchHandler();
+  const fetchPaidPayments = createFetchHandler("paid");
+  const fetchPendingPayments = createFetchHandler("pending");
+  const fetchRefundedPayments = createFetchHandler("refunded");
+
+  // ---------------- Tabs ----------------
+  const tabs = useMemo(
+    () => [
+      {
+        name: "Paid",
+        tableKey: "paid-payments",
+        fetchData: fetchPaidPayments,
+        emptyState: "No paid payments found.",
+      },
+      {
+        name: "Pending",
+        tableKey: "pending-payments",
+        fetchData: fetchPendingPayments,
+        emptyState: "No pending payments found.",
+      },
+      {
+        name: "Refunded",
+        tableKey: "refunded-payments",
+        fetchData: fetchRefundedPayments,
+        emptyState: "No refunded payments found.",
+      },
+    ],
+    [],
+  );
+
   const emptyState = (
     <EmptyState
       image={CreditCard}
@@ -100,21 +144,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = () => {
     />
   );
 
-  // 🔹 Fetch function for DataTable
-  const fetchTablePayments = async (params: TableParamProps) => {
-    const response = await fetchUserPayments(userId, {
-      page: params.page,
-      limit: params.perPage,
-      search: params.search,
-      // status: params.status, // optional status filter
-    });
-
-    return {
-      data: response.payments,
-      meta: { total: response.total },
-    };
-  };
-
+  // ---------------- Render ----------------
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="mb-3">
@@ -122,59 +152,23 @@ const TransactionsTable: React.FC<TransactionsTableProps> = () => {
       </div>
 
       <div className="bg-white rounded-lg shadow p-4">
-        <DataTable
+        <DataTable<any, unknown>
           columns={paymentColumns}
           data={payments}
           isLoading={isLoading}
           totalItems={totalItems}
           tableKey="payments"
-          fetchData={fetchTablePayments}
+          fetchData={fetchAllPayments}
           setSelected={setSelectedPayments}
           onRowClick={(p) => setSelectedPayment(p)}
-          hasTab={true}
-          hasAllTab={true}
+          hasTab
+          hasAllTab
           emptyState={emptyState}
-          tabInfo={[
-            {
-              name: "Paid",
-              columns: paymentColumns,
-              fetchData: (params) => fetchTablePayments({ ...params }),
-              tableKey: "paid-payments",
-              onRowClick: (p) => setSelectedPayment(p),
-              emptyState: (
-                <EmptyState
-                  image={CreditCard}
-                  message="No paid payments found"
-                />
-              ),
-            },
-            {
-              name: "Pending",
-              columns: paymentColumns,
-              fetchData: (params) => fetchTablePayments({ ...params }),
-              tableKey: "pending-payments",
-              onRowClick: (p) => setSelectedPayment(p),
-              emptyState: (
-                <EmptyState
-                  image={CreditCard}
-                  message="No pending payments found"
-                />
-              ),
-            },
-            {
-              name: "Refunded",
-              columns: paymentColumns,
-              fetchData: (params) => fetchTablePayments({ ...params }),
-              tableKey: "refunded-payments",
-              onRowClick: (p) => setSelectedPayment(p),
-              emptyState: (
-                <EmptyState
-                  image={CreditCard}
-                  message="No refunded payments found"
-                />
-              ),
-            },
-          ]}
+          tabInfo={tabs.map((tab) => ({
+            ...tab,
+            columns: paymentColumns,
+            onRowClick: (p) => setSelectedPayment(p),
+          }))}
         />
 
         {selectedPayments.length > 0 && (
