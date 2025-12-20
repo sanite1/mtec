@@ -13,7 +13,7 @@ const PaymentMethods = () => {
   const [pocketConnected, setPocketConnected] = useState(false);
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
@@ -156,7 +156,7 @@ const PaymentMethods = () => {
         </div>
 
         {/* Nomba */}
-        <div className="bg-white rounded-xl shadow p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        {/* <div className="bg-white rounded-xl shadow p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-start sm:items-center gap-3">
             <Globe className="text-purple-600 shrink-0" size={22} />
             <div>
@@ -178,10 +178,10 @@ const PaymentMethods = () => {
           >
             {nombaConnected ? "Disconnect" : "Connect"}
           </button>
-        </div>
+        </div> */}
 
         {/* Pocket App */}
-        <div className="bg-white rounded-xl shadow p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        {/* <div className="bg-white rounded-xl shadow p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-start sm:items-center gap-3">
             <Wallet className="text-purple-600 shrink-0" size={22} />
             <div>
@@ -205,7 +205,7 @@ const PaymentMethods = () => {
           >
             {pocketConnected ? "Disconnect" : "Connect"}
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* Save Button */}

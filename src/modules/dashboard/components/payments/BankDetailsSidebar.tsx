@@ -5,6 +5,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
 import { IPayoutDetails } from "../../lib/types/payoutDetails";
+import { usePaystackBanks } from "../../lib/api/payoutDetails";
 
 // ✅ Schema
 const payoutSchema = z.object({
@@ -14,6 +15,7 @@ const payoutSchema = z.object({
     .length(10, "Account number must be 10 digits")
     .regex(/^\d+$/, "Account number must be numeric"),
   bankName: z.string().min(1, "Bank name is required"),
+  bankCode: z.string().min(1, "Bank code is required"),
   allowCustomerCharges: z.boolean(),
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms",
@@ -82,6 +84,8 @@ export default function BankDetailsSidebar({
   isPending,
   details,
 }: BankDetailsSidebarProps) {
+  const { data: banks = [], isLoading } = usePaystackBanks();
+
   const {
     register,
     handleSubmit,
@@ -96,6 +100,7 @@ export default function BankDetailsSidebar({
           accountNumber: details.accountNumber,
           acceptTerms: details.acceptTerms,
           bankName: details.bankName,
+          bankCode: details.bankCode,
           allowCustomerCharges: details.allowCustomerCharges,
         }
       : {
@@ -181,15 +186,24 @@ export default function BankDetailsSidebar({
               Bank Name
             </label>
             <select
-              {...register("bankName")}
-              className={`mt-1 block w-full border rounded px-3 py-2 ${
-                errors.bankName ? "border-red-500" : "border-gray-300"
-              }`}
+              className="mt-1 block w-full border rounded px-3 py-2"
+              disabled={isLoading}
+              onChange={(e) => {
+                const selected = banks.find((b) => b.code === e.target.value);
+
+                if (selected) {
+                  setValue("bankName", selected.name);
+                  setValue("bankCode", selected.code);
+                }
+              }}
             >
-              <option value="">— Select Bank —</option>
-              {banks.map((bank, i) => (
-                <option key={i} value={bank}>
-                  {bank}
+              <option value="">
+                {isLoading ? "Loading banks..." : "— Select Bank —"}
+              </option>
+
+              {banks.map((bank) => (
+                <option key={bank.code} value={bank.code}>
+                  {bank.name}
                 </option>
               ))}
             </select>

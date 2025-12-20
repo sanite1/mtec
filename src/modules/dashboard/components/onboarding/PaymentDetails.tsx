@@ -3,7 +3,10 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import { useCreatePayoutDetails } from "../../lib/api/payoutDetails";
+import {
+  useCreatePayoutDetails,
+  usePaystackBanks,
+} from "../../lib/api/payoutDetails";
 
 // ✅ Schema
 const payoutSchema = z.object({
@@ -13,6 +16,7 @@ const payoutSchema = z.object({
     .length(10, "Account number must be 10 digits")
     .regex(/^\d+$/, "Account number must be numeric"),
   bankName: z.string().min(1, "Bank name is required"),
+  bankCode: z.string().min(1, "Bank code is required"),
   allowCustomerCharges: z.boolean(),
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms",
@@ -69,6 +73,7 @@ const Toggle: React.FC<ToggleProps> = ({ label, checked, onChange }) => {
 
 // ✅ Main Component
 const ConnectPayoutPage: React.FC = () => {
+  const { data: banks = [], isLoading } = usePaystackBanks();
   const {
     register,
     handleSubmit,
@@ -147,13 +152,24 @@ const ConnectPayoutPage: React.FC = () => {
               Bank Name
             </label>
             <select
-              {...register("bankName")}
-              className="mt-1 block w-full border rounded px-3 py-2 focus:ring-purple-500 focus:border-purple-500"
+              className="mt-1 block w-full border rounded px-3 py-2"
+              disabled={isLoading}
+              onChange={(e) => {
+                const selected = banks.find((b) => b.code === e.target.value);
+
+                if (selected) {
+                  setValue("bankName", selected.name);
+                  setValue("bankCode", selected.code);
+                }
+              }}
             >
-              <option value="">— Select Bank —</option>
-              {banks.map((bank, i) => (
-                <option key={i} value={bank}>
-                  {bank}
+              <option value="">
+                {isLoading ? "Loading banks..." : "— Select Bank —"}
+              </option>
+
+              {banks.map((bank) => (
+                <option key={bank.code} value={bank.code}>
+                  {bank.name}
                 </option>
               ))}
             </select>

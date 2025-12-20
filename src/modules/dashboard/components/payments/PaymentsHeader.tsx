@@ -21,6 +21,7 @@ import {
   UpdatePayoutDetailsRequest,
 } from "../../lib/types/payoutDetails";
 import { getDecodedJwt } from "../../lib/auth";
+import WithdrawModal from "./WithdrawModal";
 
 interface TransactionsSummaryProps {
   totalTransactions: number;
@@ -43,7 +44,25 @@ export default function TransactionsSummary({
   const { mutateAsync: createPayout, isPending } = useCreatePayoutDetails(); // or whatever your hook is named
   const { mutateAsync: updatePayout, isPending: isUpdating } =
     useUpdatePayoutDetails(); // or whatever your hook is named
+  const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
+  const handleWithdraw = async () => {
+    setLoading(true);
+    try {
+      // call your withdrawal API here
+      console.log("Withdrawing:", successfulPayments);
+      // simulate API delay
+      await new Promise((res) => setTimeout(res, 1500));
+      alert("Withdrawal successful!");
+      setIsOpen(false);
+    } catch (err) {
+      console.error(err);
+      alert("Withdrawal failed!");
+    } finally {
+      setLoading(false);
+    }
+  };
   const {
     data: payoutDetails,
     isLoading,
@@ -81,8 +100,16 @@ export default function TransactionsSummary({
 
   return (
     <div>
+      {isOpen && (
+        <WithdrawModal
+          onClose={() => setIsOpen(false)}
+          onConfirm={handleWithdraw}
+          loading={loading}
+          availableBalance={successfulPayments}
+        />
+      )}
       {/* Progress / Next Step */}
-      <div className="my-4 relative flex items-center justify-between bg-purple-50 border border-purple-200 rounded-md p-4">
+      <div className="my-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-purple-50 border border-purple-200 rounded-md p-4">
         <div>
           <p className="text-sm font-medium text-gray-800">
             Next Step:{" "}
@@ -92,11 +119,35 @@ export default function TransactionsSummary({
           </p>
           <p className="text-xs text-gray-500 mt-1">
             You are required to verify your identity in order to be paid all
-            pending settlements
+            pending settlements.
           </p>
         </div>
-        <button className="px-4 py-2 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700">
+
+        <button className="w-full sm:w-auto px-4 py-2 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700 transition">
           Continue
+        </button>
+      </div>
+
+      {/* Withdrawals Info */}
+      <div className="my-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-blue-50 border border-blue-200 rounded-md p-4">
+        <div>
+          <p className="text-sm font-medium text-gray-800">
+            Withdrawals Available:{" "}
+            <span className="text-blue-600">
+              Only available balance can be withdrawn
+            </span>
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            Funds that are pending or on hold will become available once
+            settlements are completed.
+          </p>
+        </div>
+
+        <button
+          onClick={() => setIsOpen(true)}
+          className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition"
+        >
+          Withdraw Funds
         </button>
       </div>
 

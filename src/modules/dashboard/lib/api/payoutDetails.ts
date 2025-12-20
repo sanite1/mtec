@@ -5,6 +5,7 @@ import api from "../../../../lib/network/api";
 import { getDecodedJwt } from "../auth";
 import {
   CreatePayoutDetailsRequest,
+  IBank,
   IPayoutDetails,
   UpdatePayoutDetailsRequest,
 } from "../types/payoutDetails";
@@ -127,3 +128,26 @@ export function useFetchPayoutDetails(userId: string) {
     },
   });
 }
+
+export async function fetchPaystackBanks(): Promise<IBank[]> {
+  const response = await api.get<ApiResponse<IBank[]>>(
+    "/payout-details/paystack/bank",
+  );
+  console.log(response.data);
+
+  return response.data;
+}
+
+export const usePaystackBanks = () => {
+  return useQuery({
+    queryKey: ["paystack-banks"],
+    queryFn: fetchPaystackBanks,
+    retry: 1,
+    staleTime: 1000 * 60 * 60, // ✅ cache for 1 hour
+    meta: {
+      onError: (error: ApiError) => {
+        toast.error(error?.message || "Failed to fetch banks");
+      },
+    },
+  });
+};
