@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ApiResponse, ApiError } from "../../../../lib/network/axios";
 import api from "../../../../lib/network/api";
@@ -66,3 +66,25 @@ export const usePaymentStats = (userId: string) => {
     },
   });
 };
+
+export async function withdrawPayment(userId: string) {
+  const response = await api.post<ApiResponse>(
+    `/payment/withdraw/${userId}`,
+    {},
+  );
+  console.log("response", response);
+
+  return response.data;
+}
+
+export function useWithdrawPayment() {
+  return useMutation({
+    mutationFn: withdrawPayment,
+    onError: (error: ApiError) => {
+      const message =
+        error.response?.data?.message || "Unable to withdraw payment";
+
+      toast.error("Payment Error", { description: message });
+    },
+  });
+}

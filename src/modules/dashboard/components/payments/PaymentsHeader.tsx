@@ -22,6 +22,7 @@ import {
 } from "../../lib/types/payoutDetails";
 import { getDecodedJwt } from "../../lib/auth";
 import WithdrawModal from "./WithdrawModal";
+import { useWithdrawPayment } from "../../lib/api/payment";
 
 interface TransactionsSummaryProps {
   totalTransactions: number;
@@ -45,22 +46,17 @@ export default function TransactionsSummary({
   const { mutateAsync: updatePayout, isPending: isUpdating } =
     useUpdatePayoutDetails(); // or whatever your hook is named
   const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-
+  const { mutateAsync: withdrawPayment, isPending: withdrawingLoading } =
+    useWithdrawPayment();
   const handleWithdraw = async () => {
-    setLoading(true);
     try {
       // call your withdrawal API here
       console.log("Withdrawing:", successfulPayments);
       // simulate API delay
-      await new Promise((res) => setTimeout(res, 1500));
-      alert("Withdrawal successful!");
+      await withdrawPayment(user?.id);
       setIsOpen(false);
     } catch (err) {
       console.error(err);
-      alert("Withdrawal failed!");
-    } finally {
-      setLoading(false);
     }
   };
   const {
@@ -104,7 +100,7 @@ export default function TransactionsSummary({
         <WithdrawModal
           onClose={() => setIsOpen(false)}
           onConfirm={handleWithdraw}
-          loading={loading}
+          loading={withdrawingLoading}
           availableBalance={successfulPayments}
         />
       )}
