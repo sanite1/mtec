@@ -15,6 +15,7 @@ export interface Product {
     values: Array<{ id: string; value: string }>;
   }>;
   images?: string[];
+  variations: ProductVariation[];
   totalStock: number;
   isActive: boolean;
   createdAt: string;

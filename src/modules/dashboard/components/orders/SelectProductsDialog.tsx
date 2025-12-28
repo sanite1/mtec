@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from "react";
-import { Check, Loader2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Check, CheckCircle, Loader2 } from "lucide-react";
 import { getDecodedJwt } from "../../lib/auth";
 import { useUserProducts } from "../../lib/api/products";
 
@@ -11,9 +11,9 @@ interface SelectProductsDialogProps {
     selected: {
       productId: string;
       variationId?: string;
-      price?: number;
-      name?: string;
-      sku?: string;
+      name: string;
+      sku: string;
+      price: number;
       quantity: number;
     }[],
   ) => void;
@@ -27,28 +27,86 @@ export default function SelectProductsDialog({
   const user = getDecodedJwt();
   const userId = user?.id;
 
-  const { data, isLoading, error } = useUserProducts(userId);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 400);
 
-  const toggleSelection = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
+  const { data, isLoading, error } = useUserProducts(userId, {
+    search: debouncedSearch,
+  });
+
+  const [selectedItems, setSelectedItems] = useState<
+    {
+      productId: string;
+      variationId?: string;
+      quantity: number;
+    }[]
+  >([]);
+
+  const toggleSelection = (productId: string, variationId?: string) => {
+    setSelectedItems((prev) => {
+      const exists = prev.find(
+        (p) => p.productId === productId && p.variationId === variationId,
+      );
+
+      if (exists) {
+        return prev.filter(
+          (p) => !(p.productId === productId && p.variationId === variationId),
+        );
+      }
+
+      return [...prev, { productId, variationId, quantity: 1 }];
+    });
+  };
+
+  const updateQuantity = (
+    productId: string,
+    variationId: string | undefined,
+    delta: number,
+  ) => {
+    setSelectedItems((prev) =>
+      prev.map((item) => {
+        if (item.productId === productId && item.variationId === variationId) {
+          return {
+            ...item,
+            quantity: Math.max(1, item.quantity + delta),
+          };
+        }
+        return item;
+      }),
     );
   };
 
   const handleSave = () => {
-    const selectedProducts =
-      data?.products
-        ?.filter((p) => selectedIds.includes(p._id))
-        ?.map((p) => ({
-          productId: p._id,
-          name: p.name,
-          price: p.price ?? 0,
-          sku: p.sku ?? "",
-          quantity: 1,
-        })) || [];
+    const payload = selectedItems.map(
+      ({ productId, variationId, quantity }) => {
+        const product = data?.products.find((p) => p._id === productId)!;
 
-    onSave(selectedProducts);
+        if (variationId) {
+          const variation = product.variations.find(
+            (v) => v._id === variationId,
+          )!;
+
+          return {
+            productId,
+            variationId,
+            name: `${product.name} (${variation.name})`,
+            sku: variation.sku,
+            price: variation.price,
+            quantity,
+          };
+        }
+
+        return {
+          productId,
+          name: product.name,
+          sku: product.sku,
+          price: product.price,
+          quantity,
+        };
+      },
+    );
+
+    onSave(payload);
     onClose();
   };
 
@@ -63,11 +121,24 @@ export default function SelectProductsDialog({
       />
 
       {/* Modal */}
-      <div className="relative bg-white w-full max-w-lg rounded-xl shadow-lg p-6 z-10 mx-4">
+      <div className="relative bg-white w-full max-w-lg rounded-xl shadow-lg p-6 z-10 mx-4 ">
         <h3 className="text-lg font-semibold text-gray-800">Select Products</h3>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-gray-500 mt-1 mb-3">
           Choose one or more products from your catalog.
         </p>
+
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search products or variations..."
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+        />
+        {search && (
+          <p className="mt-1 text-xs text-gray-500">
+            Showing results for “{search}”
+          </p>
+        )}
 
         {/* Loading */}
         {isLoading && (
@@ -86,34 +157,137 @@ export default function SelectProductsDialog({
 
         {/* Product List */}
         {!isLoading && !error && (
-          <div className="mt-4 space-y-3 max-h-64 overflow-y-auto">
-            {data?.products?.length ? (
-              data.products.map((p) => (
-                <div
-                  key={p._id}
-                  onClick={() => toggleSelection(p._id)}
-                  className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition ${
-                    selectedIds.includes(p._id)
-                      ? "border-purple-600 bg-purple-50"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <div>
-                    <p className="font-medium text-gray-800">{p.name}</p>
-                    <p className="text-sm text-gray-500">
-                      ₦{p.price?.toLocaleString() || "0"}
-                    </p>
-                  </div>
-                  {selectedIds.includes(p._id) && (
-                    <Check className="text-purple-600" size={20} />
+          <div className="mt-4 space-y-4 max-h-64 overflow-y-auto">
+            {data?.products?.map((product) => {
+              const hasVariations = product.variations?.length > 0;
+
+              return (
+                <div key={product._id} className="border rounded-lg p-3">
+                  <p className="font-medium text-gray-800">{product.name}</p>
+
+                  {/* SIMPLE PRODUCT */}
+                  {!hasVariations && (
+                    <div
+                      onClick={() => toggleSelection(product._id)}
+                      className={`mt-2 flex justify-between items-center cursor-pointer p-2 rounded-md border hover:bg-gray-50 ${
+                        selectedItems.some(
+                          (i) => i.productId === product._id && !i.variationId,
+                        ) && "border-purple-400"
+                      }`}
+                    >
+                      <span className="text-sm text-gray-600">
+                        ₦{product.price?.toLocaleString()} · Stock:{" "}
+                        {product.totalStock}
+                      </span>
+                      {selectedItems.some(
+                        (i) => i.productId === product._id && !i.variationId,
+                      ) ? (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              updateQuantity(product._id, undefined, -1);
+                            }}
+                            className="px-2 py-1 border rounded"
+                          >
+                            −
+                          </button>
+
+                          <span className="text-sm font-medium">
+                            {
+                              selectedItems.find(
+                                (i) =>
+                                  i.productId === product._id && !i.variationId,
+                              )?.quantity
+                            }
+                          </span>
+
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              updateQuantity(product._id, undefined, 1);
+                            }}
+                            className="px-2 py-1 border rounded"
+                          >
+                            +
+                          </button>
+                        </div>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  )}
+
+                  {/* VARIATIONS */}
+                  {hasVariations && (
+                    <div className="mt-2 space-y-2">
+                      {product.variations.map((v) => (
+                        <div
+                          key={v._id}
+                          onClick={() => toggleSelection(product._id, v._id)}
+                          className={`flex justify-between items-center cursor-pointer p-2 rounded-md border hover:bg-gray-50 ${
+                            selectedItems.some(
+                              (i) =>
+                                i.productId === product._id &&
+                                i.variationId === v._id,
+                            ) && "border-purple-400"
+                          }`}
+                        >
+                          <div>
+                            <p className="text-sm font-medium text-gray-700">
+                              {v.name}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              ₦{v.price.toLocaleString()} · Stock: {v.stock}
+                            </p>
+                          </div>
+
+                          {selectedItems.some(
+                            (i) =>
+                              i.productId === product._id &&
+                              i.variationId === v._id,
+                          ) ? (
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  updateQuantity(product._id, v._id, -1);
+                                }}
+                                className="px-2 py-1 border rounded"
+                              >
+                                −
+                              </button>
+
+                              <span className="text-sm font-medium">
+                                {
+                                  selectedItems.find(
+                                    (i) =>
+                                      i.productId === product._id &&
+                                      i.variationId === v._id,
+                                  )?.quantity
+                                }
+                              </span>
+
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  updateQuantity(product._id, v._id, 1);
+                                }}
+                                className="px-2 py-1 border rounded"
+                              >
+                                +
+                              </button>
+                            </div>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
-              ))
-            ) : (
-              <p className="text-sm text-gray-500 text-center py-4">
-                No products found.
-              </p>
-            )}
+              );
+            })}
           </div>
         )}
 
@@ -129,7 +303,7 @@ export default function SelectProductsDialog({
           <button
             type="button"
             onClick={handleSave}
-            disabled={selectedIds.length === 0}
+            disabled={selectedItems.length === 0}
             className="px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition disabled:opacity-50"
           >
             Add Selected
@@ -138,4 +312,15 @@ export default function SelectProductsDialog({
       </div>
     </div>
   );
+}
+
+export function useDebounce<T>(value: T, delay = 400) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+
+  return debouncedValue;
 }
