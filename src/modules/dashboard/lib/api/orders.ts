@@ -270,3 +270,37 @@ export const useUpdateShippingStatus = () => {
     },
   });
 };
+
+// api/orders.ts
+export const requestPayment = async (id: string) => {
+  const res = await api.patch<ApiResponse<Order>>(
+    `/order/${id}/request-payment`,
+    {},
+  );
+  return res.data;
+};
+
+// hook
+export const useRequestPayment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id }: { id: string }) => requestPayment(id),
+    onSuccess: (data) => {
+      toast.success(`Payment Requested`, {
+        description: `An email has been sent to the buyer`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["userRequestPayments"] });
+    },
+    onError: (error: ApiError) => {
+      const errorMessage =
+        error.response?.data?.fields?.[0].message ||
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+      toast.error("Request Failed", {
+        description: errorMessage,
+      });
+    },
+  });
+};

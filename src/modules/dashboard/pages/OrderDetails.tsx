@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   useCancelOrder,
   useOrderById,
+  useRequestPayment,
   useUpdateOrderStatus,
   useUpdatePaymentStatus,
 } from "../lib/api/orders";
@@ -18,6 +19,7 @@ import ShippingCard from "../components/orderDetails/ShippingCard";
 import CancelOrderModal from "../components/orders/CancelOrderModal";
 import EditOrderStatusModal from "../components/orders/EditOrderStatusModal";
 import EditPaymentStatusModal from "../components/orders/EditPaymentStatusModal";
+import RequestPaymentModal from "../components/orders/RequestPaymentModal";
 
 export default function OrderDetailsPage() {
   const { id } = useParams();
@@ -31,6 +33,7 @@ export default function OrderDetailsPage() {
   const [showStatusModal, setShowStatusModal] = useState(false);
 
   const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
+  const [showRequestPaymentModal, setShowRequestPaymentModal] = useState(false);
 
   const { mutateAsync: cancelOrder, isPending } = useCancelOrder();
   const { mutateAsync: updateStatus, isPending: updateStatusPending } =
@@ -39,6 +42,8 @@ export default function OrderDetailsPage() {
     mutateAsync: updatePaymentStatus,
     isPending: loadingUpdatePaymentStatus,
   } = useUpdatePaymentStatus();
+  const { mutateAsync: requestPayment, isPending: loadingRequestPayment } =
+    useRequestPayment();
 
   const handleCancel = async () => {
     try {
@@ -78,7 +83,7 @@ export default function OrderDetailsPage() {
       await updatePaymentStatus(
         { id: order?._id as string, paymentStatus: data.paymentStatus },
         {
-          onSuccess: () => setShowStatusModal(false),
+          onSuccess: () => setShowPaymentStatusModal(false),
         },
       );
     } catch (error) {
@@ -87,6 +92,23 @@ export default function OrderDetailsPage() {
 
     refetch();
     setShowPaymentStatusModal(false);
+    // onClose();
+  };
+
+  const handleRequestPayment = async () => {
+    try {
+      await requestPayment(
+        { id: order?._id as string },
+        {
+          onSuccess: () => setShowRequestPaymentModal(false),
+        },
+      );
+    } catch (error) {
+      console.error(error);
+    }
+
+    refetch();
+    setShowRequestPaymentModal(false);
     // onClose();
   };
 
@@ -153,6 +175,7 @@ export default function OrderDetailsPage() {
             <OrderInfo
               order={order}
               setShowPaymentStatusModal={setShowPaymentStatusModal}
+              setShowRequestPaymentModal={setShowRequestPaymentModal}
             />
           </div>
 
@@ -201,6 +224,16 @@ export default function OrderDetailsPage() {
           currentStatus={order?.paymentStatus as any}
           orderId={order?.orderNumber}
           loading={loadingUpdatePaymentStatus}
+        />
+      )}
+
+      {showRequestPaymentModal && (
+        <RequestPaymentModal
+          onClose={() => setShowRequestPaymentModal(false)}
+          onConfirm={handleRequestPayment}
+          currentStatus={order?.paymentStatus as any}
+          orderId={order?.orderNumber}
+          loading={loadingRequestPayment}
         />
       )}
     </div>

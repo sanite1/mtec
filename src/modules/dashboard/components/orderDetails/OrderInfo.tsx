@@ -20,9 +20,14 @@ const statusColors: Record<string, string> = {
 interface Props {
   order?: Order;
   setShowPaymentStatusModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowRequestPaymentModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function OrderInfo({ order, setShowPaymentStatusModal }: Props) {
+export default function OrderInfo({
+  order,
+  setShowPaymentStatusModal,
+  setShowRequestPaymentModal,
+}: Props) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -150,7 +155,10 @@ export default function OrderInfo({ order, setShowPaymentStatusModal }: Props) {
               >
                 Record Payment
               </button>
-              <button className="text-sm flex-1 px-2 py-2 rounded-md border text-purple-700">
+              <button
+                onClick={() => setShowRequestPaymentModal(true)}
+                className="text-sm flex-1 px-2 py-2 rounded-md border text-purple-700"
+              >
                 Request Payment
               </button>
             </div>
