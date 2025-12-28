@@ -37,9 +37,15 @@ export interface Order {
   orderNumber: string;
   userId: string;
   customerId: string;
-  channel: string;
+  channel?: string;
   status: "pending" | "completed" | "cancelled";
   paymentStatus: "paid" | "unpaid" | "refunded";
+  shippingStatus:
+    | "pending"
+    | "processing"
+    | "delivered"
+    | "shipped"
+    | "cancelled";
   paymentMethod: "bank_transfer" | "card" | "cash" | string;
   items: OrderProductItem[];
   subtotal: number;

@@ -10,6 +10,7 @@ import OrderConfirmation from "./pages/OrderConfirmation";
 import { CartProvider } from "./context/CartContext";
 import { Toaster } from "sonner";
 import { IStoreDetails } from "../dashboard/lib/types/store";
+import OrderDetailsPage from "./pages/OrderDetails";
 
 export const StorefrontRoutes: React.FC = () => {
   const store: IStoreDetails = JSON.parse(localStorage.getItem("store")!);
@@ -25,6 +26,7 @@ export const StorefrontRoutes: React.FC = () => {
             path="/order-confirmation/:id"
             element={<OrderConfirmation />}
           />
+          <Route path="/order-details/:id" element={<OrderDetailsPage />} />
           <Route path="/product/:id" element={<ProductDetails />} />
         </Route>
         <Route path="*" element={<NotFound />} />
