@@ -11,6 +11,7 @@ import {
   CreateProductResponse,
   UpdateQuantityPayload,
   Product,
+  ProductStatsResponseData,
 } from "../types/products";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -369,3 +370,26 @@ export function useUpdateProductQuantity() {
     },
   });
 }
+
+// Fetch product stats for dashboard
+export const fetchProductStats = async (userId: string) => {
+  const res = await api.get<ApiResponse<ProductStatsResponseData>>(
+    `/product/stats/${userId}`,
+  );
+  return res.data;
+};
+
+// Hook to fetch product stats
+export const useProductStats = (userId: string) => {
+  return useQuery<ProductStatsResponseData, ApiError>({
+    queryKey: ["productStats", userId],
+    queryFn: () => fetchProductStats(userId),
+    enabled: !!userId,
+    retry: 1,
+    meta: {
+      onError: (error: ApiError) => {
+        toast.error(error?.message || "Failed to fetch product statistics");
+      },
+    },
+  });
+};

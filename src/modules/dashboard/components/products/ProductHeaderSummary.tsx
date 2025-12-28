@@ -5,13 +5,14 @@ import {
   CheckCircle,
   XCircle,
   BarChart2,
+  Box,
 } from "lucide-react";
 
 // ✅ Type safety with optional fields
 interface ProductSummaryProps {
   totalProducts?: number;
   activeProducts?: number;
-  inactiveProducts?: number;
+  totalCostValue?: number;
   totalRetailValue?: number;
   onAddProduct?: () => void;
 }
@@ -29,7 +30,7 @@ const formatCurrency = (value?: number): string => {
 const ProductHeaderSummary: React.FC<ProductSummaryProps> = ({
   totalProducts,
   activeProducts,
-  inactiveProducts,
+  totalCostValue,
   totalRetailValue,
   onAddProduct,
 }) => {
@@ -37,7 +38,7 @@ const ProductHeaderSummary: React.FC<ProductSummaryProps> = ({
   const safeTotals = {
     totalProducts: safeNumber(totalProducts),
     activeProducts: safeNumber(activeProducts),
-    inactiveProducts: safeNumber(inactiveProducts),
+    totalCostValue: safeNumber(totalCostValue),
     totalRetailValue: safeNumber(totalRetailValue),
   };
 
@@ -111,24 +112,24 @@ const ProductHeaderSummary: React.FC<ProductSummaryProps> = ({
         </div>
 
         {/* Inactive Products */}
-        <div className="relative rounded-xl bg-gradient-to-r from-red-50 to-red-100 p-5 shadow hover:shadow-md transition">
+        <div className="relative rounded-xl bg-gradient-to-r from-yellow-50 to-yellow-100 p-5 shadow hover:shadow-md transition">
           <div className="relative flex items-center justify-between">
             <div className="z-10">
               <div className="flex items-center space-x-2">
-                <p className="text-xs md:text-sm text-red-600 font-medium">
-                  Inactive
+                <p className="text-xs md:text-sm text-yellow-600 font-medium">
+                  Total Cost Value
                 </p>
                 {/* <Tooltip title="Products not currently available (e.g., out of stock, hidden)">
-                  <IconButton size="small" className="text-red-500">
+                  <IconButton size="small" className="text-yellow-500">
                     <Info size={16} />
                   </IconButton>
                 </Tooltip> */}
               </div>
-              <p className="mt-1 text-md md:text-xl font-bold text-red-900">
-                {safeTotals.inactiveProducts}
+              <p className="mt-1 text-md md:text-xl font-bold text-yellow-900">
+                {formatCurrency(safeTotals.totalCostValue)}
               </p>
             </div>
-            <XCircle className="absolute md:relative flex-shrink-0 right-0 text-red-500 opacity-80" />
+            <Box className="absolute md:relative flex-shrink-0 right-0 text-yellow-500 opacity-80" />
           </div>
         </div>
 

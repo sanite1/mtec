@@ -160,3 +160,13 @@ export interface UpdateQuantityResponse {
   message: string;
   updatedQuantity?: number;
 }
+
+export interface ProductStatsResponseData {
+  totalProducts: number;
+  activeProducts: number;
+  inactiveProducts: number;
+  totalStock: number;
+  totalVariationStock: number;
+  totalRetailValue: number;
+  totalCostValue: number;
+}
