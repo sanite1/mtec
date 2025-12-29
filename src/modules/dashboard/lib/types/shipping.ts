@@ -14,6 +14,7 @@ export interface Shipping {
 
 export interface ShippingFilters {
   search?: string;
+  location?: string;
   page?: number;
   limit?: number;
   isActive?: boolean;

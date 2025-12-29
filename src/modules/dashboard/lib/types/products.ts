@@ -32,6 +32,7 @@ export interface ProductResponseData {
 export interface ProductFilters {
   category?: string;
   search?: string;
+  location?: string;
   isActive?: boolean;
   page?: number;
   limit?: number;

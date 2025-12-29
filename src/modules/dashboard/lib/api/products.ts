@@ -25,6 +25,7 @@ export const fetchUserProducts = async (
 
   if (filters?.category) params.append("category", filters.category);
   if (filters?.search) params.append("search", filters.search);
+  if (filters?.location) params.append("location", filters.location);
   if (filters?.isActive !== undefined)
     params.append("isActive", String(filters.isActive));
   if (filters?.page) params.append("page", String(filters.page));

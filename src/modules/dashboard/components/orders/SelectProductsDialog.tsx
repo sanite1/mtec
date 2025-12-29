@@ -7,6 +7,7 @@ import { useUserProducts } from "../../lib/api/products";
 interface SelectProductsDialogProps {
   open: boolean;
   onClose: () => void;
+  location: string;
   onSave: (
     selected: {
       productId: string;
@@ -22,6 +23,7 @@ interface SelectProductsDialogProps {
 export default function SelectProductsDialog({
   open,
   onClose,
+  location,
   onSave,
 }: SelectProductsDialogProps) {
   const user = getDecodedJwt();
@@ -32,6 +34,7 @@ export default function SelectProductsDialog({
 
   const { data, isLoading, error } = useUserProducts(userId, {
     search: debouncedSearch,
+    location,
   });
 
   const [selectedItems, setSelectedItems] = useState<
@@ -132,7 +135,7 @@ export default function SelectProductsDialog({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search products or variations..."
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-purple-500"
         />
         {search && (
           <p className="mt-1 text-xs text-gray-500">
@@ -145,6 +148,18 @@ export default function SelectProductsDialog({
           <div className="flex items-center justify-center py-10">
             <Loader2 className="w-6 h-6 text-purple-600 animate-spin" />
             <span className="ml-2 text-gray-600">Loading products...</span>
+          </div>
+        )}
+
+        {data?.total === 0 && (
+          <div className="flex items-center justify-center py-10">
+            {location ? (
+              <span className="ml-2 text-gray-600">
+                No products found for this location...
+              </span>
+            ) : (
+              <span className="ml-2 text-gray-600">No products found...</span>
+            )}
           </div>
         )}
 
