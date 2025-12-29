@@ -18,6 +18,7 @@ import { useCreateOrder } from "../../lib/api/orders";
 import StoreSelector from "../../lib/utils/StoreSelector";
 import { Location } from "../../lib/types/locations";
 import SelectShippingDialog from "./SelectShippingDialog";
+import SelectTaxDialog from "./SelectTaxDialog";
 
 // 🧩 Zod Schema (matches your Joi validation)
 const createOrderSchema = z.object({
@@ -154,6 +155,15 @@ export default function CreateOrderPage() {
     _id: string;
     name: string;
     price: number;
+  } | null>(null);
+
+  const [taxModalOpen, setTaxModalOpen] = useState(false);
+
+  const [selectedTax, setSelectedTax] = useState<{
+    _id: string;
+    name: string;
+    rate: number;
+    value: number;
   } | null>(null);
 
   return (
@@ -385,13 +395,25 @@ export default function CreateOrderPage() {
                       </p>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => setOpenShippingDialog(true)}
-                      className="text-sm text-purple-600 hover:underline"
-                    >
-                      Change
-                    </button>
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setOpenShippingDialog(true)}
+                        className="text-sm text-purple-600 hover:underline"
+                      >
+                        Change
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedShipping(null);
+                          // setValue("", undefined);
+                        }}
+                        className="text-sm text-red-600 hover:underline"
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <button
@@ -404,6 +426,52 @@ export default function CreateOrderPage() {
                   </button>
                 )}
               </div>
+            </section>
+
+            {/* Tax */}
+            <section>
+              <h2 className="text-lg font-semibold text-gray-700 mb-4">Tax</h2>
+
+              {selectedTax ? (
+                <div className="flex justify-between items-center bg-gray-50 border p-3 rounded-lg">
+                  <div>
+                    <p className="font-medium text-gray-800">
+                      {selectedTax.name}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {selectedTax.rate}% tax applied
+                    </p>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setTaxModalOpen(true)}
+                      className="text-sm text-purple-600 hover:underline"
+                    >
+                      Change
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedTax(null);
+                        setValue("tax", undefined);
+                      }}
+                      className="text-sm text-red-600 hover:underline"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setTaxModalOpen(true)}
+                  className="px-3 py-2 rounded-lg border border-purple-600 text-purple-600 hover:bg-purple-50"
+                >
+                  Select Tax
+                </button>
+              )}
             </section>
 
             {/* Payment */}
@@ -499,6 +567,16 @@ export default function CreateOrderPage() {
         onSave={(shipping) => {
           setSelectedShipping(shipping);
           setValue("shippingFee", shipping.price);
+        }}
+      />
+
+      <SelectTaxDialog
+        open={taxModalOpen}
+        onClose={() => setTaxModalOpen(false)}
+        location={location?.name || ""}
+        onSave={(tax) => {
+          setSelectedTax(tax);
+          setValue("tax", tax.rate);
         }}
       />
     </div>

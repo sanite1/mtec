@@ -1,18 +1,22 @@
-"use client";
 import React, { useState } from "react";
-import { CheckCircle, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { getDecodedJwt } from "../../lib/auth";
-import { useStoreShipping } from "../../lib/api/shipping";
+import { useStoreTaxes } from "../../lib/api/taxes";
 import { useDebounce } from "./SelectProductsDialog";
 
 interface Props {
   open: boolean;
   onClose: () => void;
   location: string;
-  onSave: (shipping: { _id: string; name: string; price: number }) => void;
+  onSave: (tax: {
+    _id: string;
+    name: string;
+    rate: number;
+    value: number;
+  }) => void;
 }
 
-export default function SelectShippingDialog({
+export default function SelectTaxDialog({
   open,
   onClose,
   location,
@@ -23,32 +27,30 @@ export default function SelectShippingDialog({
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 400);
-  const { data, isLoading, error } = useStoreShipping(userId, {
+
+  const { data, isLoading, error } = useStoreTaxes(userId, {
     location,
     search: debouncedSearch,
   });
 
   if (!open) return null;
 
+  console.log(data?.taxes);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="fixed inset-0 bg-black/50" onClick={onClose} />
 
       <div className="relative bg-white w-full max-w-md rounded-xl p-6 z-10 mx-4">
-        <h3 className="text-lg font-semibold mb-3">Select Shipping Method</h3>
+        <h3 className="text-lg font-semibold mb-3">Select Tax</h3>
 
         <input
-          type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search shipping methods..."
-          className="text-base w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          placeholder="Search taxes..."
+          className="w-full rounded-lg border px-3 py-2 text-base"
         />
-        {search && (
-          <p className="mt-1 text-xs text-gray-500">
-            Showing results for “{search}”
-          </p>
-        )}
+
         {isLoading && (
           <div className="flex justify-center py-8">
             <Loader2 className="animate-spin text-purple-600" />
@@ -59,46 +61,35 @@ export default function SelectShippingDialog({
           <div className="flex items-center justify-center py-10">
             {location ? (
               <span className="ml-2 text-gray-600">
-                No shipping methods found for this location...
+                No taxes found for this location...
               </span>
             ) : (
-              <span className="ml-2 text-gray-600">
-                No shipping methods found...
-              </span>
+              <span className="ml-2 text-gray-600">No taxes found...</span>
             )}
           </div>
         )}
 
         {error && (
-          <p className="text-red-600 text-center py-6">
-            Failed to load shipping methods
-          </p>
+          <p className="text-red-600 text-center py-6">Failed to load taxes</p>
         )}
 
         <div className="mt-4 space-y-2 max-h-64 overflow-y-auto">
-          {data?.shipping?.map((method) => (
+          {data?.taxes?.map((tax) => (
             <div
-              key={method._id}
+              key={tax._id}
               onClick={() => {
                 onSave({
-                  _id: method._id,
-                  name: method.name,
-                  price: method.price,
+                  _id: tax._id,
+                  name: tax.name,
+                  rate: tax.rate,
+                  value: tax.rate,
                 });
                 onClose();
               }}
               className="flex justify-between items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
             >
-              <div>
-                <p className="font-medium">{method.name}</p>
-                <p className="text-sm text-gray-600">
-                  ₦{method.price.toLocaleString()}
-                </p>
-              </div>
-              <p className="font-medium text-sm text-purple-600">
-                {method.estimatedDeliveryDays} days
-              </p>
-              {/* <CheckCircle className="text-purple-600" size={18} /> */}
+              <p className="font-medium">{tax.name}</p>
+              <p className="text-sm text-gray-600">{tax.rate}%</p>
             </div>
           ))}
         </div>

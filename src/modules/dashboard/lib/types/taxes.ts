@@ -26,6 +26,7 @@ export interface TaxFilters {
   page?: number;
   limit?: number;
   search?: string;
+  location?: string;
 }
 
 export interface TaxResponseData {
