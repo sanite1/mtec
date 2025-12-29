@@ -1,5 +1,12 @@
 import React from "react";
-import { Receipt, Truck, Banknote, Percent, ChevronDown } from "lucide-react";
+import {
+  Receipt,
+  Truck,
+  Banknote,
+  Percent,
+  ChevronDown,
+  Tag,
+} from "lucide-react";
 import { Order } from "../../lib/types/orders";
 
 interface Props {
@@ -54,6 +61,17 @@ export default function PaymentSummary({ order }: Props) {
           </div>
           <div className="font-medium">
             ₦{order?.tax?.toLocaleString() ?? "0"}
+          </div>
+        </div>
+
+        {/* Discount */}
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center gap-2 text-gray-600">
+            <Tag size={16} className="text-red-600" />
+            <span>Discount</span>
+          </div>
+          <div className="font-medium text-red-600">
+            - ₦{order?.discount?.toLocaleString() ?? "0"}
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,6 +19,7 @@ import StoreSelector from "../../lib/utils/StoreSelector";
 import { Location } from "../../lib/types/locations";
 import SelectShippingDialog from "./SelectShippingDialog";
 import SelectTaxDialog from "./SelectTaxDialog";
+import SelectDiscountDialog from "./SelectDiscountDialog";
 
 // 🧩 Zod Schema (matches your Joi validation)
 const createOrderSchema = z.object({
@@ -52,6 +53,7 @@ const createOrderSchema = z.object({
   paymentStatus: z.string().default("unpaid"),
   paymentMethod: z.string().optional(),
   orderStatus: z.string().default("pending"),
+  shippingStatus: z.string().default("pending"),
 });
 
 type CreateOrderFormData = z.infer<typeof createOrderSchema>;
@@ -80,6 +82,7 @@ export default function CreateOrderPage() {
     defaultValues: {
       paymentStatus: "unpaid",
       orderStatus: "pending",
+      shippingStatus: "pending",
       paymentMethod: "cash",
       items: [],
       shippingAddress: {
@@ -165,6 +168,49 @@ export default function CreateOrderPage() {
     rate: number;
     value: number;
   } | null>(null);
+
+  const [discountDialogOpen, setDiscountDialogOpen] = useState(false);
+
+  const [selectedDiscount, setSelectedDiscount] = useState<{
+    _id: string;
+    name: string;
+    type: string;
+    value: number;
+  } | null>(null);
+
+  // ─────────────────────────────────────────
+  // ORDER CALCULATIONS
+  // ─────────────────────────────────────────
+
+  // Products subtotal
+  const productsSubtotal = selectedProducts.reduce((sum, p) => {
+    return sum + (p.price || 0) * p.quantity;
+  }, 0);
+
+  // Shipping
+  const shippingFee = selectedShipping?.price ?? 0;
+
+  // Tax (percentage-based)
+  const taxAmount = selectedTax
+    ? (productsSubtotal * selectedTax.rate) / 100
+    : 0;
+
+  // Discount
+  const discountAmount = selectedDiscount
+    ? selectedDiscount.type === "percentage"
+      ? (productsSubtotal * selectedDiscount.value) / 100
+      : selectedDiscount.value
+    : 0;
+
+  // Grand Total
+  const orderTotal =
+    productsSubtotal + shippingFee + taxAmount - discountAmount;
+
+  useEffect(() => {
+    setValue("shippingFee", shippingFee);
+    setValue("tax", taxAmount);
+    setValue("discount", discountAmount);
+  }, [shippingFee, taxAmount, discountAmount, setValue]);
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -407,7 +453,7 @@ export default function CreateOrderPage() {
                         type="button"
                         onClick={() => {
                           setSelectedShipping(null);
-                          // setValue("", undefined);
+                          setValue("shippingFee", undefined);
                         }}
                         className="text-sm text-red-600 hover:underline"
                       >
@@ -474,31 +520,107 @@ export default function CreateOrderPage() {
               )}
             </section>
 
+            {/* Discount */}
+            <section>
+              <h2 className="text-lg font-semibold text-gray-700 mb-4">
+                Discount
+              </h2>
+
+              {selectedDiscount ? (
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div>
+                    <p className="font-medium text-gray-800">
+                      {selectedDiscount.name}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {selectedDiscount.type === "percentage"
+                        ? `${selectedDiscount.value}% off`
+                        : `₦${selectedDiscount.value.toLocaleString()} off`}
+                    </p>
+                  </div>
+
+                  <div className="flex gap-3 mt-3 sm:mt-0">
+                    <button
+                      type="button"
+                      onClick={() => setDiscountDialogOpen(true)}
+                      className="text-sm text-purple-700 hover:underline"
+                    >
+                      Change
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedDiscount(null);
+                        setValue("discount", undefined);
+                      }}
+                      className="text-sm text-red-600 hover:underline"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setDiscountDialogOpen(true)}
+                  className="px-4 py-2 rounded-lg border border-purple-600 text-purple-600 hover:bg-purple-50"
+                >
+                  Select Discount
+                </button>
+              )}
+            </section>
+
             {/* Payment */}
             <section>
               <h2 className="text-lg font-semibold text-gray-700 mb-4">
                 Payment Info
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <select
-                  {...register("paymentStatus")}
-                  className="border rounded-lg p-2 w-full"
-                >
-                  <option value="unpaid">Unpaid</option>
-                  <option value="paid">Paid</option>
-                  <option value="refunded">Refunded</option>
-                </select>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="space-y-1">
+                  <label htmlFor="" className="text-sm">
+                    Payment Status
+                  </label>
+                  <select
+                    {...register("paymentStatus")}
+                    className="border rounded-lg p-2 w-full"
+                  >
+                    <option value="unpaid">Unpaid</option>
+                    <option value="paid">Paid</option>
+                    <option value="refunded">Refunded</option>
+                  </select>
+                </div>
 
-                <select
-                  {...register("paymentMethod")}
-                  className="border rounded-lg p-2 w-full"
-                >
-                  <option value="">Select Payment Method</option>
-                  <option value="card">Card</option>
-                  <option value="bank_transfer">Bank Transfer</option>
-                  <option value="cash">Cash</option>
-                  <option value="other">Other</option>
-                </select>
+                <div className="space-y-1">
+                  <label htmlFor="" className="text-sm">
+                    Payment Method
+                  </label>
+                  <select
+                    {...register("paymentMethod")}
+                    className="border rounded-lg p-2 w-full"
+                  >
+                    <option value="">Select Payment Method</option>
+                    <option value="card">Card</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="cash">Cash</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label htmlFor="" className="text-sm">
+                    Shipping Status
+                  </label>
+                  <select
+                    {...register("shippingStatus")}
+                    className="border rounded-lg p-2 w-full"
+                  >
+                    <option value="">Select Shipping Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="processing">Processing</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                  </select>
+                </div>
               </div>
             </section>
 
@@ -511,6 +633,67 @@ export default function CreateOrderPage() {
                 placeholder="Enter any special instructions..."
                 className="border rounded-lg p-2 w-full"
               />
+            </section>
+
+            {/* Order Summary */}
+            <section>
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Order Summary
+                </h3>
+
+                <div className="space-y-2 text-sm">
+                  {/* Products */}
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Products</span>
+                    <span className="font-medium">
+                      ₦{productsSubtotal.toLocaleString()}
+                    </span>
+                  </div>
+
+                  {/* Shipping */}
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Shipping</span>
+                    <span className="font-medium">
+                      ₦{shippingFee.toLocaleString()}
+                    </span>
+                  </div>
+
+                  {/* Tax */}
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">
+                      Tax {selectedTax ? `(${selectedTax.rate}%)` : ""}
+                    </span>
+                    <span className="font-medium">
+                      ₦{taxAmount.toLocaleString()}
+                    </span>
+                  </div>
+
+                  {/* Discount */}
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between text-green-600">
+                      <span>
+                        Discount{" "}
+                        {selectedDiscount?.type === "percentage"
+                          ? `(${selectedDiscount.value}%)`
+                          : ""}
+                      </span>
+                      <span className="font-medium">
+                        − ₦{discountAmount.toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-t pt-3 flex justify-between items-center">
+                  <span className="text-base font-semibold text-gray-800">
+                    Total
+                  </span>
+                  <span className="text-xl font-bold text-gray-900">
+                    ₦{orderTotal.toLocaleString()}
+                  </span>
+                </div>
+              </div>
             </section>
 
             {/* Submit */}
@@ -577,6 +760,20 @@ export default function CreateOrderPage() {
         onSave={(tax) => {
           setSelectedTax(tax);
           setValue("tax", tax.rate);
+        }}
+      />
+
+      <SelectDiscountDialog
+        open={discountDialogOpen}
+        onClose={() => setDiscountDialogOpen(false)}
+        location={location?.name}
+        onSave={(discount) => {
+          setSelectedDiscount(discount);
+
+          setValue(
+            "discount",
+            discount.type === "percentage" ? discount.value : discount.value,
+          );
         }}
       />
     </div>

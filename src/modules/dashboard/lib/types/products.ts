@@ -17,6 +17,7 @@ export interface Product {
   images?: string[];
   variations: ProductVariation[];
   totalStock: number;
+  discountPrice: number;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

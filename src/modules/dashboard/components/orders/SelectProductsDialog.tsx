@@ -94,7 +94,10 @@ export default function SelectProductsDialog({
             variationId,
             name: `${product.name} (${variation.name})`,
             sku: variation.sku,
-            price: variation.price,
+            price:
+              variation.discountPrice && variation.discountPrice !== 0
+                ? variation.discountPrice
+                : variation.price,
             quantity,
           };
         }
@@ -103,7 +106,10 @@ export default function SelectProductsDialog({
           productId,
           name: product.name,
           sku: product.sku,
-          price: product.price,
+          price:
+            product.discountPrice && product.discountPrice !== 0
+              ? product.discountPrice
+              : product.price,
           quantity,
         };
       },
@@ -190,10 +196,23 @@ export default function SelectProductsDialog({
                         ) && "border-purple-400"
                       }`}
                     >
-                      <span className="text-sm text-gray-600">
-                        ₦{product.price?.toLocaleString()} · Stock:{" "}
-                        {product.totalStock}
+                      <span className="text-sm text-gray-600 flex items-center gap-2">
+                        {product.discountPrice &&
+                        product.discountPrice !== 0 ? (
+                          <>
+                            <span className="line-through text-gray-400">
+                              ₦{product.price?.toLocaleString()}
+                            </span>
+                            <span className="font-semibold text-green-600">
+                              ₦{product.discountPrice.toLocaleString()}
+                            </span>
+                          </>
+                        ) : (
+                          <span>₦{product.price?.toLocaleString()}</span>
+                        )}
+                        · Stock: {product.totalStock}
                       </span>
+
                       {selectedItems.some(
                         (i) => i.productId === product._id && !i.variationId,
                       ) ? (
@@ -252,8 +271,21 @@ export default function SelectProductsDialog({
                             <p className="text-sm font-medium text-gray-700">
                               {v.name}
                             </p>
+
                             <p className="text-xs text-gray-500">
-                              ₦{v.price.toLocaleString()} · Stock: {v.stock}
+                              {v.discountPrice && v.discountPrice !== 0 ? (
+                                <>
+                                  <span className="line-through text-gray-400 mr-1">
+                                    ₦{v.price?.toLocaleString()}
+                                  </span>
+                                  <span className="font-semibold text-green-600">
+                                    ₦{v.discountPrice.toLocaleString()}
+                                  </span>
+                                </>
+                              ) : (
+                                <span>₦{v.price?.toLocaleString()}</span>
+                              )}{" "}
+                              · Stock: {v.stock}
                             </p>
                           </div>
 

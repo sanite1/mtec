@@ -21,6 +21,7 @@ export interface Discount {
 
 export interface DiscountFilters {
   search?: string;
+  location?: string;
   page?: number;
   limit?: number;
   isActive?: boolean;

@@ -22,6 +22,7 @@ export const fetchDiscounts = async (
   const params = new URLSearchParams();
 
   if (filters?.search) params.append("search", filters.search);
+  if (filters?.location) params.append("location", filters.location);
   if (filters?.page) params.append("page", String(filters.page));
   if (filters?.limit) params.append("limit", String(filters.limit));
   if (filters?.isActive !== undefined)
