@@ -2,6 +2,7 @@ export interface OrderFilters {
   page?: number;
   limit?: number;
   status?: string;
+  customerId?: string;
   search?: string;
   startDate?: string;
   endDate?: string;

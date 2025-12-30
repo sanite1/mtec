@@ -3,9 +3,11 @@ import React from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { Customer } from "../../lib/types/customer";
 import { useUpdateCustomer } from "../../lib/api/customer";
+import { useUserOrders } from "../../lib/api/orders";
+import { useNavigate } from "react-router-dom";
 
 // ----------------- Schema -----------------
 const customerSchema = z.object({
@@ -61,7 +63,10 @@ export default function EditSidebar({
   const sameAsShipping = watch("billing.sameAsShipping");
 
   const { mutateAsync: updateCustomer, isPending } = useUpdateCustomer();
-
+  const { data, isLoading, error, refetch } = useUserOrders(customer.userId, {
+    customerId: customer._id,
+    limit: 5,
+  });
   const onSubmit = async (data: CustomerForm) => {
     try {
       // ✅ If billing same as shipping, clear billing fields
@@ -87,6 +92,8 @@ export default function EditSidebar({
       console.log(error);
     }
   };
+
+  const navigate = useNavigate();
 
   return (
     <div className="fixed inset-0 z-50 flex">
@@ -392,6 +399,60 @@ export default function EditSidebar({
               />
               <span className="text-sm">Subscribe to our newletters.</span>
             </label>
+          </div>
+
+          <div className="">
+            <h3 className="font-semibold mb-3">Lastest Orders</h3>
+
+            {isLoading && (
+              <div className="flex justify-center py-8">
+                <Loader2 className="animate-spin text-purple-600 mr-2" />{" "}
+                <span>Loading orders...</span>
+              </div>
+            )}
+
+            {data?.total === 0 && (
+              <div className="flex items-center justify-center py-10">
+                <span className="ml-2 text-gray-600">No orders found...</span>
+              </div>
+            )}
+
+            {error && (
+              <p className="text-red-600 text-center py-6">
+                Failed to load orders
+              </p>
+            )}
+
+            <div className="mt-4 space-y-2 max-h-64 overflow-y-auto">
+              {data?.orders?.map((order) => {
+                const status = order.paymentStatus;
+                const styles: Record<string, string> = {
+                  paid: "bg-green-100 text-green-800",
+                  unpaid: "bg-yellow-100 text-yellow-800",
+                  refunded: "bg-red-100 text-red-800",
+                };
+                return (
+                  <div
+                    key={order._id}
+                    onClick={() => {
+                      navigate(`/orders/${order._id}`);
+                    }}
+                    className="flex justify-between items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
+                  >
+                    <p className="font-medium">{order.orderNumber}</p>
+                    <span
+                      className={`px-2 py-1 rounded-full text-sm font-semibold ${
+                        styles[status] ?? ""
+                      }`}
+                    >
+                      {status
+                        ? status.charAt(0).toUpperCase() + status.slice(1)
+                        : "Unknown"}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </form>
 
