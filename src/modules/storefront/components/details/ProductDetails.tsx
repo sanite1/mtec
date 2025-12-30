@@ -312,7 +312,7 @@ const ProductDetailsPage: React.FC = () => {
 
       {/* Full-width Description */}
       {product.description && (
-        <div className="p-5 md:p-0">
+        <div className="p-5 md:px-0">
           <h2 className="text-2xl font-semibold mb-4">Product Description</h2>
           <div
             className="text-gray-700 leading-relaxed"
