@@ -9,6 +9,7 @@ import { ProductDetails } from "../../lib/types/products";
 import { useFetchSingleProduct } from "../../lib/api/products";
 import { IStoreDetails } from "../../lib/types/store";
 import { ConvertPriceRangeToLocale } from "../../lib/utils/utils";
+import ProductImageGallery from "./ProductImageGallery";
 
 function getPermutations(arr: string[]): string[][] {
   if (arr.length === 1) return [arr];
@@ -138,15 +139,14 @@ const ProductDetailsPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Left - Product Image */}
         <div className="flex justify-center items-start w-full">
-          <img
-            src={product.images ? product.images[0] : ""}
-            alt={product.name}
-            className="w-full h-auto rounded-lg shadow-md object-contain"
+          <ProductImageGallery
+            images={product.images ?? []}
+            name={product.name}
           />
         </div>
 
         {/* Right - Product Info */}
-        <div>
+        <div className="p-5 md:p-0">
           {store.showStockCount && (
             <span
               className={`mb-4 inline-block px-2 py-1 rounded-full text-sm font-semibold ${store.lowStock && product.totalStock < store.lowStock ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"}`}
@@ -312,7 +312,7 @@ const ProductDetailsPage: React.FC = () => {
 
       {/* Full-width Description */}
       {product.description && (
-        <div className="mt-10">
+        <div className="p-5 md:p-0">
           <h2 className="text-2xl font-semibold mb-4">Product Description</h2>
           <div
             className="text-gray-700 leading-relaxed"
