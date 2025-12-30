@@ -76,6 +76,7 @@ export default function CreateOrderPage() {
     handleSubmit,
     register,
     setValue,
+    watch,
     // formState: {  },
   } = useForm<CreateOrderFormData>({
     resolver: zodResolver(createOrderSchema) as any,
@@ -211,6 +212,19 @@ export default function CreateOrderPage() {
     setValue("tax", taxAmount);
     setValue("discount", discountAmount);
   }, [shippingFee, taxAmount, discountAmount, setValue]);
+
+  const paymentStatus = watch("paymentStatus");
+  const shippingStatus = watch("shippingStatus");
+  useEffect(() => {
+    if (paymentStatus === "paid" && shippingStatus === "pending") {
+      setValue("shippingStatus", "processing");
+      setValue("orderStatus", "completed");
+    }
+
+    if (paymentStatus === "unpaid" && !shippingStatus) {
+      setValue("shippingStatus", "pending");
+    }
+  }, [paymentStatus, shippingStatus, setValue]);
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -586,7 +600,6 @@ export default function CreateOrderPage() {
                   >
                     <option value="unpaid">Unpaid</option>
                     <option value="paid">Paid</option>
-                    <option value="refunded">Refunded</option>
                   </select>
                 </div>
 
