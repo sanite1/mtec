@@ -147,6 +147,13 @@ const ProductDetailsPage: React.FC = () => {
 
         {/* Right - Product Info */}
         <div>
+          {store.showStockCount && (
+            <span
+              className={`mb-4 inline-block px-2 py-1 rounded-full text-sm font-semibold ${store.lowStock && product.totalStock < store.lowStock ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"}`}
+            >
+              {product.totalStock} remaining
+            </span>
+          )}
           <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
 
           {/* Price */}

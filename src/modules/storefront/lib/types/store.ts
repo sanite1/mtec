@@ -10,6 +10,12 @@ export interface IStoreDetails {
   isLightColor: boolean;
   businessPhone: string;
   website?: string;
+  lowStock?: number;
+  showOutOfStock?: boolean;
+  showStockCount?: boolean;
+  productNoteEnabled?: boolean;
+  productNoteTitle?: string;
+  productNotePlaceholder?: string;
   storeName: string;
   slug: string;
   storeLink: string;

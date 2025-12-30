@@ -270,14 +270,24 @@ const CheckoutSection: React.FC = () => {
           </section>
 
           {/* Note */}
-          <section>
-            <textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="Note (Optional)"
-              className={`w-full rounded-xl border px-4 py-3 min-h-[90px] outline-none focus:ring-2 focus:ring-[${store.storeColor}]`}
-            />
-          </section>
+          {store.productNoteEnabled && (
+            <section className="space-y-2">
+              {store.productNoteTitle && (
+                <label htmlFor="">{store.productNoteTitle}</label>
+              )}
+              <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder={
+                  store.productNotePlaceholder &&
+                  store.productNotePlaceholder.length > 1
+                    ? store.productNotePlaceholder
+                    : "Note (Optional)"
+                }
+                className={`w-full rounded-xl border px-4 py-3 min-h-[90px] outline-none focus:ring-2 focus:ring-[${store.storeColor}]`}
+              />
+            </section>
+          )}
 
           {/* Shipping */}
           <section className="border rounded-xl p-5 space-y-4">

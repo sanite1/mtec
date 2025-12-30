@@ -45,13 +45,22 @@ const ProductCard: React.FC<{ product: ProductDetails }> = ({ product }) => {
 
   return (
     <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer">
-      <Link to={`/product/${product._id}`}>
-        <img
-          src={product?.images ? product?.images[0] : ""}
-          alt={product.name}
-          className="w-full h-56 object-cover"
-        />
-      </Link>
+      <div className="relative">
+        <Link to={`/product/${product._id}`}>
+          <img
+            src={product?.images ? product?.images[0] : ""}
+            alt={product.name}
+            className="w-full h-56 object-cover"
+          />
+          {store.showStockCount && (
+            <span
+              className={`absolute top-2 right-2 px-2 py-1 rounded-full text-sm font-semibold ${store.lowStock && product.totalStock < store.lowStock ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"}`}
+            >
+              {product.totalStock} remaining
+            </span>
+          )}
+        </Link>
+      </div>
       <div className="p-4">
         <Link to={`/product/${product._id}`}>
           <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
