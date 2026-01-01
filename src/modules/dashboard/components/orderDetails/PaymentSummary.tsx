@@ -8,21 +8,59 @@ import {
   Tag,
 } from "lucide-react";
 import { Order } from "../../lib/types/orders";
+import { useParams } from "react-router-dom";
+import { useDownloadInvoice } from "../../lib/api/orders";
 
 interface Props {
   order?: Order;
 }
 
 export default function PaymentSummary({ order }: Props) {
+  const { id } = useParams();
+
+  const { mutateAsync: downloadInvoice, isPending } = useDownloadInvoice();
+
+  const printInvoice = async () => {
+    try {
+      const res = await downloadInvoice(id as string);
+      const invoiceUrl = res?.invoiceUrl;
+
+      if (!invoiceUrl) {
+        console.error("Invoice URL not found", res);
+        return;
+      }
+
+      const link = document.createElement("a");
+      link.href = invoiceUrl;
+
+      // 👇 dynamic filename
+      link.setAttribute("download", `Invoice-${order?.orderNumber}.pdf`);
+
+      link.style.display = "none";
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error("Failed to download invoice:", err);
+    }
+  };
+
   return (
     <div className="bg-white border rounded-xl p-5 shadow-sm">
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <h3 className="text-lg font-semibold">Payment Summary</h3>
 
-        <button className="flex items-center gap-1 px-3 py-1.5 border rounded-md text-sm text-purple-700 hover:bg-purple-50 border-purple-600">
+        <button
+          onClick={printInvoice}
+          disabled={isPending} // optional: prevent double clicks
+          className={`flex items-center gap-2 px-3 py-1.5 border rounded-md text-sm text-purple-700 hover:bg-purple-50 border-purple-600 ${
+            isPending ? "opacity-70 cursor-not-allowed" : ""
+          }`}
+        >
           <Receipt size={16} />
-          Print Invoice
+          {isPending ? "Printing..." : "Print Invoice"}
         </button>
       </div>
 

@@ -305,3 +305,36 @@ export const useRequestPayment = () => {
     },
   });
 };
+
+// download invoice
+export const downloadInvoice = async (
+  orderId: string,
+): Promise<{ invoiceUrl: string }> => {
+  const res = await api.post<ApiResponse<{ invoiceUrl: string }>>(
+    `/order/${orderId}/invoice`,
+    {},
+  );
+
+  return res.data; // ✅ ONLY if res.data already matches ApiResponse<{ invoiceUrl: string }>
+};
+
+export function useDownloadInvoice() {
+  return useMutation<{ invoiceUrl: string }, ApiError, string>({
+    mutationFn: downloadInvoice,
+
+    onSuccess: (response) => {
+      toast.success("Invoice ready!");
+    },
+
+    onError: (error) => {
+      const errorMessage =
+        error.response?.data?.fields?.[0]?.message ||
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+      toast.error("Request Failed", {
+        description: errorMessage,
+      });
+    },
+  });
+}
